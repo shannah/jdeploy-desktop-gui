@@ -1,0 +1,33 @@
+{
+  "bin": {
+    "jdeploy-desktop-gui": "jdeploy-bundle/jdeploy.js"
+  },
+  "author": "",
+  "description": "jDeploy Swing Starter Project",
+  "main": "index.js",
+  "preferGlobal": true,
+  "repository": "",
+  "version": "1.0-SNAPSHOT",
+  "jdeploy": {
+    "jdk": false,
+    "javaVersion": "17",
+    "jar": "target/jdeploy-desktop-gui-1.0-SNAPSHOT.jar",
+    "javafx": false,
+    "title": "Jdeploy Desktop Gui"
+  },
+  "dependencies": {
+    "command-exists-promise": "^2.0.2",
+    "node-fetch": "2.6.7",
+    "shelljs": "^0.8.4",
+    "tar": "^4.4.8",
+    "yauzl": "^2.10.0"
+  },
+  "license": "ISC",
+  "name": "jdeploy-desktop-gui",
+  "files": [
+    "jdeploy-bundle"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
