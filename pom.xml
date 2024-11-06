@@ -8,6 +8,12 @@
   <name>Jdeploy Desktop Gui</name>
   <description>jDeploy Swing Starter Project</description>
   <url>https://www.jdeploy.com</url>
+  <repositories>
+    <repository>
+      <id>jetbrains-releases</id>
+        <url>https://www.jetbrains.com/intellij-repository/releases/</url>
+    </repository>
+  </repositories>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <java.version>17</java.version>
@@ -23,6 +29,26 @@
       <version>3.8.1</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>com.jgoodies</groupId>
+      <artifactId>jgoodies-forms</artifactId>
+      <version>1.9.0</version>
+    </dependency>
+    <dependency>
+      <groupId>ca.weblite</groupId>
+      <artifactId>jdeploy-cli</artifactId>
+      <version>1.0-SNAPSHOT</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.swinglabs/swingx -->
+    <dependency>
+      <groupId>org.swinglabs</groupId>
+      <artifactId>swingx</artifactId>
+      <version>1.6.1</version>
+    </dependency>
+
+
+
+
   </dependencies>
   <build>
     <plugins>

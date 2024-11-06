@@ -11,7 +11,7 @@
   "jdeploy": {
     "jdk": false,
     "javaVersion": "17",
-    "jar": "target/jdeploy-desktop-gui-1.0-SNAPSHOT.jar",
+    "jar": "target\\jdeploy-desktop-gui-1.0-SNAPSHOT.jar",
     "javafx": false,
     "title": "Jdeploy Desktop Gui"
   },
