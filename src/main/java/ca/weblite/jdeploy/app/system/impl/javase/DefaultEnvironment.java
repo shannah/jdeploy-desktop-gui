@@ -10,4 +10,19 @@ public class DefaultEnvironment implements EnvironmentInterface {
     public String getUserHomeDirectory() {
         return System.getProperty("user.home");
     }
+
+    @Override
+    public boolean isMac() {
+        return System.getProperty("os.name").toLowerCase().contains("mac");
+    }
+
+    @Override
+    public boolean isWindows() {
+        return System.getProperty("os.name").toLowerCase().contains("win");
+    }
+
+    @Override
+    public boolean isLinux() {
+        return System.getProperty("os.name").toLowerCase().contains("nux");
+    }
 }

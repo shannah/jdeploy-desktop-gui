@@ -53,9 +53,10 @@ public class OpenProjectController implements Runnable{
                         "lastProjectPath",
                         environment.getUserHomeDirectory()
                 ),
-                (dir, name) -> true || projectValidator
+                null,
+                (selectedPath) -> projectValidator
                         .isValidProject(
-                                Path.of(dir.getAbsolutePath(), name).toString(),
+                                selectedPath,
                                 ProjectValidator.ValidationLevel.HasPackageJson
                         )
         );

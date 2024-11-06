@@ -12,6 +12,7 @@ public abstract class JFrameViewController implements Runnable {
         JFrame frame = new JFrame();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setContentPane(rootComponent);
+        frame.setLocationRelativeTo(null);
         frame.pack();
         frame.setVisible(true);
     }

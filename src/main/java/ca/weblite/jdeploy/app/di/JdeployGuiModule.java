@@ -6,6 +6,7 @@ import ca.weblite.jdeploy.app.system.files.FileSystemUiInterface;
 import ca.weblite.jdeploy.app.system.impl.javase.DefaultEnvironment;
 import ca.weblite.jdeploy.app.system.impl.javase.JavaSEFileSystem;
 import ca.weblite.jdeploy.app.system.impl.javase.JavaSEFileSystemUi;
+import ca.weblite.jdeploy.app.system.impl.mac.MacFileSystemUi;
 import ca.weblite.jdeploy.app.system.preferences.DefaultPreferences;
 import ca.weblite.jdeploy.app.system.preferences.PreferencesInterface;
 import org.codejargon.feather.Provides;
@@ -37,8 +38,19 @@ public class JdeployGuiModule {
     }
 
     @Provides
-    public FileSystemUiInterface getFileSystemUiInterface(JavaSEFileSystemUi fileSystemUi) {
-        return fileSystemUi;
+    public FileSystemUiInterface getFileSystemUiInterface(
+            EnvironmentInterface environment
+    ) {
+        if (environment.isMac()) {
+            return DIContext.get(MacFileSystemUi.class);
+        }
+        if (environment.isLinux()) {
+            return DIContext.get(JavaSEFileSystemUi.class);
+        }
+        if (environment.isWindows()) {
+            return DIContext.get(JavaSEFileSystemUi.class);
+        }
+        return DIContext.get(JavaSEFileSystemUi.class);
     }
 }
 
