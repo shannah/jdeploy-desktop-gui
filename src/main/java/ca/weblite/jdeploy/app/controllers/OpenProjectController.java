@@ -2,17 +2,17 @@ package ca.weblite.jdeploy.app.controllers;
 
 import ca.weblite.jdeploy.app.di.DIContext;
 import ca.weblite.jdeploy.app.factories.ControllerFactory;
+import ca.weblite.jdeploy.app.records.Project;
 import ca.weblite.jdeploy.app.records.ProjectSettings;
 import ca.weblite.jdeploy.app.services.Edt;
 import ca.weblite.jdeploy.app.services.PreferencesService;
+import ca.weblite.jdeploy.app.services.ProjectService;
 import ca.weblite.jdeploy.app.services.ProjectSettingsService;
 import ca.weblite.jdeploy.app.services.ProjectValidator;
 import ca.weblite.jdeploy.app.system.env.EnvironmentInterface;
 import ca.weblite.jdeploy.app.system.files.FileSystemUiInterface;
 
-import javax.swing.*;
 import java.awt.*;
-import java.nio.file.Path;
 
 public class OpenProjectController implements Runnable{
 
@@ -22,7 +22,7 @@ public class OpenProjectController implements Runnable{
 
     private final ControllerFactory controllerFactory;
 
-    private final ProjectSettingsService projectSettingsService;
+    private final ProjectService projectService;
 
     private final PreferencesService preferencesService;
 
@@ -38,7 +38,7 @@ public class OpenProjectController implements Runnable{
         projectValidator = DIContext.get(ProjectValidator.class);
         controllerFactory = DIContext.get(ControllerFactory.class);
         edt = DIContext.get(Edt.class);
-        projectSettingsService = DIContext.get(ProjectSettingsService.class);
+        projectService = DIContext.get(ProjectService.class);
         preferencesService = DIContext.get(PreferencesService.class);
         environment = DIContext.get(EnvironmentInterface.class);
 
@@ -73,9 +73,9 @@ public class OpenProjectController implements Runnable{
             return;
         }
 
-        ProjectSettings projectSettings = null;
+        Project project = null;
         try {
-            projectSettings = projectSettingsService.findOne(path);
+            project = projectService.findOneByPath(path);
         } catch (Exception e) {
             edt.invokeLater(
                     controllerFactory.createErrorController(e)
@@ -84,7 +84,7 @@ public class OpenProjectController implements Runnable{
         }
 
         edt.invokeLater(
-                controllerFactory.createProjectController(projectSettings)
+                controllerFactory.createProjectController(project)
         );
     }
 }

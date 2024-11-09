@@ -1,9 +1,8 @@
 package ca.weblite.jdeploy.app.factories;
 
+import ca.weblite.jdeploy.app.records.Project;
 import ca.weblite.jdeploy.app.records.ProjectEditorContext;
-import ca.weblite.jdeploy.app.records.ProjectSettings;
 import ca.weblite.jdeploy.app.services.PackageJsonService;
-import ca.weblite.jdeploy.app.system.files.FileSystemInterface;
 import ca.weblite.jdeploy.gui.JDeployProjectEditor;
 import org.json.JSONObject;
 
@@ -21,12 +20,12 @@ public class ProjectEditorFactory {
     public ProjectEditorFactory(PackageJsonService packageJsonService) {
         this.packageJsonService = packageJsonService;
     }
-    public JDeployProjectEditor createOne(ProjectSettings projectSettings) throws IOException {
-        JSONObject packageJson = packageJsonService.readOne(projectSettings.project().getPackageJsonPath());
+    public JDeployProjectEditor createOne(Project project) throws IOException {
+        JSONObject packageJson = packageJsonService.readOne(project.getPackageJsonPath());
         return new JDeployProjectEditor(
-                new File(projectSettings.project().getPackageJsonPath()),
+                new File(project.getPackageJsonPath()),
                 packageJson,
-                new ProjectEditorContext(projectSettings)
+                new ProjectEditorContext(project)
         );
 
     }

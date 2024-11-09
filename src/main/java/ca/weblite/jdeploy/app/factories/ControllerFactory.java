@@ -2,7 +2,7 @@ package ca.weblite.jdeploy.app.factories;
 
 import ca.weblite.jdeploy.app.controllers.ErrorController;
 import ca.weblite.jdeploy.app.controllers.ProjectController;
-import ca.weblite.jdeploy.app.records.ProjectSettings;
+import ca.weblite.jdeploy.app.records.Project;
 
 import javax.inject.Singleton;
 
@@ -13,7 +13,7 @@ public class ControllerFactory {
         return new ErrorController(exception);
     }
 
-    public ProjectController createProjectController(ProjectSettings projectSettings) {
-        return new ProjectController(projectSettings);
+    public ProjectController createProjectController(Project project) {
+        return new ProjectController(project);
     }
 }

@@ -25,7 +25,7 @@ public class PreferencesService {
     }
 
     public PreferencesInterface getProjectPreferences(Project project) {
-        return rootPreferences.getSubPreferences(PROJECTS_KEY).getSubPreferences(project.uuid().toString());
+        return rootPreferences.getSubPreferences(PROJECTS_KEY).getSubPreferences(project.getUuid().toString());
     }
 
     public PreferencesInterface getNpmAccountPreferences(UUID npmAccountId) {

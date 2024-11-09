@@ -44,6 +44,7 @@ public class NpmAccountRepository {
         return new NpmAccount(
                 UUID.fromString(npmAccountPreferences.get("uuid", null)),
                 npmAccountPreferences.get("name", null),
+                null,
                 null
         );
     }
