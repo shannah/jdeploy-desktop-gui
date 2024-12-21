@@ -4,5 +4,5 @@ CREATE TABLE npm_accounts (
     id TEXT PRIMARY KEY,
     account_name TEXT NOT NULL,
     username TEXT,
-    password TEXT NOT NULL
+    password TEXT
 );

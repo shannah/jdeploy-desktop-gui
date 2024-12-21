@@ -9,8 +9,9 @@ import ca.weblite.jdeploy.app.repositories.impl.jpa.factories.GitHubAccountEntit
 import ca.weblite.jdeploy.app.repositories.impl.jpa.factories.GitHubAccountFactory
 import ca.weblite.jdeploy.app.repositories.impl.jpa.services.DatabaseService
 import java.util.*
+import javax.inject.Inject
 
-class JpaGitHubAccountRepository(
+class JpaGitHubAccountRepository @Inject constructor(
     private val databaseService: DatabaseService,
     private val githubAccountFactory: GitHubAccountFactory,
     private val gitHubAccountEntityFactory: GitHubAccountEntityFactory

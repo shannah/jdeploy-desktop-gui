@@ -2,10 +2,11 @@ package ca.weblite.jdeploy.app.repositories.impl.jpa.factories
 
 import ca.weblite.jdeploy.app.records.Project
 import ca.weblite.jdeploy.app.repositories.impl.jpa.entities.ProjectEntity
+import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class ProjectEntityFactory(
+class ProjectEntityFactory @Inject constructor(
     private val npmAccountFactory: NpmAccountEntityFactory,
     private val gitHubAccountFactory: GitHubAccountEntityFactory
 ) {

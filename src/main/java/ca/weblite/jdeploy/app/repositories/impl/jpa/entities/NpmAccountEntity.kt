@@ -17,6 +17,6 @@ class NpmAccountEntity(
     @Column(name = "username", nullable = true)
     val username: String? = null,
 
-    @Column(name = "password", nullable = false)
+    @Column(name = "password", nullable = true)
     val password: String? = null
 )

@@ -8,10 +8,11 @@ import ca.weblite.jdeploy.app.repositories.impl.jpa.factories.NpmAccountEntityFa
 import ca.weblite.jdeploy.app.repositories.impl.jpa.factories.NpmAccountFactory
 import ca.weblite.jdeploy.app.repositories.impl.jpa.services.DatabaseService
 import java.util.*
+import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class JpaNpmAccountRepository(
+class JpaNpmAccountRepository @Inject constructor(
     private val databaseService: DatabaseService,
     private val npmAccountFactory: NpmAccountFactory,
     private val npmAccountEntityFactory: NpmAccountEntityFactory

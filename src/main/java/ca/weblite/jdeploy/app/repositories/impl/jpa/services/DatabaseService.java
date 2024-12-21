@@ -1,10 +1,12 @@
 package ca.weblite.jdeploy.app.repositories.impl.jpa.services;
 
+import ca.weblite.jdeploy.app.repositories.impl.jpa.di.EmfProviderInterface;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.Persistence;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.function.Function;
 
@@ -13,9 +15,14 @@ public class DatabaseService {
 
     private EntityManager entityManager;
 
+    private final EntityManagerFactory emf;
+
+    public @Inject DatabaseService(EmfProviderInterface emfProvider) {
+        emf = emfProvider.getEntityManagerFactory();
+    }
+
     public EntityManager getEntityManager() {
         if (entityManager == null) {
-            EntityManagerFactory emf = Persistence.createEntityManagerFactory("jdeploy-gui");
             entityManager = emf.createEntityManager();
         }
         return entityManager;
@@ -38,5 +45,14 @@ public class DatabaseService {
         }
 
         return result;
+    }
+
+    public void close() {
+        if (entityManager != null) {
+            entityManager.close();
+        }
+        if (emf != null) {
+            emf.close();
+        }
     }
 }
