@@ -18,7 +18,8 @@ class ProjectFactory @Inject constructor(
             path = entity.path,
             uuid = entity.id,
             npmAccount = entity.npmAccount?.let { npmAccountFactory.createOne(it)},
-            gitHubAccount = entity.gitHubAccount?.let { gitHubAccountFactory.createOne(it)}
+            gitHubAccount = entity.gitHubAccount?.let { gitHubAccountFactory.createOne(it)},
+            entity = entity
         )
     }
 

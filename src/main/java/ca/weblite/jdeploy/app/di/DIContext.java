@@ -1,6 +1,7 @@
 package ca.weblite.jdeploy.app.di;
 
 
+import ca.weblite.jdeploy.app.repositories.impl.jpa.di.JdeployJpaModule;
 import ca.weblite.jdeploy.cli.di.JDeployCliModule;
 import ca.weblite.jdeploy.di.JDeployModule;
 import ca.weblite.jdeploy.openai.di.OpenAiModule;
@@ -9,6 +10,7 @@ import org.codejargon.feather.Feather;
 public class DIContext {
 
     private final Feather feather = Feather.with(
+            new JdeployJpaModule(),
             new JdeployGuiModule(),
             new JDeployModule(),
             new OpenAiModule(),

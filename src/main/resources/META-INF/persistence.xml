@@ -7,7 +7,7 @@
 
     <persistence-unit name="jdeploy-gui" transaction-type="RESOURCE_LOCAL">
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
-        <exclude-unlisted-classes>true</exclude-unlisted-classes>
+        <exclude-unlisted-classes>false</exclude-unlisted-classes>
         <properties>
             <!-- JDBC connection properties -->
             <property name="jakarta.persistence.jdbc.driver" value="org.sqlite.JDBC"/>
@@ -18,8 +18,8 @@
             <property name="hibernate.show_sql" value="true"/>
             <property name="hibernate.format_sql" value="true"/>
             <property name="hibernate.hbm2ddl.auto" value="none"/>
-            <property name="hibernate.packagesToScan" value="ca.weblite.jdeploy.app.jpa.repositories.impl.jpa.entities"/>
-            <property name="hibernate.archive.autodetection" value="none"/>
+            <property name="hibernate.packagesToScan" value="ca.weblite.jdeploy.app.repositories.impl.jpa.entities"/>
+            <property name="hibernate.archive.autodetection" value="class,hbm"/>
             <!-- In persistence.xml -->
             <property name="jakarta.persistence.property.default_access" value="FIELD"/>
 

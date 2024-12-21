@@ -9,9 +9,11 @@ import javax.inject.Singleton
 
 @Singleton
 class ProjectService @Inject constructor(
-    private val projectRepository: ProjectRepositoryInterface
+    private val projectRepository: ProjectRepositoryInterface,
+    private val npmAccountService: NpmAccountService,
+    private val gitHubAccountService: GitHubAccountService,
 ) {
-    fun findOneById(id: UUID?): Project {
+    fun findOneById(id: UUID): Project {
         return projectRepository.findOneById(id)
     }
 
@@ -21,5 +23,15 @@ class ProjectService @Inject constructor(
 
     fun findOneByPath(path: String): Project {
         return projectRepository.findOnebyPath(path)
+    }
+
+    fun saveOne(project: Project): Project {
+        project.npmAccount?.let {
+            project.npmAccount= npmAccountService.saveOne(it)
+        }
+        project.gitHubAccount?.let {
+            project.gitHubAccount = gitHubAccountService.saveOne(it)
+        }
+        return projectRepository.saveOne(project)
     }
 }

@@ -7,5 +7,6 @@ data class GitHubAccount(
     val accountName: String,
     val username: String,
     val token: String? = null,
-    val uuid: UUID? = null
+    val uuid: UUID? = null,
+    val entity: Any? = null,
 )

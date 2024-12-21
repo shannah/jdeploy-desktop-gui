@@ -10,9 +10,19 @@ import java.util.function.Function;
 
 @Singleton
 public class DatabaseService {
+
+    private EntityManager entityManager;
+
+    public EntityManager getEntityManager() {
+        if (entityManager == null) {
+            EntityManagerFactory emf = Persistence.createEntityManagerFactory("jdeploy-gui");
+            entityManager = emf.createEntityManager();
+        }
+        return entityManager;
+    }
+
     public <T> T executeInTransaction(Function<EntityManager, T> action) {
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("jdeploy-gui");
-        EntityManager em = emf.createEntityManager();
+        EntityManager em = getEntityManager();
         EntityTransaction tx = em.getTransaction();
         T result = null;
 
@@ -25,7 +35,6 @@ public class DatabaseService {
             throw e; // or handle exception as needed
         } finally {
             em.close();
-            emf.close(); // Close if you don't plan to reuse it
         }
 
         return result;

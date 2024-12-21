@@ -5,7 +5,7 @@ import java.util.*
 
 @Entity
 @Table(name = "npm_accounts")
-data class NpmAccountEntity(
+class NpmAccountEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", updatable = false, nullable = false, columnDefinition = "TEXT")

@@ -19,11 +19,11 @@ data class ProjectEntity (
     @Column(name = "path", nullable = false)
     val path: String,
 
-    @ManyToAny
+    @ManyToOne
     @JoinColumn(name = "npm_account_id", referencedColumnName = "id", nullable = true)
     val npmAccount: NpmAccountEntity? = null,
 
-    @ManyToAny
-    @JoinColumn(name = "npm_account_id", referencedColumnName = "id", nullable = true)
+    @ManyToOne
+    @JoinColumn(name = "github_account_id", referencedColumnName = "id", nullable = true)
     val gitHubAccount: GitHubAccountEntity? = null
 )
