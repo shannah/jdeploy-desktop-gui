@@ -19,7 +19,7 @@ class JdeployAppConfig: JdeployAppConfigInterface {
         when {
             os.contains("win") -> {
                 val appData = System.getenv("APPDATA") ?: System.getenv("LOCALAPPDATA")
-                appDataPath = Paths.get(appData ?: System.getProperty("user.home"), "AppData", "Roaming")
+                appDataPath = Paths.get(appData ?: (System.getProperty("user.home") + "\\AppData\\Roaming"))
             }
             os.contains("mac") -> {
                 val home = System.getenv("HOME") ?: System.getProperty("user.home")

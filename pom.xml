@@ -27,6 +27,8 @@
       <jdeploy.version>4.0.26</jdeploy.version>
       <kotlin.version>2.0.21</kotlin.version>
       <kotlin.jvm.target>17</kotlin.jvm.target>
+      <hibernate.version>6.2.8.Final</hibernate.version>
+      <hibernate.dialect.version>6.0.0.Final</hibernate.dialect.version>
   </properties>
   <dependencies>
     <dependency>
@@ -73,6 +75,7 @@
       <version>3.42.0.0</version>
     </dependency>
 
+
     <!-- Flyway Core -->
     <dependency>
       <groupId>org.flywaydb</groupId>
@@ -91,8 +94,15 @@
     <dependency>
       <groupId>org.hibernate.orm</groupId>
       <artifactId>hibernate-core</artifactId>
-      <version>6.2.8.Final</version>
+      <version>${hibernate.version}</version>
     </dependency>
+
+      <dependency>
+          <groupId>org.hibernate.orm</groupId>
+          <artifactId>hibernate-community-dialects</artifactId>
+          <version>${hibernate.version}</version>
+      </dependency>
+
       <dependency>
           <groupId>org.jetbrains.kotlin</groupId>
           <artifactId>kotlin-stdlib-jdk8</artifactId>

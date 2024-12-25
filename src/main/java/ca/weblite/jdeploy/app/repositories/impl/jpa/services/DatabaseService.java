@@ -2,6 +2,7 @@ package ca.weblite.jdeploy.app.repositories.impl.jpa.services;
 
 import ca.weblite.jdeploy.app.config.JdeployAppConfigInterface;
 import ca.weblite.jdeploy.app.repositories.impl.jpa.di.EmfProviderInterface;
+import ca.weblite.jdeploy.app.system.files.FileSystemInterface;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityTransaction;
@@ -10,6 +11,8 @@ import org.flywaydb.core.Flyway;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.function.Function;
 
 @Singleton
@@ -21,12 +24,16 @@ public class DatabaseService {
 
     private final JdeployAppConfigInterface config;
 
+    private final FileSystemInterface fileSystem;
+
     public @Inject DatabaseService(
             EmfProviderInterface emfProvider,
-            JdeployAppConfigInterface config
+            JdeployAppConfigInterface config,
+            FileSystemInterface fileSystem
     ) {
         emf = emfProvider.getEntityManagerFactory();
         this.config = config;
+        this.fileSystem = fileSystem;
     }
 
     public EntityManager getEntityManager() {
@@ -65,6 +72,12 @@ public class DatabaseService {
     }
 
     public void migrate() {
+        Path appDataPath = config.getAppDataPath();
+        try {
+            fileSystem.mkdir(appDataPath.toAbsolutePath().toString());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         String jdbcUrl = config.getJdbcUrl();
         Flyway.configure()
                 .dataSource(jdbcUrl, "", "")
