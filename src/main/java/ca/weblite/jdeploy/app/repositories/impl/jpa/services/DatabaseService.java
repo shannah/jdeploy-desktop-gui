@@ -74,7 +74,9 @@ public class DatabaseService {
     public void migrate() {
         Path appDataPath = config.getAppDataPath();
         try {
-            fileSystem.mkdir(appDataPath.toAbsolutePath().toString());
+            if (!fileSystem.isDirectory(appDataPath.toAbsolutePath().toString())) {
+                fileSystem.mkdir(appDataPath.toAbsolutePath().toString());
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

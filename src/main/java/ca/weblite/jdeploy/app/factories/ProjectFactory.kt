@@ -35,7 +35,7 @@ class ProjectFactory  @Inject constructor(
         if (!validator.isValidProject(projectPath, ProjectValidator.ValidationLevel.MeetsMinimumRequirements)) {
             throw InvalidProjectException("Invalid project at path: $projectPath")
         }
-        val packageJson = packageJsonService.readOne(projectPath)
+        val packageJson = packageJsonService.readOne("${projectPath}/package.json")
         return createOneFromPackageJson(projectPath, packageJson)
     }
 
