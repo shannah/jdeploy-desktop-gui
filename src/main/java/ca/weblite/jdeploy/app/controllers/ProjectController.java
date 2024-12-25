@@ -16,9 +16,9 @@ public class ProjectController implements Runnable {
     private final Edt edt;
 
     public ProjectController(
-            Project projectSettings
+            Project project
     ) {
-        this.project = projectSettings;
+        this.project = project;
         this.projectEditorFactory = DIContext.get(ProjectEditorFactory.class);
         this.edt = DIContext.get(Edt.class);
     }

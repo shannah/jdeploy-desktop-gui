@@ -73,7 +73,7 @@ public class OpenProjectController implements Runnable{
 
         Project project = null;
         try {
-            project = projectService.findOneByPath(path);
+            project = projectService.loadProject(path);
         } catch (Exception e) {
             edt.invokeLater(
                     controllerFactory.createErrorController(e)

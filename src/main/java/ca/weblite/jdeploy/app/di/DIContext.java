@@ -1,6 +1,8 @@
 package ca.weblite.jdeploy.app.di;
 
 
+import ca.weblite.jdeploy.app.config.JdeployAppConfig;
+import ca.weblite.jdeploy.app.config.JdeployAppConfigInterface;
 import ca.weblite.jdeploy.app.repositories.impl.jpa.di.EmfProvider;
 import ca.weblite.jdeploy.app.repositories.impl.jpa.di.EmfProviderInterface;
 import ca.weblite.jdeploy.app.repositories.impl.jpa.di.JdeployJpaModule;
@@ -26,6 +28,11 @@ public class DIContext {
     @Provides
     protected EmfProviderInterface getEmfProvider() {
         return new EmfProvider();
+    }
+
+    @Provides
+    protected JdeployAppConfigInterface getConfig() {
+        return getInstance(JdeployAppConfig.class);
     }
 
     private static DIContext instance;

@@ -28,4 +28,9 @@ public class JavaSEFileSystem implements FileSystemInterface {
     public boolean isDirectory(String path) {
         return Files.isDirectory(Path.of(path));
     }
+
+    @Override
+    public void mkdir(String path) throws IOException {
+        Files.createDirectory(Path.of(path));
+    }
 }

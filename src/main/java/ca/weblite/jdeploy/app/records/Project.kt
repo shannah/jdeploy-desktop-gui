@@ -5,7 +5,7 @@ import java.util.*
 
 class Project(
     val name: String,
-    val path: String,
+    var path: String,
     val uuid: UUID? = null,
     var npmAccount: NpmAccount? = null,
     var gitHubAccount: GitHubAccount? = null,

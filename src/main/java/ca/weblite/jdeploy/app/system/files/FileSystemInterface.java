@@ -11,4 +11,6 @@ public interface FileSystemInterface {
     public boolean exists(String path);
 
     public boolean isDirectory(String path);
+
+    public void mkdir(String path) throws IOException;
 }
