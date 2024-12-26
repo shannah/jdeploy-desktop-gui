@@ -27,7 +27,7 @@ public class DIContext {
 
     @Provides
     protected EmfProviderInterface getEmfProvider() {
-        return new EmfProvider();
+        return get(EmfProvider.class);
     }
 
     @Provides

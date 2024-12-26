@@ -61,9 +61,12 @@ class ProjectService @Inject constructor(
         }
 
         if (fileSystemProject.uuid != dbProject.uuid) {
-            val dbProjectWithId = projectRepository.findOneById(fileSystemProject.uuid!!)
-            dbProjectWithId.path = fileSystemProject.path
-            projectRepository.saveOne(dbProjectWithId)
+            try {
+                projectRepository.findOneById(fileSystemProject.uuid!!)
+            } catch (e: NotFoundException) {
+                projectRepository.deleteOne(dbProject)
+                projectRepository.saveOne(fileSystemProject)
+            }
         }
     }
 

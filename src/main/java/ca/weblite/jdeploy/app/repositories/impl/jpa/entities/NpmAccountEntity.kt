@@ -19,4 +19,7 @@ class NpmAccountEntity(
 
     @Column(name = "password", nullable = true)
     val password: String? = null
-)
+)  {
+    // No-argument constructor for Hibernate
+    constructor() : this(UUID.randomUUID(), "", "")
+}

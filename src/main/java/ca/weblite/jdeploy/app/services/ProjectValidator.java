@@ -1,5 +1,6 @@
 package ca.weblite.jdeploy.app.services;
 
+import ca.weblite.jdeploy.app.exceptions.InvalidProjectException;
 import ca.weblite.jdeploy.app.system.files.FileSystemInterface;
 import org.json.JSONObject;
 
@@ -27,13 +28,22 @@ public class ProjectValidator {
     }
     public boolean isValidProject(String path, ValidationLevel level) {
 
-        if (!fileSystem.isDirectory(path)) {
+        try {
+            validate(path, level);
+            return true;
+        } catch (InvalidProjectException e) {
             return false;
+        }
+    }
+
+    public void validate(String path, ValidationLevel level) throws InvalidProjectException {
+        if (!fileSystem.isDirectory(path)) {
+            throw new InvalidProjectException(path, "The path is not a directory");
         }
 
         if (level.ordinal() >= ValidationLevel.HasPackageJson.ordinal()) {
             if (!fileSystem.exists(path + File.separator + "package.json")) {
-                return false;
+                throw new InvalidProjectException(path, "The project does not contain a package.json file");
             }
         }
 
@@ -41,19 +51,17 @@ public class ProjectValidator {
             try {
                 JSONObject packageJson = packageJsonService.readOne(path + File.separator + "package.json");
                 if (!packageJson.has("name")) {
-                    return false;
+                    throw new InvalidProjectException(path, "The package.json file has no name");
                 }
                 if (!packageJson.has("version")) {
-                    return false;
+                    throw new InvalidProjectException(path, "The package.json file has no version");
                 }
                 if (!packageJson.has("jdeploy")) {
-                    return false;
+                    throw new InvalidProjectException(path, "The package.json file has no jdeploy section");
                 }
             } catch (Exception e) {
-                return false;
+                throw new InvalidProjectException(path, "The package.json file is invalid. Reason: " + e.getMessage(), e);
             }
         }
-
-        return true;
     }
 }

@@ -1,29 +1,43 @@
-package ca.weblite.jdeploy.app.repositories.impl.jpa.entities;
+package ca.weblite.jdeploy.app.repositories.impl.jpa.entities
 
-import jakarta.persistence.*;
-import org.hibernate.annotations.ManyToAny;
-
-import java.util.UUID;
+import jakarta.persistence.*
+import java.util.UUID
 
 @Entity
 @Table(name = "projects")
-data class ProjectEntity (
+class ProjectEntity {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", updatable = false, nullable = false, columnDefinition = "TEXT")
-    val id: UUID? = null,
+    var id: UUID? = null
 
     @Column(name = "name", nullable = false)
-    val name: String,
+    var name: String
 
     @Column(name = "path", nullable = false)
-    val path: String,
+    var path: String
 
     @ManyToOne
     @JoinColumn(name = "npm_account_id", referencedColumnName = "id", nullable = true)
-    val npmAccount: NpmAccountEntity? = null,
+    var npmAccount: NpmAccountEntity? = null
 
     @ManyToOne
     @JoinColumn(name = "github_account_id", referencedColumnName = "id", nullable = true)
-    val gitHubAccount: GitHubAccountEntity? = null
-)
+    var gitHubAccount: GitHubAccountEntity? = null
+
+    // No-argument constructor for Hibernate
+    constructor() {
+        this.name = ""
+        this.path = ""
+    }
+
+    constructor(id: UUID? = null, name: String, path: String, npmAccount: NpmAccountEntity? = null, gitHubAccount: GitHubAccountEntity? = null) {
+        this.id = id
+        this.name = name
+        this.path = path
+        this.npmAccount = npmAccount
+        this.gitHubAccount = gitHubAccount
+    }
+
+    // Optionally, you can override `toString()`, `equals()`, and `hashCode()` if you need specific implementations for them.
+}

@@ -15,4 +15,6 @@ interface ProjectRepositoryInterface {
     fun findOnebyPath(path: String): Project
 
     fun saveOne(project: Project): Project
+
+    fun deleteOne(project: Project): Boolean
 }

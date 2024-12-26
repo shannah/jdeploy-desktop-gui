@@ -55,8 +55,6 @@ public class DatabaseService {
         } catch (RuntimeException e) {
             if (tx.isActive()) tx.rollback();
             throw e; // or handle exception as needed
-        } finally {
-            em.close();
         }
 
         return result;

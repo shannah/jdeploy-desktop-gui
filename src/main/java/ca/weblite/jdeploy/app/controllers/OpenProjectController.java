@@ -1,6 +1,7 @@
 package ca.weblite.jdeploy.app.controllers;
 
 import ca.weblite.jdeploy.app.di.DIContext;
+import ca.weblite.jdeploy.app.exceptions.InvalidProjectException;
 import ca.weblite.jdeploy.app.factories.ControllerFactory;
 import ca.weblite.jdeploy.app.records.Project;
 import ca.weblite.jdeploy.app.services.Edt;
@@ -63,10 +64,11 @@ public class OpenProjectController implements Runnable{
             return;
         }
 
-        if (!projectValidator.isValidProject(path, ProjectValidator.ValidationLevel.MeetsMinimumRequirements)) {
-            // The selected project is not a valid project
+        try {
+            projectValidator.validate(path, ProjectValidator.ValidationLevel.MeetsMinimumRequirements);
+        } catch (InvalidProjectException e) {
             edt.invokeLater(
-                    controllerFactory.createErrorController(new Exception("Invalid project"))
+                    controllerFactory.createErrorController(e)
             );
             return;
         }

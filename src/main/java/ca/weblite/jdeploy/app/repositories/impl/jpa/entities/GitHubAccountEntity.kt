@@ -20,4 +20,7 @@ data class GitHubAccountEntity(
 
     @Column(name = "token", nullable = true)
     val token: String? = null,
-)
+)  {
+    // No-argument constructor for Hibernate
+    constructor() : this(UUID.randomUUID(), "", "")
+}
