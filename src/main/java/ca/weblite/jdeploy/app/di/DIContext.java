@@ -6,6 +6,8 @@ import ca.weblite.jdeploy.app.config.JdeployAppConfigInterface;
 import ca.weblite.jdeploy.app.repositories.impl.jpa.di.EmfProvider;
 import ca.weblite.jdeploy.app.repositories.impl.jpa.di.EmfProviderInterface;
 import ca.weblite.jdeploy.app.repositories.impl.jpa.di.JdeployJpaModule;
+import ca.weblite.jdeploy.app.system.env.ClockInterface;
+import ca.weblite.jdeploy.app.system.impl.javase.SystemClock;
 import ca.weblite.jdeploy.cli.di.JDeployCliModule;
 import ca.weblite.jdeploy.di.JDeployModule;
 import ca.weblite.jdeploy.openai.di.OpenAiModule;
@@ -33,6 +35,11 @@ public class DIContext {
     @Provides
     protected JdeployAppConfigInterface getConfig() {
         return getInstance(JdeployAppConfig.class);
+    }
+
+    @Provides
+    protected ClockInterface getClock() {
+        return get(SystemClock.class);
     }
 
     private static DIContext instance;

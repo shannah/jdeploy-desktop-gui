@@ -17,6 +17,9 @@ class ProjectEntity {
     @Column(name = "path", nullable = false)
     var path: String
 
+    @Column(name = "last_opened", nullable = false)
+    var lastOpened: Long = System.currentTimeMillis()/1000
+
     @ManyToOne
     @JoinColumn(name = "npm_account_id", referencedColumnName = "id", nullable = true)
     var npmAccount: NpmAccountEntity? = null
@@ -31,10 +34,18 @@ class ProjectEntity {
         this.path = ""
     }
 
-    constructor(id: UUID? = null, name: String, path: String, npmAccount: NpmAccountEntity? = null, gitHubAccount: GitHubAccountEntity? = null) {
+    constructor(
+        id: UUID? = null,
+        name: String,
+        path: String,
+        npmAccount: NpmAccountEntity? = null,
+        gitHubAccount: GitHubAccountEntity? = null,
+        lastOpened: Long = System.currentTimeMillis()/1000
+    ) {
         this.id = id
         this.name = name
         this.path = path
+        this.lastOpened = lastOpened
         this.npmAccount = npmAccount
         this.gitHubAccount = gitHubAccount
     }

@@ -6,6 +6,7 @@ import ca.weblite.jdeploy.app.exceptions.NotFoundException
 import ca.weblite.jdeploy.app.factories.ProjectFactory
 import ca.weblite.jdeploy.app.records.Project
 import ca.weblite.jdeploy.app.repositories.ProjectRepositoryInterface
+import ca.weblite.jdeploy.app.system.env.ClockInterface
 import ca.weblite.jdeploy.app.system.files.FileSystemInterface
 import org.apache.commons.io.IOUtils
 import java.util.*
@@ -19,6 +20,7 @@ class ProjectService @Inject constructor(
     private val gitHubAccountService: GitHubAccountService,
     private val projectFactory: ProjectFactory,
     private val fileSystem: FileSystemInterface,
+    private val clock: ClockInterface
 ) {
     fun findOneById(id: UUID): Project {
         return projectRepository.findOneById(id)
@@ -26,6 +28,11 @@ class ProjectService @Inject constructor(
 
     fun findRecent(): ProjectSet {
         return projectRepository.findRecent()
+    }
+
+    fun touch(project: Project): Project {
+        project.lastOpened = clock.now().timeInMillis/1000
+        return projectRepository.saveOne(project)
     }
 
     @Throws(NotFoundException::class, InvalidProjectException::class)

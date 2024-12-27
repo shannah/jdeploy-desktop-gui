@@ -7,15 +7,16 @@ new FormModel {
 			name: "this"
 			add( new FormContainer( "javax.swing.JSplitPane", new FormLayoutManager( class javax.swing.JSplitPane ) ) {
 				name: "splitPane1"
-				"lastDividerLocation": 100
-				"dividerLocation": 100
+				"lastDividerLocation": 200
+				"dividerLocation": 200
+				"preferredSize": new java.awt.Dimension( 640, 480 )
 				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 					name: "panel1"
 					add( new FormComponent( "javax.swing.JButton" ) {
 						name: "Open"
 						"text": "Open"
 						auxiliary() {
-							"JavaCodeGenerator.variableName": "openButton"
+							"JavaCodeGenerator.variableName": "openRecentButton"
 							"JavaCodeGenerator.variableGetter": true
 						}
 					}, new FormLayoutConstraints( class java.lang.String ) {
@@ -29,7 +30,11 @@ new FormModel {
 					add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
 						name: "scrollPane1"
 						add( new FormComponent( "javax.swing.JList" ) {
-							name: "list1"
+							name: "recentProjects"
+							"preferredSize": new java.awt.Dimension( 120, 80 )
+							auxiliary() {
+								"JavaCodeGenerator.typeParameters": "Project"
+							}
 						} )
 					}, new FormLayoutConstraints( class java.lang.String ) {
 						"value": "Center"
@@ -50,10 +55,17 @@ new FormModel {
 					add( new FormComponent( "javax.swing.JButton" ) {
 						name: "button2"
 						"text": "Import project..."
+						auxiliary() {
+							"JavaCodeGenerator.variableName": "importProject"
+							"JavaCodeGenerator.variableGetter": true
+						}
 					} )
 					add( new FormComponent( "javax.swing.JButton" ) {
 						name: "button3"
 						"text": "Open project..."
+						auxiliary() {
+							"JavaCodeGenerator.variableName": "openButton"
+						}
 					} )
 				}, new FormLayoutConstraints( class java.lang.String ) {
 					"value": "right"

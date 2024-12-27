@@ -33,14 +33,8 @@ class JpaProjectRepository @Inject constructor(
     }
 
     override fun findRecent(): ProjectSet {
-        val entities = databaseService.executeInTransaction { em: EntityManager ->
-            em.createQuery(
-                """
-                    SELECT ps FROM ProjectSettings ps
-                    ORDER BY ps.lastOpened DESC
-                    
-                    """.trimIndent(), ProjectEntity::class.java
-            )
+        val entities = databaseService.executeInTransaction {
+            it.createQuery("FROM ProjectEntity ps ORDER BY ps.lastOpened", ProjectEntity::class.java)
                 .resultList
         }
 
@@ -51,6 +45,7 @@ class JpaProjectRepository @Inject constructor(
         entityManager.transaction.begin()
         try {
             val entity = projectEntityFactory.extractOrCreate(project)
+            entity.lastOpened = project.lastOpened
             val idBefore = entity.id
             assert(idBefore != null, { "ID of project should not be null" })
             entityManager.merge(entity)

@@ -31,7 +31,9 @@ public class OpenProjectController implements Runnable{
 
     private final EnvironmentInterface environment;
 
-    public OpenProjectController(Window parentWindow) {
+    private final String fromPath;
+
+    public OpenProjectController(Window parentWindow, String fromPath) {
         this.parentWindow = parentWindow;
         fileSystemUi = DIContext.get(FileSystemUiInterface.class);
         projectValidator = DIContext.get(ProjectValidator.class);
@@ -40,12 +42,17 @@ public class OpenProjectController implements Runnable{
         projectService = DIContext.get(ProjectService.class);
         preferencesService = DIContext.get(PreferencesService.class);
         environment = DIContext.get(EnvironmentInterface.class);
+        this.fromPath = fromPath;
+    }
 
+    public OpenProjectController(Window parentWindow) {
+        this(parentWindow, null);
     }
 
     @Override
     public void run() {
-        String path = fileSystemUi.openDirectoryDialog(
+        String path = fromPath == null
+            ? fileSystemUi.openDirectoryDialog(
                 parentWindow,
                 "Open Project",
                 preferencesService.getRootPreferences().get(
@@ -58,7 +65,8 @@ public class OpenProjectController implements Runnable{
                                 selectedPath,
                                 ProjectValidator.ValidationLevel.HasPackageJson
                         )
-        );
+            )
+                : fromPath;
         if (path == null) {
             // No project was selected
             return;
@@ -75,7 +83,7 @@ public class OpenProjectController implements Runnable{
 
         Project project = null;
         try {
-            project = projectService.loadProject(path);
+            project = projectService.touch(projectService.loadProject(path));
         } catch (Exception e) {
             edt.invokeLater(
                     controllerFactory.createErrorController(e)

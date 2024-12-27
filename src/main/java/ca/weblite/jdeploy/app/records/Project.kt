@@ -7,6 +7,7 @@ class Project(
     val name: String,
     var path: String,
     val uuid: UUID? = null,
+    var lastOpened: Long = System.currentTimeMillis()/1000,
     var npmAccount: NpmAccount? = null,
     var gitHubAccount: GitHubAccount? = null,
     val entity: Any? = null,

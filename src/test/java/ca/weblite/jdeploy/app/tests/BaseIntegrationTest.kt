@@ -15,7 +15,7 @@ abstract class BaseIntegrationTest {
     @BeforeAll
     open fun setup() {
 
-        DIContext.setInstance(TestDIContext());
+        DIContext.setInstance(createDIContext());
         DIContext.get(DatabaseService::class.java).migrate();
         // Create an EntityManagerFactory for our test
         emf = DIContext.get(EmfProviderInterface::class.java).getEntityManagerFactory()
@@ -24,5 +24,9 @@ abstract class BaseIntegrationTest {
     @AfterAll
     fun teardown() {
         emf?.close()
+    }
+
+    open protected fun createDIContext(): DIContext {
+        return TestDIContext()
     }
 }

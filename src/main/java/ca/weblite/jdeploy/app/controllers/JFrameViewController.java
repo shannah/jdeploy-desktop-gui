@@ -7,10 +7,31 @@ public abstract class JFrameViewController implements Runnable {
 
     protected abstract JComponent initUI();
 
+    private JFrame parentFrame;
+
+    public JFrameViewController(JFrame parentFrame) {
+        this.parentFrame = parentFrame;
+    }
+
+    public JFrameViewController() {
+        this.parentFrame = null;
+    }
+
     public void show() {
         rootComponent = initUI();
         JFrame frame = new JFrame();
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        if (parentFrame == null) {
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        } else {
+            frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            frame.addWindowListener(new java.awt.event.WindowAdapter() {
+                @Override
+                public void windowClosed(java.awt.event.WindowEvent windowEvent) {
+                    parentFrame.setVisible(true);
+                }
+            });
+        }
+
         frame.setContentPane(rootComponent);
         frame.setLocationRelativeTo(null);
         frame.pack();

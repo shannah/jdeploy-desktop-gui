@@ -15,6 +15,7 @@ class ProjectEntityFactory @Inject constructor(
             name = project.name,
             path = project.path,
             id = project.uuid,
+            lastOpened = project.lastOpened,
             npmAccount = project.npmAccount?.let {
                 npmAccountFactory.extractOrCreate(it)
             },
