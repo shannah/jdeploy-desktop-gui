@@ -4,6 +4,7 @@
 
 package ca.weblite.jdeploy.app.forms;
 
+import java.awt.*;
 import javax.swing.*;
 import com.jgoodies.forms.factories.*;
 import com.jgoodies.forms.layout.*;
@@ -32,9 +33,22 @@ public class ImportProjectFormJ extends JPanel {
         return browseJarFilePath;
     }
 
+    public JButton getImportButton() {
+        return importButton;
+    }
+
+    public JButton getCancelButton() {
+        return cancelButton;
+    }
+
+    public JTextField getProjectName() {
+        return projectName;
+    }
+
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents  @formatter:off
         // Generated using JFormDesigner Evaluation license - Steven Hannah
+        panel1 = new JPanel();
         label1 = new JLabel();
         projectDirectory = new JTextField();
         browseProjectDirectory = new JButton();
@@ -42,45 +56,69 @@ public class ImportProjectFormJ extends JPanel {
         jarFilePath = new JTextField();
         browseJarFilePath = new JButton();
         label3 = new JLabel();
-        textField3 = new JTextField();
+        projectName = new JTextField();
+        panel2 = new JPanel();
+        cancelButton = new JButton();
+        importButton = new JButton();
 
         //======== this ========
         setBorder(new javax.swing.border.CompoundBorder(new javax.swing.border.TitledBorder(new javax.swing.border.EmptyBorder(0
-        ,0,0,0), "JF\u006frmDes\u0069gner \u0045valua\u0074ion",javax.swing.border.TitledBorder.CENTER,javax.swing.border.TitledBorder.BOTTOM
-        ,new java.awt.Font("D\u0069alog",java.awt.Font.BOLD,12),java.awt.Color.red),
+        ,0,0,0), "JF\u006frmD\u0065sig\u006eer \u0045val\u0075ati\u006fn",javax.swing.border.TitledBorder.CENTER,javax.swing.border.TitledBorder.BOTTOM
+        ,new java.awt.Font("Dia\u006cog",java.awt.Font.BOLD,12),java.awt.Color.red),
          getBorder())); addPropertyChangeListener(new java.beans.PropertyChangeListener(){@Override public void propertyChange(java.beans.PropertyChangeEvent e
-        ){if("\u0062order".equals(e.getPropertyName()))throw new RuntimeException();}});
-        setLayout(new FormLayout(
-            "default, $lcgap, 132dlu, $lcgap, default",
-            "2*(default, $lgap), default"));
+        ){if("\u0062ord\u0065r".equals(e.getPropertyName()))throw new RuntimeException();}});
+        setLayout(new BorderLayout());
 
-        //---- label1 ----
-        label1.setText("Project Directory");
-        add(label1, CC.xy(1, 1));
-        add(projectDirectory, CC.xy(3, 1));
+        //======== panel1 ========
+        {
+            panel1.setLayout(new FormLayout(
+                "default, $lcgap, 132dlu, $lcgap, default",
+                "11*(default, $lgap), default"));
 
-        //---- browseProjectDirectory ----
-        browseProjectDirectory.setText("...");
-        add(browseProjectDirectory, CC.xy(5, 1));
+            //---- label1 ----
+            label1.setText("Project Directory");
+            panel1.add(label1, CC.xy(1, 1));
+            panel1.add(projectDirectory, CC.xy(3, 1));
 
-        //---- label2 ----
-        label2.setText("Jar File Location");
-        add(label2, CC.xy(1, 3));
-        add(jarFilePath, CC.xy(3, 3));
+            //---- browseProjectDirectory ----
+            browseProjectDirectory.setText("...");
+            panel1.add(browseProjectDirectory, CC.xy(5, 1));
 
-        //---- browseJarFilePath ----
-        browseJarFilePath.setText("...");
-        add(browseJarFilePath, CC.xy(5, 3));
+            //---- label2 ----
+            label2.setText("Jar File Location");
+            panel1.add(label2, CC.xy(1, 3));
+            panel1.add(jarFilePath, CC.xy(3, 3));
 
-        //---- label3 ----
-        label3.setText("Project Name");
-        add(label3, CC.xy(1, 5));
-        add(textField3, CC.xy(3, 5));
+            //---- browseJarFilePath ----
+            browseJarFilePath.setText("...");
+            panel1.add(browseJarFilePath, CC.xy(5, 3));
+
+            //---- label3 ----
+            label3.setText("Project Name");
+            panel1.add(label3, CC.xy(1, 5));
+            panel1.add(projectName, CC.xy(3, 5));
+        }
+        add(panel1, BorderLayout.CENTER);
+
+        //======== panel2 ========
+        {
+            panel2.setLayout(new FlowLayout(FlowLayout.RIGHT));
+
+            //---- cancelButton ----
+            cancelButton.setText("Cancel");
+            panel2.add(cancelButton);
+
+            //---- importButton ----
+            importButton.setText("Import");
+            panel2.add(importButton);
+        }
+        add(panel2, BorderLayout.SOUTH);
         // JFormDesigner - End of component initialization  //GEN-END:initComponents  @formatter:on
     }
 
     // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables  @formatter:off
     // Generated using JFormDesigner Evaluation license - Steven Hannah
+    private JPanel panel1;
     private JLabel label1;
     private JTextField projectDirectory;
     private JButton browseProjectDirectory;
@@ -88,6 +126,9 @@ public class ImportProjectFormJ extends JPanel {
     private JTextField jarFilePath;
     private JButton browseJarFilePath;
     private JLabel label3;
-    private JTextField textField3;
+    private JTextField projectName;
+    private JPanel panel2;
+    private JButton cancelButton;
+    private JButton importButton;
     // JFormDesigner - End of variables declaration  //GEN-END:variables  @formatter:on
 }
