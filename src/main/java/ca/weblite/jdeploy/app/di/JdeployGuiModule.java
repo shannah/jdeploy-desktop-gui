@@ -1,5 +1,9 @@
 package ca.weblite.jdeploy.app.di;
 
+import ca.weblite.jdeploy.app.npm.NpmAccountServiceInterface;
+import ca.weblite.jdeploy.app.npm.PreferencesNpmAccountService;
+import ca.weblite.jdeploy.app.secure.JavaKeyringPasswordService;
+import ca.weblite.jdeploy.app.secure.PasswordServiceInterface;
 import ca.weblite.jdeploy.app.system.env.ClockInterface;
 import ca.weblite.jdeploy.app.system.env.EnvironmentInterface;
 import ca.weblite.jdeploy.app.system.files.FileSystemInterface;
@@ -52,6 +56,15 @@ public class JdeployGuiModule {
             return DIContext.get(JavaSEFileSystemUi.class);
         }
         return DIContext.get(JavaSEFileSystemUi.class);
+    }
+
+    @Provides
+    public NpmAccountServiceInterface npmAccountServiceInterface(PreferencesNpmAccountService impl) {
+        return impl;
+    }
+    @Provides
+    public PasswordServiceInterface passwordServiceInterface(JavaKeyringPasswordService javaKeyringPasswordService) {
+        return javaKeyringPasswordService;
     }
 }
 

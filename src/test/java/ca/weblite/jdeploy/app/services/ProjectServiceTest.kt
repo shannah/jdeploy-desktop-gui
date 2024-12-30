@@ -3,24 +3,23 @@ package ca.weblite.jdeploy.app.services
 import ca.weblite.jdeploy.app.di.DIContext
 import ca.weblite.jdeploy.app.records.Project
 import ca.weblite.jdeploy.app.tests.BaseIntegrationTest
-import junit.framework.Assert.assertEquals
+import org.junit.jupiter.api.Assertions.assertEquals
+
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 import java.io.File
+import java.util.*
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ProjectServiceTest: BaseIntegrationTest() {
     private var projectDirectory: File? = null
     @BeforeAll
-    override fun setup() {
-        super.setup()
+    fun createProjectDirectory() {
         projectDirectory = createTempDir("project")
     }
 
     @AfterAll
-    public fun cleanup() {
+    fun cleanup() {
         projectDirectory?.deleteRecursively()
     }
 
@@ -28,6 +27,7 @@ class ProjectServiceTest: BaseIntegrationTest() {
     fun testCrud() {
         val projectService = DIContext.get(ProjectService::class.java)
         val project = Project(
+            uuid = UUID.randomUUID(),
             name = "My Project",
             path = projectDirectory!!.absolutePath,
         )

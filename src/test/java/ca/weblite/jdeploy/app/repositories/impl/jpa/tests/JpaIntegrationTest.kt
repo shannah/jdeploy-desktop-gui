@@ -7,8 +7,8 @@ import ca.weblite.jdeploy.app.tests.BaseIntegrationTest
 import org.junit.jupiter.api.*
 import jakarta.persistence.*
 import org.flywaydb.core.Flyway
+import java.util.*
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class JpaIntegrationTest: BaseIntegrationTest() {
 
     @Test
@@ -82,6 +82,7 @@ class JpaIntegrationTest: BaseIntegrationTest() {
 
         // Create ProjectEntity referencing them
         val project = ProjectEntity(
+            id = UUID.randomUUID(),
             name = "MyProject",
             path = "/path/to/myproject",
             npmAccount = npmAccount,

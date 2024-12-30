@@ -27,28 +27,18 @@ class ImportProjectViewController(parentFrame: JFrame): JFrameViewController(par
             form.projectDirectory.text = projectDir
         };
 
-        form.browseJarFilePath.addActionListener {
-            val jarFilePath = fileSystemUi.openFileDialog(
-                frame,
-                "Select Jar File",
-                form.projectDirectory.text ?: null,
-                null,
-            )
-            form.jarFilePath.text = jarFilePath
-        }
-
         form.cancelButton.addActionListener {
             frame.dispose()
         }
 
         form.importButton.addActionListener {
-            handleImportProject(form.projectDirectory.text, form.jarFilePath.text)
+            handleImportProject(form.projectDirectory.text, form.generateGitHubWorkflow.isSelected)
         }
 
         return form
     }
 
-    private fun handleImportProject(projectDirectory: String, jarFilePath: String) {
+    private fun handleImportProject(projectDirectory: String, generateGitHubWorkflow: Boolean) {
         object : SwingWorker<ProjectInitializer.Response?, Void?>() {
 
             // We capture an exception if one occurs during doInBackground()
@@ -60,9 +50,9 @@ class ImportProjectViewController(parentFrame: JFrame): JFrameViewController(par
                     projectInitializer.decorate(
                         ProjectInitializer.Request(
                             projectDirectory,
-                            jarFilePath,
+                            null,
                             false,  // dryRun
-                            true,   // generateGithubWorkflow
+                            generateGitHubWorkflow,   // generateGithubWorkflow
                             null
                         )
                     )
@@ -80,7 +70,7 @@ class ImportProjectViewController(parentFrame: JFrame): JFrameViewController(par
                     EventQueue.invokeLater(controllerFactory.createErrorController(error))
                 } else {
                     // On success, open project
-                    EventQueue.invokeLater(OpenProjectController(frame, projectDirectory))
+                    EventQueue.invokeLater(OpenProjectController(frame, projectDirectory, closeParentWindowOnSuccess = true))
                 }
             }
         }.execute()  // Start the background task

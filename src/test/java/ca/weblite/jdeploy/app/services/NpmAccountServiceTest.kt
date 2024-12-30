@@ -3,7 +3,8 @@ package ca.weblite.jdeploy.app.services
 import ca.weblite.jdeploy.app.di.DIContext
 import ca.weblite.jdeploy.app.records.NpmAccount
 import ca.weblite.jdeploy.app.tests.BaseIntegrationTest
-import junit.framework.Assert.assertEquals
+import org.junit.jupiter.api.Assertions.assertEquals
+
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 

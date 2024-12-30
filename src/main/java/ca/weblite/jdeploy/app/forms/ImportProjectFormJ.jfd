@@ -29,7 +29,7 @@ new FormModel {
 				} )
 				add( new FormComponent( "javax.swing.JButton" ) {
 					name: "button1"
-					"text": "..."
+					"text": "Select ..."
 					auxiliary() {
 						"JavaCodeGenerator.variableName": "browseProjectDirectory"
 						"JavaCodeGenerator.variableGetter": true
@@ -38,50 +38,16 @@ new FormModel {
 					"gridX": 5
 					"gridY": 1
 				} )
-				add( new FormComponent( "javax.swing.JLabel" ) {
-					name: "label2"
-					"text": "Jar File Location"
-				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-					"gridX": 1
-					"gridY": 3
-				} )
-				add( new FormComponent( "javax.swing.JTextField" ) {
-					name: "textField2"
+				add( new FormComponent( "javax.swing.JCheckBox" ) {
+					name: "checkBox1"
+					"text": "Generate GitHub Workflow"
 					auxiliary() {
-						"JavaCodeGenerator.variableName": "jarFilePath"
+						"JavaCodeGenerator.variableName": "generateGitHubWorkflow"
 						"JavaCodeGenerator.variableGetter": true
 					}
 				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 					"gridX": 3
 					"gridY": 3
-				} )
-				add( new FormComponent( "javax.swing.JButton" ) {
-					name: "button2"
-					"text": "..."
-					auxiliary() {
-						"JavaCodeGenerator.variableName": "browseJarFilePath"
-						"JavaCodeGenerator.variableGetter": true
-					}
-				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-					"gridX": 5
-					"gridY": 3
-				} )
-				add( new FormComponent( "javax.swing.JLabel" ) {
-					name: "label3"
-					"text": "Project Name"
-				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-					"gridX": 1
-					"gridY": 5
-				} )
-				add( new FormComponent( "javax.swing.JTextField" ) {
-					name: "textField3"
-					auxiliary() {
-						"JavaCodeGenerator.variableName": "projectName"
-						"JavaCodeGenerator.variableGetter": true
-					}
-				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-					"gridX": 3
-					"gridY": 5
 				} )
 			}, new FormLayoutConstraints( class java.lang.String ) {
 				"value": "Center"

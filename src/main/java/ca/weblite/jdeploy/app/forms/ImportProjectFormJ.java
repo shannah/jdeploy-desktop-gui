@@ -21,16 +21,8 @@ public class ImportProjectFormJ extends JPanel {
         return projectDirectory;
     }
 
-    public JTextField getJarFilePath() {
-        return jarFilePath;
-    }
-
     public JButton getBrowseProjectDirectory() {
         return browseProjectDirectory;
-    }
-
-    public JButton getBrowseJarFilePath() {
-        return browseJarFilePath;
     }
 
     public JButton getImportButton() {
@@ -41,8 +33,8 @@ public class ImportProjectFormJ extends JPanel {
         return cancelButton;
     }
 
-    public JTextField getProjectName() {
-        return projectName;
+    public JCheckBox getGenerateGitHubWorkflow() {
+        return generateGitHubWorkflow;
     }
 
     private void initComponents() {
@@ -52,21 +44,18 @@ public class ImportProjectFormJ extends JPanel {
         label1 = new JLabel();
         projectDirectory = new JTextField();
         browseProjectDirectory = new JButton();
-        label2 = new JLabel();
-        jarFilePath = new JTextField();
-        browseJarFilePath = new JButton();
-        label3 = new JLabel();
-        projectName = new JTextField();
+        generateGitHubWorkflow = new JCheckBox();
         panel2 = new JPanel();
         cancelButton = new JButton();
         importButton = new JButton();
 
         //======== this ========
-        setBorder(new javax.swing.border.CompoundBorder(new javax.swing.border.TitledBorder(new javax.swing.border.EmptyBorder(0
-        ,0,0,0), "JF\u006frmD\u0065sig\u006eer \u0045val\u0075ati\u006fn",javax.swing.border.TitledBorder.CENTER,javax.swing.border.TitledBorder.BOTTOM
-        ,new java.awt.Font("Dia\u006cog",java.awt.Font.BOLD,12),java.awt.Color.red),
-         getBorder())); addPropertyChangeListener(new java.beans.PropertyChangeListener(){@Override public void propertyChange(java.beans.PropertyChangeEvent e
-        ){if("\u0062ord\u0065r".equals(e.getPropertyName()))throw new RuntimeException();}});
+        setBorder(new javax.swing.border.CompoundBorder(new javax.swing.border.TitledBorder(new javax.swing.
+        border.EmptyBorder(0,0,0,0), "JF\u006frmD\u0065sig\u006eer \u0045val\u0075ati\u006fn",javax.swing.border.TitledBorder.CENTER
+        ,javax.swing.border.TitledBorder.BOTTOM,new java.awt.Font("Dia\u006cog",java.awt.Font
+        .BOLD,12),java.awt.Color.red), getBorder())); addPropertyChangeListener(
+        new java.beans.PropertyChangeListener(){@Override public void propertyChange(java.beans.PropertyChangeEvent e){if("\u0062ord\u0065r"
+        .equals(e.getPropertyName()))throw new RuntimeException();}});
         setLayout(new BorderLayout());
 
         //======== panel1 ========
@@ -81,22 +70,12 @@ public class ImportProjectFormJ extends JPanel {
             panel1.add(projectDirectory, CC.xy(3, 1));
 
             //---- browseProjectDirectory ----
-            browseProjectDirectory.setText("...");
+            browseProjectDirectory.setText("Select ...");
             panel1.add(browseProjectDirectory, CC.xy(5, 1));
 
-            //---- label2 ----
-            label2.setText("Jar File Location");
-            panel1.add(label2, CC.xy(1, 3));
-            panel1.add(jarFilePath, CC.xy(3, 3));
-
-            //---- browseJarFilePath ----
-            browseJarFilePath.setText("...");
-            panel1.add(browseJarFilePath, CC.xy(5, 3));
-
-            //---- label3 ----
-            label3.setText("Project Name");
-            panel1.add(label3, CC.xy(1, 5));
-            panel1.add(projectName, CC.xy(3, 5));
+            //---- generateGitHubWorkflow ----
+            generateGitHubWorkflow.setText("Generate GitHub Workflow");
+            panel1.add(generateGitHubWorkflow, CC.xy(3, 3));
         }
         add(panel1, BorderLayout.CENTER);
 
@@ -122,11 +101,7 @@ public class ImportProjectFormJ extends JPanel {
     private JLabel label1;
     private JTextField projectDirectory;
     private JButton browseProjectDirectory;
-    private JLabel label2;
-    private JTextField jarFilePath;
-    private JButton browseJarFilePath;
-    private JLabel label3;
-    private JTextField projectName;
+    private JCheckBox generateGitHubWorkflow;
     private JPanel panel2;
     private JButton cancelButton;
     private JButton importButton;

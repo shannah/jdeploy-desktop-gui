@@ -1,37 +1,34 @@
 package ca.weblite.jdeploy.app.services
 
 import ca.weblite.jdeploy.app.di.DIContext
-import ca.weblite.jdeploy.app.records.Project
 import ca.weblite.jdeploy.app.tests.BaseIntegrationTest
 import ca.weblite.jdeploy.app.tests.ProgrammableClock
 import ca.weblite.jdeploy.app.tests.TestDIContext
-import junit.framework.Assert.assertEquals
+import org.junit.jupiter.api.Assertions.assertEquals
+
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 import java.io.File
-import java.util.*
+import kotlin.io.path.createTempDirectory
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class TouchProjectTest: BaseIntegrationTest() {
     private var projectDirectory: File? = null
     private val clock = ProgrammableClock()
     @BeforeAll
-    override fun setup() {
-        super.setup()
-        projectDirectory = createTempDir("project")
+    fun createProjectDirectory() {
+        val tempPath = createTempDirectory(prefix = "project_")
+        projectDirectory = tempPath.toFile()
         createMinimalPackageJsonAt(projectDirectory!!.absolutePath)
     }
 
     @AfterAll
-    public fun cleanup() {
+    fun deleteProjectDirectory() {
         projectDirectory?.deleteRecursively()
     }
 
     @Test
     fun testLoadProject() {
-
         val projectService = DIContext.get(ProjectService::class.java)
         var project = projectService.loadProject(projectDirectory!!.absolutePath)
         clock.setTimeInMillis(1000000);
