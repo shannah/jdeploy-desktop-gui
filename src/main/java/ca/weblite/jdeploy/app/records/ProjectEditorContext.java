@@ -20,7 +20,7 @@ public class ProjectEditorContext extends JDeployProjectEditorContext {
     }
 
     @Override
-    public void promptForNpmToken(Object parent) {
+    public boolean promptForNpmToken(Object parent) {
         Frame frame = parent instanceof Frame ? (Frame) parent : null;
         final boolean[] accountChosen = {false};
         final boolean[] accountChosenResult = {false};
@@ -59,8 +59,6 @@ public class ProjectEditorContext extends JDeployProjectEditorContext {
                 throw new RuntimeException(ex);
             }
         }
-        if (!accountChosenResult[0]) {
-            return;
-        }
+        return accountChosenResult[0];
     }
 }
