@@ -1,14 +1,14 @@
 package ca.weblite.jdeploy.app.forms;
 
-import ca.weblite.jdeploy.app.npm.NpmAccountInterface;
+import ca.weblite.jdeploy.app.accounts.AccountInterface;
 
 import javax.swing.*;
 
-public class EditNpmAccountPanel extends JPanel {
+public class EditAccountPanel extends JPanel {
     private JTextField accountNameField;
-    private JPasswordField npmTokenField;
+    private JPasswordField tokenField;
 
-    public EditNpmAccountPanel(NpmAccountInterface account) {
+    public EditAccountPanel(AccountInterface account) {
         super();
 
         // Create the layout
@@ -20,15 +20,15 @@ public class EditNpmAccountPanel extends JPanel {
         accountNameField = new JTextField(30);
 
 
-        JLabel npmTokenLabel = new JLabel("NPM Token");
-        npmTokenField = new JPasswordField(30);
+        JLabel npmTokenLabel = new JLabel("Token");
+        tokenField = new JPasswordField(30);
 
         // Set the account name
-        accountNameField.setText(account.getNpmAccountName());
+        accountNameField.setText(account.getAccountName());
 
         // Set the NPM token
-        if (account.getNpmToken() != null) {
-            npmTokenField.setText(account.getNpmToken());
+        if (account.getAccessToken() != null) {
+            tokenField.setText(account.getAccessToken());
         }
 
         // Set the layout
@@ -43,7 +43,7 @@ public class EditNpmAccountPanel extends JPanel {
                 )
                 .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
                     .addComponent(accountNameField)
-                    .addComponent(npmTokenField)
+                    .addComponent(tokenField)
                 )
         );
 
@@ -55,7 +55,7 @@ public class EditNpmAccountPanel extends JPanel {
                 )
                 .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                     .addComponent(npmTokenLabel)
-                    .addComponent(npmTokenField)
+                    .addComponent(tokenField)
                 )
         );
 
@@ -63,8 +63,8 @@ public class EditNpmAccountPanel extends JPanel {
     }
 
 
-    public JPasswordField getNpmTokenField() {
-        return npmTokenField;
+    public JPasswordField getTokenField() {
+        return tokenField;
     }
 
     public JTextField getAccountNameField() {

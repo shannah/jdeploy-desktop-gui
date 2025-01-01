@@ -1,37 +1,40 @@
 package ca.weblite.jdeploy.app.controllers;
 
-import ca.weblite.jdeploy.app.forms.EditNpmAccountDialog;
+import ca.weblite.jdeploy.app.accounts.Account;
+import ca.weblite.jdeploy.app.accounts.AccountInterface;
+import ca.weblite.jdeploy.app.accounts.AccountServiceInterface;
+import ca.weblite.jdeploy.app.forms.EditAccountDialog;
 import ca.weblite.jdeploy.app.swing.SwingExecutor;
-import ca.weblite.jdeploy.app.npm.NpmAccount;
-import ca.weblite.jdeploy.app.npm.NpmAccountInterface;
-import ca.weblite.jdeploy.app.npm.NpmAccountServiceInterface;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.concurrent.Executor;
 
-public abstract class EditNpmAccountController {
+public abstract class EditAccountController {
 
     private static final Executor EDT_EXECUTOR = new SwingExecutor();
 
-    private final EditNpmAccountDialog dialog;
+    private final EditAccountDialog dialog;
 
     private final Window parentFrame;
 
-    private final NpmAccountServiceInterface npmAccountService;
+    private final AccountServiceInterface accountService;
 
-    private NpmAccountInterface newAccount;
+    private final AccountInterface account;
 
-    public EditNpmAccountController(
+    private AccountInterface newAccount;
+
+    public EditAccountController(
             Window parentFrame,
-            NpmAccountInterface account,
-            NpmAccountServiceInterface npmAccountService
+            AccountInterface account,
+            AccountServiceInterface accountService
     ) {
+        this.account = account;
         this.parentFrame = parentFrame;
-        this.dialog = new EditNpmAccountDialog(parentFrame, account);
+        this.dialog = new EditAccountDialog(parentFrame, account);
         dialog.pack();
         dialog.setLocationRelativeTo(parentFrame);
-        this.npmAccountService = npmAccountService;
+        this.accountService = accountService;
         setupSaveButton();
         setupCancelButton();
 
@@ -42,14 +45,15 @@ public abstract class EditNpmAccountController {
         dialog.setVisible(true);
     }
 
-    protected abstract void afterSave(NpmAccountInterface account);
+    protected abstract void afterSave(AccountInterface account);
 
-    private NpmAccountInterface getAccount() {
-        return new NpmAccount(
+    private AccountInterface getAccount() {
+        return new Account(
                 dialog.getAccountNameField().getText(),
-                isEmpty(dialog.getNpmTokenField())
+                isEmpty(dialog.getTokenField())
                         ? null :
-                        new String(dialog.getNpmTokenField().getPassword())
+                        new String(dialog.getTokenField().getPassword()),
+                account.getAccountType()
         );
     }
 
@@ -58,7 +62,7 @@ public abstract class EditNpmAccountController {
     }
 
     private boolean isAccountValid() {
-        return !dialog.getAccountNameField().getText().isEmpty() && !isEmpty(dialog.getNpmTokenField());
+        return !dialog.getAccountNameField().getText().isEmpty() && !isEmpty(dialog.getTokenField());
     }
 
     private void update() {
@@ -68,7 +72,7 @@ public abstract class EditNpmAccountController {
     private void setupSaveButton() {
         dialog.getSaveButton().addActionListener(e -> {
             newAccount = getAccount();
-            npmAccountService.saveNpmAccount(newAccount).thenAcceptAsync(result->{
+            accountService.save(newAccount).thenAcceptAsync(result->{
                 afterSave(newAccount);
                 dialog.dispose();
                 parentFrame.requestFocus();

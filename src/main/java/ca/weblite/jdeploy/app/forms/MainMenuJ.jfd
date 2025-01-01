@@ -51,6 +51,10 @@ new FormModel {
 					add( new FormComponent( "javax.swing.JButton" ) {
 						name: "button1"
 						"text": "Create new project..."
+						auxiliary() {
+							"JavaCodeGenerator.variableName": "createProjectButton"
+							"JavaCodeGenerator.variableGetter": true
+						}
 					} )
 					add( new FormComponent( "javax.swing.JButton" ) {
 						name: "button2"

@@ -1,22 +1,22 @@
 package ca.weblite.jdeploy.app.forms;
 
-import ca.weblite.jdeploy.app.npm.NpmAccountInterface;
+import ca.weblite.jdeploy.app.accounts.AccountInterface;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class EditNpmAccountDialog extends JDialog {
-    private EditNpmAccountPanel editNpmAccountPanel;
+public class EditAccountDialog extends JDialog {
+    private EditAccountPanel editAccountPanel;
     private JButton saveButton;
     private JButton cancelButton;
-    public EditNpmAccountDialog(Window parent, NpmAccountInterface account) {
+    public EditAccountDialog(Window parent, AccountInterface account) {
         super(parent);
         // Create the layout
         GroupLayout layout = new GroupLayout(this.getContentPane());
         this.getContentPane().setLayout(layout);
 
         // Create the components
-        editNpmAccountPanel = new EditNpmAccountPanel(account);
+        editAccountPanel = new EditAccountPanel(account);
         saveButton = new JButton("Save");
         cancelButton = new JButton("Cancel");
 
@@ -26,7 +26,7 @@ public class EditNpmAccountDialog extends JDialog {
 
         layout.setHorizontalGroup(
             layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                .addComponent(editNpmAccountPanel)
+                .addComponent(editAccountPanel)
                 .addGroup(layout.createSequentialGroup()
                     .addComponent(saveButton)
                     .addComponent(cancelButton)
@@ -35,7 +35,7 @@ public class EditNpmAccountDialog extends JDialog {
 
         layout.setVerticalGroup(
             layout.createSequentialGroup()
-                .addComponent(editNpmAccountPanel)
+                .addComponent(editAccountPanel)
                 .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                     .addComponent(saveButton)
                     .addComponent(cancelButton)
@@ -45,11 +45,11 @@ public class EditNpmAccountDialog extends JDialog {
     }
 
     public JTextField getAccountNameField() {
-        return editNpmAccountPanel.getAccountNameField();
+        return editAccountPanel.getAccountNameField();
     }
 
-    public JPasswordField getNpmTokenField() {
-        return editNpmAccountPanel.getNpmTokenField();
+    public JPasswordField getTokenField() {
+        return editAccountPanel.getTokenField();
     }
 
     public JButton getSaveButton() {

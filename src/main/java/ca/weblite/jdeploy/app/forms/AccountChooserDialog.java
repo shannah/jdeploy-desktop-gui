@@ -1,6 +1,6 @@
 package ca.weblite.jdeploy.app.forms;
 
-import ca.weblite.jdeploy.app.npm.NpmAccountInterface;
+import ca.weblite.jdeploy.app.accounts.AccountInterface;
 import org.kordamp.ikonli.material.Material;
 import org.kordamp.ikonli.swing.FontIcon;
 
@@ -9,7 +9,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.List;
 
-public class NpmAccountChooserDialog extends JDialog {
+public class AccountChooserDialog extends JDialog {
 
     // For demo, we keep references to some UI controls:
     private final JLabel subtitleLabel;
@@ -20,7 +20,7 @@ public class NpmAccountChooserDialog extends JDialog {
     private final JButton closeButton;
 
     // The currently selected account
-    private NpmAccountInterface selectedAccount;
+    private AccountInterface selectedAccount;
     // The currently selected account button (to highlight)
     private JButton selectedButton;
 
@@ -32,10 +32,12 @@ public class NpmAccountChooserDialog extends JDialog {
     private final Color linkColor = new Color(0, 120, 220);
     private final Color selectedBackground = new Color(220, 240, 255);
 
+    private final JLabel titleLabel;
+
     /**
      * Creates a modal, undecorated dialog.
      */
-    public NpmAccountChooserDialog(Frame parent, List<NpmAccountInterface> accounts) {
+    public AccountChooserDialog(Frame parent, List<? extends AccountInterface> accounts) {
         super(parent, true);
         setUndecorated(true);
 
@@ -61,15 +63,15 @@ public class NpmAccountChooserDialog extends JDialog {
 
         /*
          * 3) Main (center) content. We'll still use a BoxLayout to stack
-         *    the "npm" title, subtitle, account list, etc.
+         *    the "gitHub" title, subtitle, account list, etc.
          */
         JPanel centerPanel = new JPanel();
         centerPanel.setBorder(BorderFactory.createEmptyBorder(20, 30, 20, 30));
         centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
         centerPanel.setOpaque(false);
 
-        // Title: "npm", centered
-        JLabel titleLabel = new JLabel("npm");
+        // Title: "GitHub", centered
+        titleLabel = new JLabel("GitHub");
         titleLabel.setFont(headerFont);
         titleLabel.setForeground(textColor);
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -98,7 +100,7 @@ public class NpmAccountChooserDialog extends JDialog {
         accountListPanel.setOpaque(false);
         accountListPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        for (NpmAccountInterface account : accounts) {
+        for (AccountInterface account : accounts) {
             JButton accountBtn = createAccountButton(account);
             accountListPanel.add(accountBtn);
             accountListPanel.add(Box.createVerticalStrut(10));
@@ -127,10 +129,14 @@ public class NpmAccountChooserDialog extends JDialog {
         setLocationRelativeTo(parent);
     }
 
+    public JLabel getTitleLabel() {
+        return titleLabel;
+    }
+
     /**
      * Shows the dialog (modal). Returns the selected account, or null if none.
      */
-    public NpmAccountInterface showDialog() {
+    public AccountInterface showDialog() {
         setVisible(true);
         return selectedAccount;
     }
@@ -138,8 +144,8 @@ public class NpmAccountChooserDialog extends JDialog {
     /**
      * Create a button for each account
      */
-    private JButton createAccountButton(NpmAccountInterface account) {
-        JButton btn = new JButton(account.getNpmAccountName());
+    private JButton createAccountButton(AccountInterface account) {
+        JButton btn = new JButton(account.getAccountName());
         btn.setBorderPainted(false);
         btn.setFocusPainted(false);
         btn.setContentAreaFilled(false);

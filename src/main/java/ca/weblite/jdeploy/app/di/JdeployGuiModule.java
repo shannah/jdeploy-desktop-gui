@@ -1,10 +1,9 @@
 package ca.weblite.jdeploy.app.di;
 
-import ca.weblite.jdeploy.app.npm.NpmAccountServiceInterface;
-import ca.weblite.jdeploy.app.npm.PreferencesNpmAccountService;
+import ca.weblite.jdeploy.app.accounts.AccountServiceInterface;
+import ca.weblite.jdeploy.app.accounts.PreferencesAccountService;
 import ca.weblite.jdeploy.app.secure.JavaKeyringPasswordService;
 import ca.weblite.jdeploy.app.secure.PasswordServiceInterface;
-import ca.weblite.jdeploy.app.system.env.ClockInterface;
 import ca.weblite.jdeploy.app.system.env.EnvironmentInterface;
 import ca.weblite.jdeploy.app.system.files.FileSystemInterface;
 import ca.weblite.jdeploy.app.system.files.FileSystemUiInterface;
@@ -16,12 +15,9 @@ import ca.weblite.jdeploy.app.system.preferences.DefaultPreferences;
 import ca.weblite.jdeploy.app.system.preferences.PreferencesInterface;
 import org.codejargon.feather.Provides;
 
-import javax.inject.Inject;
 import java.util.prefs.Preferences;
 
 public class JdeployGuiModule {
-
-
     @Provides
     public EnvironmentInterface getEnvironment(DefaultEnvironment environment) {
         return environment;
@@ -59,7 +55,7 @@ public class JdeployGuiModule {
     }
 
     @Provides
-    public NpmAccountServiceInterface npmAccountServiceInterface(PreferencesNpmAccountService impl) {
+    public AccountServiceInterface accountServiceInterface(PreferencesAccountService impl) {
         return impl;
     }
     @Provides

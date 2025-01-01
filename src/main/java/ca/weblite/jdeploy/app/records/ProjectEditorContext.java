@@ -1,8 +1,9 @@
 package ca.weblite.jdeploy.app.records;
 
+import ca.weblite.jdeploy.app.accounts.AccountServiceInterface;
+import ca.weblite.jdeploy.app.accounts.AccountType;
 import ca.weblite.jdeploy.app.di.DIContext;
-import ca.weblite.jdeploy.app.controllers.NpmAccountChooserController;
-import ca.weblite.jdeploy.app.npm.NpmAccountServiceInterface;
+import ca.weblite.jdeploy.app.controllers.AccountChooserController;
 import ca.weblite.jdeploy.gui.JDeployProjectEditorContext;
 
 import javax.swing.*;
@@ -27,8 +28,10 @@ public class ProjectEditorContext extends JDeployProjectEditorContext {
         final Object lock = new Object();
 
         Runnable runnablePublish = () -> {
-            NpmAccountChooserController accountChooserController = new NpmAccountChooserController(
-                    frame, DIContext.get(NpmAccountServiceInterface.class)
+            AccountChooserController accountChooserController = new AccountChooserController(
+                    frame,
+                    DIContext.get(AccountServiceInterface.class),
+                    AccountType.NPM
             );
 
             accountChooserController.show().thenAccept(account -> {
@@ -39,7 +42,7 @@ public class ProjectEditorContext extends JDeployProjectEditorContext {
                         return;
                     }
                 }
-                setNpmToken(account.getNpmToken());
+                setNpmToken(account.getAccessToken());
                 accountChosen[0] = true;
                 accountChosenResult[0] = true;
                 synchronized (lock) {

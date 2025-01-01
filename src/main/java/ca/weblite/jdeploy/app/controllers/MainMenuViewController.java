@@ -1,6 +1,7 @@
 package ca.weblite.jdeploy.app.controllers;
 
 import ca.weblite.jdeploy.app.di.DIContext;
+import ca.weblite.jdeploy.app.factories.ControllerFactory;
 import ca.weblite.jdeploy.app.forms.MainMenuJ;
 import ca.weblite.jdeploy.app.records.Project;
 import ca.weblite.jdeploy.app.services.Edt;
@@ -13,9 +14,11 @@ import java.awt.event.ActionEvent;
 public class MainMenuViewController extends JFrameViewController {
 
     private final ProjectService projectService;
+    private final ControllerFactory controllerFactory;
 
     public MainMenuViewController() {
         this.projectService = DIContext.get(ProjectService.class);
+        this.controllerFactory = DIContext.get(ControllerFactory.class);
     }
     @Override
     protected JComponent initUI() {
@@ -41,6 +44,12 @@ public class MainMenuViewController extends JFrameViewController {
         mainMenu.getImportProject().addActionListener(e -> {
             new ImportProjectViewController(getFrame()).run();
         });
+
+        mainMenu.getCreateProjectButton().addActionListener(e -> {
+            var newProjectController = new NewProjectController(getFrame());
+            newProjectController.show();
+        });
+
 
         return mainMenu;
         //return new TestForm().getMhPanel();
