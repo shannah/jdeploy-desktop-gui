@@ -1,5 +1,6 @@
 package ca.weblite.jdeploy.app.di;
 
+import ca.weblite.jdeploy.DIContext;
 import ca.weblite.jdeploy.app.accounts.AccountServiceInterface;
 import ca.weblite.jdeploy.app.accounts.PreferencesAccountService;
 import ca.weblite.jdeploy.app.secure.JavaKeyringPasswordService;
@@ -25,7 +26,7 @@ public class JdeployGuiModule {
 
     @Provides
     public Preferences getPreferences() {
-        return Preferences.userNodeForPackage(DIContext.class);
+        return Preferences.userNodeForPackage(JDeployDesktopGuiModule.class);
     }
 
     @Provides

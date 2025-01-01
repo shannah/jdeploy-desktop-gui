@@ -1,6 +1,6 @@
 package ca.weblite.jdeploy.app.services
 
-import ca.weblite.jdeploy.app.di.DIContext
+import ca.weblite.jdeploy.DIContext
 import ca.weblite.jdeploy.app.records.GitHubAccount
 import ca.weblite.jdeploy.app.tests.BaseIntegrationTest
 import org.junit.jupiter.api.Test

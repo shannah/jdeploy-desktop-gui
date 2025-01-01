@@ -4,6 +4,7 @@ import ca.weblite.jdeploy.app.accounts.Account;
 import ca.weblite.jdeploy.app.accounts.AccountInterface;
 import ca.weblite.jdeploy.app.accounts.AccountServiceInterface;
 import ca.weblite.jdeploy.app.accounts.AccountType;
+import ca.weblite.jdeploy.DIContext;
 import ca.weblite.jdeploy.app.forms.AccountChooserDialog;
 import ca.weblite.jdeploy.app.swing.SwingExecutor;
 
@@ -33,6 +34,13 @@ public class AccountChooserController {
         this.accountService = accountService;
         this.parentFrame = parentFrame;
         this.accountType = accountType;
+    }
+
+    public AccountChooserController(
+            Frame parentFrame,
+            AccountType accountType
+    ) {
+        this(parentFrame, DIContext.get(AccountServiceInterface.class), accountType);
     }
 
     public CompletableFuture<AccountInterface> show() {

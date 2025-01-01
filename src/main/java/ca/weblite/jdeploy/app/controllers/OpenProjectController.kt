@@ -1,6 +1,6 @@
 package ca.weblite.jdeploy.app.controllers
 
-import ca.weblite.jdeploy.app.di.DIContext
+import ca.weblite.jdeploy.DIContext
 import ca.weblite.jdeploy.app.exceptions.InvalidProjectException
 import ca.weblite.jdeploy.app.factories.ControllerFactory
 import ca.weblite.jdeploy.app.records.Project

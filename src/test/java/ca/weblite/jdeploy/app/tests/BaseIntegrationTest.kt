@@ -1,6 +1,7 @@
 package ca.weblite.jdeploy.app.tests
 
-import ca.weblite.jdeploy.app.di.DIContext
+import ca.weblite.jdeploy.DIContext
+import ca.weblite.jdeploy.app.di.JDeployDesktopGuiModule
 import ca.weblite.jdeploy.app.repositories.impl.jpa.di.EmfProviderInterface
 import ca.weblite.jdeploy.app.repositories.impl.jpa.services.DatabaseService
 import jakarta.persistence.EntityManagerFactory
@@ -15,7 +16,7 @@ abstract class BaseIntegrationTest {
     @BeforeAll
     open fun setup() {
 
-        DIContext.setInstance(createDIContext());
+        createDIContext().install()
         DIContext.get(DatabaseService::class.java).migrate();
         // Create an EntityManagerFactory for our test
         emf = DIContext.get(EmfProviderInterface::class.java).getEntityManagerFactory()
@@ -26,7 +27,7 @@ abstract class BaseIntegrationTest {
         emf?.close()
     }
 
-    open protected fun createDIContext(): DIContext {
-        return TestDIContext()
+    open protected fun createDIContext(): JDeployDesktopGuiModule {
+        return TestJDeployDesktopGuiModule()
     }
 }

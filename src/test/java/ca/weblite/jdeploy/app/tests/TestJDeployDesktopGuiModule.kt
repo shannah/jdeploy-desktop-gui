@@ -1,15 +1,14 @@
 package ca.weblite.jdeploy.app.tests
 
-import ca.weblite.jdeploy.app.config.JdeployAppConfig
+import ca.weblite.jdeploy.DIContext
 import ca.weblite.jdeploy.app.config.JdeployAppConfigInterface
 import ca.weblite.jdeploy.app.config.TestAppConfig
-import ca.weblite.jdeploy.app.di.DIContext
+import ca.weblite.jdeploy.app.di.JDeployDesktopGuiModule
 import ca.weblite.jdeploy.app.repositories.impl.jpa.di.EmfProviderInterface
 import ca.weblite.jdeploy.app.repositories.impl.jpa.tests.TestEmfProvider
 import ca.weblite.jdeploy.app.system.env.ClockInterface
-import org.codejargon.feather.Provides
 
-class TestDIContext: DIContext() {
+class TestJDeployDesktopGuiModule: JDeployDesktopGuiModule() {
 
     private var clock: ClockInterface? = null
 
@@ -29,6 +28,6 @@ class TestDIContext: DIContext() {
     }
 
     override fun getConfig(): JdeployAppConfigInterface {
-        return this.getInstance(TestAppConfig::class.java)
+        return DIContext.get(TestAppConfig::class.java)
     }
 }

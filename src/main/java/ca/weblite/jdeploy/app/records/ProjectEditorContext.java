@@ -2,7 +2,7 @@ package ca.weblite.jdeploy.app.records;
 
 import ca.weblite.jdeploy.app.accounts.AccountServiceInterface;
 import ca.weblite.jdeploy.app.accounts.AccountType;
-import ca.weblite.jdeploy.app.di.DIContext;
+import ca.weblite.jdeploy.DIContext;
 import ca.weblite.jdeploy.app.controllers.AccountChooserController;
 import ca.weblite.jdeploy.gui.JDeployProjectEditorContext;
 

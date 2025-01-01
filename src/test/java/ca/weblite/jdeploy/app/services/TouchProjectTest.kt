@@ -1,9 +1,10 @@
 package ca.weblite.jdeploy.app.services
 
-import ca.weblite.jdeploy.app.di.DIContext
+import ca.weblite.jdeploy.DIContext
+import ca.weblite.jdeploy.app.di.JDeployDesktopGuiModule
 import ca.weblite.jdeploy.app.tests.BaseIntegrationTest
 import ca.weblite.jdeploy.app.tests.ProgrammableClock
-import ca.weblite.jdeploy.app.tests.TestDIContext
+import ca.weblite.jdeploy.app.tests.TestJDeployDesktopGuiModule
 import org.junit.jupiter.api.Assertions.assertEquals
 
 import org.junit.jupiter.api.AfterAll
@@ -40,8 +41,8 @@ class TouchProjectTest: BaseIntegrationTest() {
         assertEquals(2000, project.lastOpened)
     }
 
-    override fun createDIContext(): DIContext {
-        val ctx = TestDIContext()
+    override fun createDIContext(): JDeployDesktopGuiModule {
+        val ctx = TestJDeployDesktopGuiModule()
         ctx.setClock(clock)
         return ctx
     }

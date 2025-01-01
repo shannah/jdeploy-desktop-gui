@@ -1,17 +1,19 @@
 package ca.weblite.jdeploy.app.controllers
 
-import ca.weblite.jdeploy.app.di.DIContext
+import ca.weblite.jdeploy.app.accounts.AccountInterface
+import ca.weblite.jdeploy.app.accounts.AccountType
+import ca.weblite.jdeploy.DIContext
 import ca.weblite.jdeploy.app.exceptions.ValidationFailedException
 import ca.weblite.jdeploy.app.factories.ControllerFactory
 import ca.weblite.jdeploy.app.forms.NewProjectForm
 import ca.weblite.jdeploy.app.system.files.FileSystemUiInterface
 import ca.weblite.jdeploy.builders.ProjectGeneratorRequestBuilder
-import ca.weblite.jdeploy.dtos.ProjectGeneratorRequest
 import ca.weblite.jdeploy.services.ProjectGenerator
 import ca.weblite.jdeploy.services.ProjectTemplateCatalog
 import java.awt.FlowLayout
 import java.awt.Frame
 import java.io.File
+import java.util.concurrent.CompletableFuture
 import java.util.prefs.Preferences
 import javax.swing.*
 import javax.swing.event.DocumentEvent
@@ -30,7 +32,6 @@ class NewProjectController(
         projectGenerator = DIContext.get(ProjectGenerator::class.java),
         templateCatalog = DIContext.get(ProjectTemplateCatalog::class.java),
         controllerFactory = DIContext.get(ControllerFactory::class.java),
-
     ) {
         dialog = NewProjectForm(owner)
         dialog.apply {
@@ -161,6 +162,29 @@ class NewProjectController(
             createGithubReleasesRepositoryCheckBox.isEnabled = enabled
             createGithubRepositoryUrlCheckBox.isEnabled = enabled
         }
+    }
+
+    private fun selectGitHubAccount(): CompletableFuture<AccountInterface?> {
+
+        val future = CompletableFuture<AccountInterface?>()
+        if (!requiresGithubLogin()) {
+            future.complete(null)
+            return future
+        }
+        return AccountChooserController(dialog, AccountType.GITHUB).show().thenApply { account ->
+            if (account == null) {
+                dialog.gitHubReleasesRadioButton.isSelected = false
+            }
+            account
+        }
+    }
+
+    private fun requiresGithubLogin(): Boolean {
+        return dialog.gitHubReleasesRadioButton.isSelected
+                && (
+                dialog.createGithubReleasesRepositoryCheckBox.isSelected
+                        || dialog.createGithubRepositoryUrlCheckBox.isSelected
+                )
     }
 
     private fun handleCreateProject() {

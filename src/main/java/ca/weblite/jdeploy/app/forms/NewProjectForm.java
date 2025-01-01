@@ -12,9 +12,11 @@ import com.jgoodies.forms.layout.*;
 /**
  * @author steve
  */
-public class NewProjectForm extends JDialog {
-    public NewProjectForm(Window owner) {
-        super(owner);
+public class NewProjectForm extends JFrame {
+    private Frame parentFrame;
+
+    public NewProjectForm(Frame parentFrame) {
+        this.parentFrame = parentFrame;
         initComponents();
     }
 
