@@ -173,21 +173,6 @@
       </plugin>
 
       <plugin>
-        <groupId>ca.weblite</groupId>
-        <artifactId>jdeploy-maven-plugin</artifactId>
-        <version>${jdeploy.maven.plugin.version}</version>
-        <executions>
-          <execution>
-            <id>jdeploy</id>
-            <phase>package</phase>
-            <goals>
-              <goal>sync-package-json</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
         <version>3.0.0</version>

@@ -8,6 +8,7 @@ import ca.weblite.jdeploy.app.factories.ControllerFactory
 import ca.weblite.jdeploy.app.forms.NewProjectForm
 import ca.weblite.jdeploy.app.system.files.FileSystemUiInterface
 import ca.weblite.jdeploy.builders.ProjectGeneratorRequestBuilder
+import ca.weblite.jdeploy.services.GithubTokenService
 import ca.weblite.jdeploy.services.ProjectGenerator
 import ca.weblite.jdeploy.services.ProjectTemplateCatalog
 import java.awt.FlowLayout
@@ -23,7 +24,8 @@ class NewProjectController(
     private val fileSystemUi: FileSystemUiInterface,
     private val projectGenerator: ProjectGenerator,
     private val templateCatalog: ProjectTemplateCatalog,
-    private val controllerFactory: ControllerFactory
+    private val controllerFactory: ControllerFactory,
+    private val githubTokenService: GithubTokenService = DIContext.get(GithubTokenService::class.java),
 ) {
     private lateinit var dialog: NewProjectForm
 
@@ -87,7 +89,9 @@ class NewProjectController(
             }
 
             createProjectButton.addActionListener{
-                handleCreateProject()
+                selectGitHubAccount().thenRun {
+                    handleCreateProject()
+                }
             }
 
             artifactId.addActionListener {
@@ -172,8 +176,8 @@ class NewProjectController(
             return future
         }
         return AccountChooserController(dialog, AccountType.GITHUB).show().thenApply { account ->
-            if (account == null) {
-                dialog.gitHubReleasesRadioButton.isSelected = false
+            if (account != null && account.getAccessToken() != null) {
+                githubTokenService.setToken(account.getAccessToken());
             }
             account
         }
@@ -245,6 +249,15 @@ class NewProjectController(
             groupId = dialog.groupId.text
             artifactId = dialog.artifactId.text
             templateName = dialog.projectTemplate.selectedItem?.toString()
+            if (
+                dialog.gitHubReleasesRadioButton.isSelected
+                && dialog.createGithubRepositoryUrlCheckBox.isSelected
+                && dialog.githubRepositoryUrl.text.isNotEmpty()
+                ) {
+                githubRepository = dialog.githubRepositoryUrl.text
+                isPrivateRepository = dialog.githubReleasesRepositoryUrl.text.isEmpty()
+            }
+
         }
 
         return projectGenerator.generate(params.build())
@@ -336,7 +349,9 @@ class NewProjectController(
             }
 
             if (gitHubReleasesRadioButton.isSelected) {
-                throw ValidationFailedException("GitHub is not supported yet via this form")
+                if (githubRepositoryUrl.text.isEmpty()) {
+                    throw ValidationFailedException("GitHub Repository URL is required")
+                }
             }
         }
     }
