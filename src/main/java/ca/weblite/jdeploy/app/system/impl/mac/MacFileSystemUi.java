@@ -18,14 +18,19 @@ public class MacFileSystemUi extends JavaSEFileSystemUi {
             FilenameFilter filenameFilter,
             FileSelectionValidationListener onFileSelected
     ) {
+        System.setProperty("apple.awt.fileDialogForDirectories", "true"); // Enable directory selection
+
         Window parent = (Window) parentWindow;
-        FileDialog fd = new FileDialog((Frame)parent, title, FileDialog.LOAD);
+        FileDialog fd = new FileDialog((Frame) parent, title, FileDialog.LOAD);
         fd.setMultipleMode(false);
         if (startingDir != null) {
             fd.setDirectory(startingDir);
         }
+
+        // Set filename filter to accept only directories
         fd.setFilenameFilter((dir, name) -> {
-            boolean isDir = Files.isDirectory(Path.of(dir.getAbsolutePath(), name));
+            File file = new File(dir, name);
+            boolean isDir = file.isDirectory();
             if (filenameFilter == null) {
                 return isDir;
             }
@@ -34,11 +39,21 @@ public class MacFileSystemUi extends JavaSEFileSystemUi {
 
         fd.setVisible(true);
         File[] files = fd.getFiles();
+        System.setProperty("apple.awt.fileDialogForDirectories", "false"); // Disable directory selection
+
         if (files == null || files.length == 0) {
             return null;
         }
-        return files[0].getAbsolutePath();
+
+        // Return the absolute path of the selected directory
+        File selected = files[0];
+        if (selected.isDirectory()) {
+            return selected.getAbsolutePath();
+        }
+
+        return null;
     }
+
 
     @Override
     public String openFileDialog(
