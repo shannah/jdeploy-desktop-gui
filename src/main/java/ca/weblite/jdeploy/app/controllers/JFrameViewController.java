@@ -33,9 +33,13 @@ public abstract class JFrameViewController implements Runnable {
         }
 
         frame.setContentPane(rootComponent);
-        frame.setLocationRelativeTo(null);
         frame.pack();
+        frame.setLocationRelativeTo(null);
+        onBeforeShow();
         frame.setVisible(true);
+    }
+
+    protected void onBeforeShow() {
     }
 
     @Override
