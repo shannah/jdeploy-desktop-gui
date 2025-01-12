@@ -44,9 +44,25 @@ new FormModel {
 				} )
 				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.swingx.VerticalLayout ) ) {
 					name: "panel2"
-					add( new FormComponent( "com.jformdesigner.designer.wrapper.JGoodiesFormsTitle" ) {
-						name: "title1"
-						"textWithMnemonic": "jDeploy"
+					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.FlowLayout ) ) {
+						name: "panel4"
+						add( new FormComponent( "com.jformdesigner.designer.wrapper.JGoodiesFormsTitle" ) {
+							name: "title1"
+							"textWithMnemonic": "jDeploy"
+							"font": new java.awt.Font( "Arial", 1, 14 )
+							"alignmentX": 0.5f
+							auxiliary() {
+								"JavaCodeGenerator.variableName": "heroGraphic"
+								"JavaCodeGenerator.variableGetter": true
+							}
+						} )
+					} )
+					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
+						name: "panel3"
+						auxiliary() {
+							"JavaCodeGenerator.variableName": "heroGraphicWrapper"
+							"JavaCodeGenerator.variableGetter": true
+						}
 					} )
 					add( new FormComponent( "javax.swing.JButton" ) {
 						name: "button1"

@@ -8,6 +8,7 @@ import java.awt.*;
 import javax.swing.*;
 
 import ca.weblite.jdeploy.app.records.Project;
+import ca.weblite.jdeploy.app.swing.*;
 import com.jgoodies.forms.factories.*;
 import org.jdesktop.swingx.*;
 
@@ -39,6 +40,14 @@ public class MainMenuJ extends JPanel {
         return createProjectButton;
     }
 
+    public JLabel getHeroGraphic() {
+        return heroGraphic;
+    }
+
+    public JPanel getHeroGraphicWrapper() {
+        return heroGraphicWrapper;
+    }
+
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents  @formatter:off
         // Generated using JFormDesigner Evaluation license - Steven Hannah
@@ -50,18 +59,20 @@ public class MainMenuJ extends JPanel {
         scrollPane1 = new JScrollPane();
         recentProjects = new JList<>();
         panel2 = new JPanel();
-        title1 = compFactory.createTitle("jDeploy");
+        panel4 = new JPanel();
+        heroGraphic = compFactory.createTitle("jDeploy");
+        heroGraphicWrapper = new JPanel();
         createProjectButton = new JButton();
         importProject = new JButton();
         openButton = new JButton();
 
         //======== this ========
-        setBorder(new javax.swing.border.CompoundBorder(new javax.swing.border.TitledBorder(new javax.swing.
-        border.EmptyBorder(0,0,0,0), "JF\u006frmDesi\u0067ner Ev\u0061luatio\u006e",javax.swing.border.TitledBorder.CENTER
-        ,javax.swing.border.TitledBorder.BOTTOM,new java.awt.Font("Dialo\u0067",java.awt.Font
-        .BOLD,12),java.awt.Color.red), getBorder())); addPropertyChangeListener(
-        new java.beans.PropertyChangeListener(){@Override public void propertyChange(java.beans.PropertyChangeEvent e){if("borde\u0072"
-        .equals(e.getPropertyName()))throw new RuntimeException();}});
+        setBorder (new javax. swing. border. CompoundBorder( new javax .swing .border .TitledBorder (new javax. swing. border. EmptyBorder
+        ( 0, 0, 0, 0) , "JF\u006frmD\u0065sig\u006eer \u0045val\u0075ati\u006fn", javax. swing. border. TitledBorder. CENTER, javax. swing. border
+        . TitledBorder. BOTTOM, new java .awt .Font ("Dia\u006cog" ,java .awt .Font .BOLD ,12 ), java. awt
+        . Color. red) , getBorder( )) );  addPropertyChangeListener (new java. beans. PropertyChangeListener( ){ @Override public void
+        propertyChange (java .beans .PropertyChangeEvent e) {if ("\u0062ord\u0065r" .equals (e .getPropertyName () )) throw new RuntimeException( )
+        ; }} );
         setLayout(new BorderLayout());
 
         //======== splitPane1 ========
@@ -93,7 +104,23 @@ public class MainMenuJ extends JPanel {
             //======== panel2 ========
             {
                 panel2.setLayout(new VerticalLayout());
-                panel2.add(title1);
+
+                //======== panel4 ========
+                {
+                    panel4.setLayout(new FlowLayout());
+
+                    //---- heroGraphic ----
+                    heroGraphic.setFont(new Font("Arial", Font.BOLD, 14));
+                    heroGraphic.setAlignmentX(0.5F);
+                    panel4.add(heroGraphic);
+                }
+                panel2.add(panel4);
+
+                //======== heroGraphicWrapper ========
+                {
+                    heroGraphicWrapper.setLayout(new BorderLayout());
+                }
+                panel2.add(heroGraphicWrapper);
 
                 //---- createProjectButton ----
                 createProjectButton.setText("Create new project...");
@@ -122,7 +149,9 @@ public class MainMenuJ extends JPanel {
     private JScrollPane scrollPane1;
     private JList<Project> recentProjects;
     private JPanel panel2;
-    private JLabel title1;
+    private JPanel panel4;
+    private JLabel heroGraphic;
+    private JPanel heroGraphicWrapper;
     private JButton createProjectButton;
     private JButton importProject;
     private JButton openButton;
