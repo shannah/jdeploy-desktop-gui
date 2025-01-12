@@ -55,6 +55,11 @@ public class MainMenuViewController extends JFrameViewController {
         //return new TestForm().getMhPanel();
     }
 
+    @Override
+    protected void onBeforeShow() {
+        getFrame().setTitle("jDeploy");
+    }
+
     private ListModel<Project> buildRecentProjectsModel() {
         DefaultListModel<Project> model = new DefaultListModel<>();
         for (Project project: projectService.findRecent()) {
