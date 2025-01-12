@@ -9,6 +9,33 @@ on:
     tags: ['*']
 
 jobs:
+  fetch-and-build-jdeploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout jDeploy Repository
+        uses: actions/checkout@v3
+        with:
+          repository: shannah/jdeploy
+          ref: feature/publish-targets
+
+      - name: Cache Maven Repository
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-m2-
+
+      - name: Build jDeploy Shared Module
+        run: |
+          cd shared
+          mvn clean install
+
+      - name: Build jDeploy CLI
+        run: |
+          cd cli
+          mvn clean install
+
   build:
     permissions:
       contents: write
@@ -20,6 +47,13 @@ jobs:
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
           git config --global user.name "${{ github.actor }}"
       - uses: actions/checkout@v3
+      - name: Cache Maven Repository
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-m2-
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
