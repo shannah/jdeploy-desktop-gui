@@ -64,4 +64,54 @@ public class ProjectEditorContext extends JDeployProjectEditorContext {
         }
         return accountChosenResult[0];
     }
+
+    @Override
+    public boolean promptForGithubToken(Object parent) {
+        Frame frame = parent instanceof Frame ? (Frame) parent : null;
+        final boolean[] accountChosen = {false};
+        final boolean[] accountChosenResult = {false};
+        final Object lock = new Object();
+
+        Runnable runnablePublish = () -> {
+            AccountChooserController accountChooserController = new AccountChooserController(
+                    frame,
+                    DIContext.get(AccountServiceInterface.class),
+                    AccountType.GITHUB
+            );
+
+            accountChooserController.show().thenAccept(account -> {
+                if (account == null) {
+                    accountChosen[0] = true;
+                    synchronized (lock) {
+                        lock.notify();
+                        return;
+                    }
+                }
+                setGithubToken(account.getAccessToken());
+                accountChosen[0] = true;
+                accountChosenResult[0] = true;
+                synchronized (lock) {
+                    lock.notify();
+                }
+            });
+
+        };
+        SwingUtilities.invokeLater(runnablePublish);
+
+        while (!accountChosen[0]) {
+            try {
+                synchronized (lock) {
+                    lock.wait(1000);
+                }
+            } catch (InterruptedException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+        return accountChosenResult[0];
+    }
+
+    @Override
+    public boolean shouldDisplayPublishSettingsTab() {
+        return true;
+    }
 }
