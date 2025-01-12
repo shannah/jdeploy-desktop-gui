@@ -6,9 +6,11 @@ import ca.weblite.jdeploy.app.forms.MainMenuJ;
 import ca.weblite.jdeploy.app.records.Project;
 import ca.weblite.jdeploy.app.services.Edt;
 import ca.weblite.jdeploy.app.services.ProjectService;
+import ca.weblite.jdeploy.app.swing.ResponsiveImagePanel;
 import ca.weblite.jdeploy.app.views.mainMenu.ProjectListCellRenderer;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 
 public class MainMenuViewController extends JFrameViewController {
@@ -50,6 +52,11 @@ public class MainMenuViewController extends JFrameViewController {
             newProjectController.show();
         });
 
+        mainMenu.getHeroGraphicWrapper().add(
+                new ResponsiveImagePanel(
+                        "/ca/weblite/jdeploy/app/assets/jdeploy-home-hero.png"
+                )
+        , BorderLayout.CENTER);
 
         return mainMenu;
         //return new TestForm().getMhPanel();
