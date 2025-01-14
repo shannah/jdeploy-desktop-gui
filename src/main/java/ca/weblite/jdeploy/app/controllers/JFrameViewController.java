@@ -35,6 +35,11 @@ public abstract class JFrameViewController implements Runnable {
         frame.setContentPane(rootComponent);
         frame.pack();
         frame.setLocationRelativeTo(null);
+        frame.setIconImage(
+                new ImageIcon(
+                        getClass().getResource("/ca/weblite/jdeploy/app/assets/icon.png")
+                ).getImage()
+        );
         onBeforeShow();
         frame.setVisible(true);
     }

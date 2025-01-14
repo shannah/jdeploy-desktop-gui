@@ -36,7 +36,9 @@ class NewProjectController(
         controllerFactory = DIContext.get(ControllerFactory::class.java),
     ) {
         dialog = NewProjectForm(owner)
+
         dialog.apply {
+            iconImage = javaClass.getResource("/ca/weblite/jdeploy/app/assets/icon.png")?.let { ImageIcon(it).image }
             arrayOf(artifactId, groupId, displayName, projectLocation).forEach {
                 it.document.addDocumentListener(object : DocumentListener {
                     override fun insertUpdate(e: DocumentEvent?) {
