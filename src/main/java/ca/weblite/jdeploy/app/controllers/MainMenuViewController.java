@@ -3,6 +3,7 @@ package ca.weblite.jdeploy.app.controllers;
 import ca.weblite.jdeploy.DIContext;
 import ca.weblite.jdeploy.app.factories.ControllerFactory;
 import ca.weblite.jdeploy.app.forms.MainMenuJ;
+import ca.weblite.jdeploy.app.forms.MainMenuKts;
 import ca.weblite.jdeploy.app.records.Project;
 import ca.weblite.jdeploy.app.services.Edt;
 import ca.weblite.jdeploy.app.services.ProjectService;
@@ -26,7 +27,7 @@ public class MainMenuViewController extends JFrameViewController {
     protected JComponent initUI() {
         Edt edt = DIContext.get(Edt.class);
 
-        MainMenuJ mainMenu = new MainMenuJ();
+        MainMenuKts mainMenu = new MainMenuKts();
 
         mainMenu.getOpenButton().addActionListener(e -> {
             edt.invokeLater(new OpenProjectController(getFrame()));
@@ -76,7 +77,7 @@ public class MainMenuViewController extends JFrameViewController {
         return model;
     }
 
-    private Action openRecentAction(MainMenuJ mainMenu) {
+    private Action openRecentAction(MainMenuKts mainMenu) {
         return new AbstractAction() {
 
             {

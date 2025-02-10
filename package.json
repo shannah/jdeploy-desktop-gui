@@ -5,9 +5,14 @@
     "main": "index.js",
     "preferGlobal": true,
     "repository": "",
-    "version": "1.0.2",
+    "version": "1.0.5",
     "jdeploy": {
         "jdk": false,
+        "publishTargets": [{
+            "name": "github: jdeploy-desktop-gui",
+            "type": "GITHUB",
+            "url": "https://github.com/shannah/test-jdeploy-releases"
+        }],
         "javaVersion": "21",
         "jar": "target\\jdeploy-desktop-gui-1.0-SNAPSHOT.jar",
         "javafx": false,
