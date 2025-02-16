@@ -11,6 +11,7 @@ import org.jdesktop.swingx.JXSearchField
 import org.kordamp.ikonli.material.Material
 import org.kordamp.ikonli.swing.FontIcon
 import java.awt.Color
+import java.awt.Dimension
 import javax.swing.BorderFactory
 import javax.swing.BoxLayout
 import javax.swing.JButton
@@ -77,6 +78,7 @@ class MainMenuForm(): JPanel() {
 
     init {
         splitPane {
+            preferredSize = Dimension(640, 480)
             leftComponent = borderPane{
                 border = BorderFactory.createEmptyBorder(4,4,4,4)
                 north = searchField{
@@ -103,6 +105,7 @@ class MainMenuForm(): JPanel() {
                     name = "center"
                     panel {
                         heroGraphicWrapper = this
+                        maximumSize = Dimension(400, 300)
                     }
                     button {
                         openButton = this
