@@ -3,16 +3,19 @@ import ca.weblite.jdeploy.app.config.JdeployAppConfigInterface;
 import ca.weblite.jdeploy.app.controllers.MainMenuViewController;
 import ca.weblite.jdeploy.DIContext;
 import ca.weblite.jdeploy.app.di.JDeployDesktopGuiModule;
+import ca.weblite.jdeploy.app.forms.SplashScreen;
 import ca.weblite.jdeploy.app.repositories.impl.jpa.services.DatabaseService;
 import com.formdev.flatlaf.FlatLightLaf;
 
 import javax.swing.*;
+import java.awt.*;
 import java.io.IOException;
 import java.nio.file.Path;
 
 public class JdeployDesktopGui {
 
     public static void main(String[] args) {
+        EventQueue.invokeLater(SplashScreen::new);
         new JDeployDesktopGuiModule().install();
         try {
             UIManager.setLookAndFeel(new FlatLightLaf());
