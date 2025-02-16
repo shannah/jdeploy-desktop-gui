@@ -210,6 +210,7 @@ class NewProjectForm(private val parentFrame: Frame): JFrame("Create New Project
         }
         stylesheet.apply(this)
         pack()
+        setLocationRelativeTo(parentFrame)
     }
 
     companion object {
