@@ -7,7 +7,7 @@ import java.awt.FlowLayout
 import java.awt.Frame
 import javax.swing.*
 
-class NewProjectFormKts(private val parentFrame: Frame): JFrame("Create New Project") {
+class NewProjectForm(private val parentFrame: Frame): JFrame("Create New Project") {
     private lateinit var _displayName:JTextField
     val displayName: JTextField
         get() = _displayName
@@ -215,7 +215,7 @@ class NewProjectFormKts(private val parentFrame: Frame): JFrame("Create New Proj
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
-            NewProjectFormKts(JFrame()).apply {
+            NewProjectForm(JFrame()).apply {
                 isVisible = true
             }
         }
