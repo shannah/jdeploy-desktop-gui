@@ -111,7 +111,7 @@ class MainMenuForm(): JPanel() {
                         toolTipText = "Open an existing Java project that is already configured to use jDeploy"
                     }
                     button {
-                        text = "Configure existing project for jDeploy..."
+                        text = "Import Project..."
                         importProject = this
                         icon = FontIcon.of(Material.FILE_DOWNLOAD, 24, Color.BLACK)
                         toolTipText = "Set up an existing Java project to use jDeploy"

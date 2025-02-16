@@ -2,7 +2,7 @@ package ca.weblite.jdeploy.app.controllers
 
 import ca.weblite.jdeploy.DIContext
 import ca.weblite.jdeploy.app.factories.ControllerFactory
-import ca.weblite.jdeploy.app.forms.ImportProjectFormJ
+import ca.weblite.jdeploy.app.forms.ImportProjectFormKts
 import ca.weblite.jdeploy.app.system.files.FileSystemUiInterface
 import ca.weblite.jdeploy.services.ProjectInitializer
 import java.awt.EventQueue
@@ -14,8 +14,13 @@ class ImportProjectViewController(parentFrame: JFrame): JFrameViewController(par
     private val fileSystemUi: FileSystemUiInterface = DIContext.get(FileSystemUiInterface::class.java);
     private val projectInitializer: ProjectInitializer = DIContext.get(ProjectInitializer::class.java);
     private val controllerFactory: ControllerFactory = DIContext.get(ControllerFactory::class.java);
+
+    override fun onBeforeShow() {
+        super.onBeforeShow()
+        frame.title = "Import Project"
+    }
     override fun initUI(): JComponent {
-        val form = ImportProjectFormJ()
+        val form = ImportProjectFormKts()
         form.browseProjectDirectory.addActionListener {
             val projectDir = fileSystemUi.openDirectoryDialog(
                 frame,
