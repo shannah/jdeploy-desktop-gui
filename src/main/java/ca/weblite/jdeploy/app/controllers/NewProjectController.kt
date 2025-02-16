@@ -5,7 +5,7 @@ import ca.weblite.jdeploy.app.accounts.AccountType
 import ca.weblite.jdeploy.DIContext
 import ca.weblite.jdeploy.app.exceptions.ValidationFailedException
 import ca.weblite.jdeploy.app.factories.ControllerFactory
-import ca.weblite.jdeploy.app.forms.NewProjectForm
+import ca.weblite.jdeploy.app.forms.NewProjectFormKts
 import ca.weblite.jdeploy.app.system.files.FileSystemUiInterface
 import ca.weblite.jdeploy.builders.ProjectGeneratorRequestBuilder
 import ca.weblite.jdeploy.services.GithubTokenService
@@ -27,7 +27,7 @@ class NewProjectController(
     private val controllerFactory: ControllerFactory,
     private val githubTokenService: GithubTokenService = DIContext.get(GithubTokenService::class.java),
 ) {
-    private lateinit var dialog: NewProjectForm
+    private lateinit var dialog: NewProjectFormKts
 
     constructor(owner: Frame): this(
         fileSystemUi = DIContext.get(FileSystemUiInterface::class.java),
@@ -35,7 +35,7 @@ class NewProjectController(
         templateCatalog = DIContext.get(ProjectTemplateCatalog::class.java),
         controllerFactory = DIContext.get(ControllerFactory::class.java),
     ) {
-        dialog = NewProjectForm(owner)
+        dialog = NewProjectFormKts(owner)
 
         dialog.apply {
             iconImage = javaClass.getResource("/ca/weblite/jdeploy/app/assets/icon.png")?.let { ImageIcon(it).image }

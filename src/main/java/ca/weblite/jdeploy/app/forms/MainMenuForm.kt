@@ -1,7 +1,6 @@
 package ca.weblite.jdeploy.app.forms
 
 import ca.weblite.jdeploy.app.records.Project
-import ca.weblite.jdeploy.app.swing.SearchTextField
 import ca.weblite.ktswing.*
 import ca.weblite.ktswing.extensions.classList
 import ca.weblite.ktswing.extensions.onMouseEntered
@@ -12,7 +11,6 @@ import org.jdesktop.swingx.JXSearchField
 import org.kordamp.ikonli.material.Material
 import org.kordamp.ikonli.swing.FontIcon
 import java.awt.Color
-import java.awt.event.MouseAdapter
 import javax.swing.BorderFactory
 import javax.swing.BoxLayout
 import javax.swing.JButton
@@ -41,7 +39,7 @@ val stylesheet = Stylesheet() {
     }
 }
 
-class MainMenuKts(): JPanel() {
+class MainMenuForm(): JPanel() {
     private var openButton: JButton? = null
     private var recentProjects: JList<Project>? = null
     private var openRecentButton: JButton? = null
