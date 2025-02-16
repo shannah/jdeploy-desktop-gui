@@ -8,52 +8,21 @@ import java.awt.Frame
 import javax.swing.*
 
 class NewProjectForm(private val parentFrame: Frame): JFrame("Create New Project") {
-    private lateinit var _displayName:JTextField
-    val displayName: JTextField
-        get() = _displayName
-
-    private lateinit var _groupId:JTextField
-    val groupId: JTextField
-        get() = _groupId
-    private lateinit var _artifactId:JTextField
-    val artifactId: JTextField
-        get() = _artifactId
-    private lateinit var _projectLocation:JTextField
-    val projectLocation: JTextField
-        get() = _projectLocation
-    private lateinit var _projectTemplate:JComboBox<String>
-    val projectTemplate: JComboBox<String>
-        get() = _projectTemplate
-    private lateinit var _selectProjectLocationButton:JButton
-    val selectProjectLocationButton: JButton
-        get() = _selectProjectLocationButton
-    private lateinit var _refreshTemplatesButton:JButton
-    val refreshTemplatesButton: JButton
-        get() = _refreshTemplatesButton
-    private lateinit var _npmProjectName:JTextField
-    val npmProjectName: JTextField
-        get() = _npmProjectName
-    private lateinit var _githubRepositoryUrl:JTextField
-    val githubRepositoryUrl: JTextField
-        get() = _githubRepositoryUrl
-    private lateinit var _githubReleasesRepositoryUrl:JTextField
-    val githubReleasesRepositoryUrl: JTextField
-        get() = _githubReleasesRepositoryUrl
-    private lateinit var _createGithubReleasesRepositoryCheckBox:JCheckBox
-    val createGithubReleasesRepositoryCheckBox: JCheckBox
-        get() = _createGithubReleasesRepositoryCheckBox
-    private lateinit var _createGithubRepositoryUrlCheckBox:JCheckBox
-    val createGithubRepositoryUrlCheckBox: JCheckBox
-        get() = _createGithubRepositoryUrlCheckBox
-    private lateinit var _npmRadioButton:JRadioButton
-    val npmRadioButton: JRadioButton
-        get() = _npmRadioButton
-    private lateinit var _gitHubReleasesRadioButton:JRadioButton
-    val gitHubReleasesRadioButton: JRadioButton
-        get() = _gitHubReleasesRadioButton
-    private lateinit var _createProjectButton:JButton
-    val createProjectButton: JButton
-        get() = _createProjectButton
+    lateinit var displayName:JTextField private set
+    lateinit var groupId:JTextField private set
+    lateinit var artifactId:JTextField private set
+    lateinit var projectLocation:JTextField private set
+    lateinit var projectTemplate:JComboBox<String> private set
+    lateinit var selectProjectLocationButton:JButton private set
+    lateinit var refreshTemplatesButton:JButton private set
+    lateinit var npmProjectName:JTextField private set
+    lateinit var githubRepositoryUrl:JTextField private set
+    lateinit var githubReleasesRepositoryUrl:JTextField private set
+    lateinit var createGithubReleasesRepositoryCheckBox:JCheckBox private set
+    lateinit var createGithubRepositoryUrlCheckBox:JCheckBox private set
+    lateinit var npmRadioButton:JRadioButton private set
+    lateinit var gitHubReleasesRadioButton:JRadioButton private set
+    lateinit var createProjectButton:JButton private set
 
     init{
         val stylesheet = Stylesheet() {
@@ -70,7 +39,7 @@ class NewProjectForm(private val parentFrame: Frame): JFrame("Create New Project
                 } at x(1)
 
                 textField{
-                    _displayName = this
+                    displayName = this
                 } at x(3)
             }
             row {
@@ -79,7 +48,7 @@ class NewProjectForm(private val parentFrame: Frame): JFrame("Create New Project
                 } at x(1)
 
                 textField{
-                    _groupId = this
+                    groupId = this
                 } at x(3)
 
             }
@@ -90,7 +59,7 @@ class NewProjectForm(private val parentFrame: Frame): JFrame("Create New Project
                 } at x(1)
 
                 textField{
-                    _artifactId = this
+                    artifactId = this
                 } at x(3)
             }
 
@@ -100,12 +69,12 @@ class NewProjectForm(private val parentFrame: Frame): JFrame("Create New Project
                 } at x(1)
 
                 textField{
-                    _projectLocation = this
+                    projectLocation = this
                 } at x(3)
 
                 button{
                     text = "Select ..."
-                    _selectProjectLocationButton = this
+                    selectProjectLocationButton = this
                 } at x(5)
             }
 
@@ -115,12 +84,12 @@ class NewProjectForm(private val parentFrame: Frame): JFrame("Create New Project
                 } at x(1)
 
                 comboBox<String>{
-                    _projectTemplate = this
+                    projectTemplate = this
                 } at x(3)
 
                 button{
                     text = "Refresh"
-                    _refreshTemplatesButton = this
+                    refreshTemplatesButton = this
                 } at x(5)
             }
 
@@ -139,12 +108,12 @@ class NewProjectForm(private val parentFrame: Frame): JFrame("Create New Project
                     radioButton{
                         text = "GitHub"
                         buttonGroup.add(this)
-                        _gitHubReleasesRadioButton = this
+                        gitHubReleasesRadioButton = this
                     }
                     radioButton {
                         text = "npm"
                         buttonGroup.add(this)
-                        _npmRadioButton = this
+                        npmRadioButton = this
                     }
                 } at xw(3, 3)
             }
@@ -159,7 +128,7 @@ class NewProjectForm(private val parentFrame: Frame): JFrame("Create New Project
                 } at x(1)
 
                 textField {
-                    _npmProjectName = this
+                    npmProjectName = this
                 } at x(3)
             }
 
@@ -173,12 +142,12 @@ class NewProjectForm(private val parentFrame: Frame): JFrame("Create New Project
                 } at x(1)
 
                 textField {
-                    _githubRepositoryUrl = this
+                    githubRepositoryUrl = this
                 } at x(3)
 
                 checkBox {
                     text = "Create Repository"
-                    _createGithubRepositoryUrlCheckBox = this
+                    createGithubRepositoryUrlCheckBox = this
                 } at x(5)
             }
 
@@ -188,12 +157,12 @@ class NewProjectForm(private val parentFrame: Frame): JFrame("Create New Project
                 } at x(1)
 
                 textField {
-                    _githubReleasesRepositoryUrl = this
+                    githubReleasesRepositoryUrl = this
                 } at x(3)
 
                 checkBox {
                     text = "Create Repository"
-                    _createGithubReleasesRepositoryCheckBox = this
+                    createGithubReleasesRepositoryCheckBox = this
                 } at x(5)
             }
 
@@ -202,7 +171,7 @@ class NewProjectForm(private val parentFrame: Frame): JFrame("Create New Project
                     layout = FlowLayout(FlowLayout.RIGHT)
                     button {
                         text = "Create Project"
-                        _createProjectButton = this
+                        createProjectButton = this
                     }
                 } at xw(1, 5)
             }
