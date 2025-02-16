@@ -7,6 +7,8 @@ import ca.weblite.ktswing.extensions.classList
 import ca.weblite.ktswing.extensions.onMouseEntered
 import ca.weblite.ktswing.extensions.onMouseExited
 import ca.weblite.ktswing.style.Stylesheet
+import ca.weblite.ktswing.swingx.searchField
+import org.jdesktop.swingx.JXSearchField
 import org.kordamp.ikonli.material.Material
 import org.kordamp.ikonli.swing.FontIcon
 import java.awt.Color
@@ -46,7 +48,11 @@ class MainMenuKts(): JPanel() {
     private var importProject: JButton? = null
     private var createProjectButton: JButton? = null
     private var heroGraphicWrapper: JPanel? = null
+    private var searchField: JXSearchField? = null
 
+    fun getSearchField(): JXSearchField {
+        return searchField!!
+    }
     fun getOpenButton(): JButton {
         return openButton!!
     }
@@ -75,9 +81,8 @@ class MainMenuKts(): JPanel() {
         splitPane {
             leftComponent = borderPane{
                 border = BorderFactory.createEmptyBorder(4,4,4,4)
-                north = borderPane {
-                    border = BorderFactory.createEmptyBorder(4,4,4,4)
-                    center = SearchTextField()
+                north = searchField{
+                    searchField = this
                 }
                 center = scrollPane {
                     recentProjects = JList<Project>(arrayOf())

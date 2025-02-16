@@ -11,6 +11,7 @@ import ca.weblite.jdeploy.app.swing.ResponsiveImagePanel;
 import ca.weblite.jdeploy.app.views.mainMenu.ProjectListCellRenderer;
 
 import javax.swing.*;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 
@@ -43,6 +44,34 @@ public class MainMenuViewController extends JFrameViewController {
             openRecentAction.setEnabled(mainMenu.getRecentProjects().getSelectedValue() != null);
         });
         mainMenu.getOpenRecentButton().setAction(openRecentAction);
+        mainMenu.getSearchField().getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(javax.swing.event.DocumentEvent e) {
+                filterProjects();
+            }
+
+            @Override
+            public void removeUpdate(javax.swing.event.DocumentEvent e) {
+                filterProjects();
+            }
+
+            @Override
+            public void changedUpdate(javax.swing.event.DocumentEvent e) {
+                filterProjects();
+            }
+
+            private void filterProjects() {
+                String query = mainMenu.getSearchField().getText();
+                DefaultListModel<Project> model = (DefaultListModel<Project>) mainMenu.getRecentProjects().getModel();
+                model.clear();
+                for (Project project: projectService.findRecent()) {
+                    if (!query.isEmpty() && !project.getName().toLowerCase().contains(query.toLowerCase())) {
+                        continue;
+                    }
+                    model.addElement(project);
+                }
+            }
+        });
 
         mainMenu.getImportProject().addActionListener(e -> {
             new ImportProjectViewController(getFrame()).run();
