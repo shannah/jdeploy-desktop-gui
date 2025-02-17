@@ -29,6 +29,7 @@
       <kotlin.jvm.target>17</kotlin.jvm.target>
       <hibernate.version>6.2.8.Final</hibernate.version>
       <hibernate.dialect.version>6.0.0.Final</hibernate.dialect.version>
+      <ktswing.version>0.0.11</ktswing.version>
   </properties>
   <dependencies>
       <dependency>
@@ -47,17 +48,17 @@
       <dependency>
           <groupId>ca.weblite</groupId>
           <artifactId>ktswing-main</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${ktswing.version}</version>
       </dependency>
       <dependency>
           <groupId>ca.weblite</groupId>
           <artifactId>ktswing-jgoodies</artifactId>
-          <version>1.0-SNAPSHOT</version>
+          <version>${ktswing.version}</version>
         </dependency>
       <dependency>
           <groupId>ca.weblite</groupId>
           <artifactId>ktswing-swingx</artifactId>
-          <version>1.0-SNAPSHOT</version>
+          <version>${ktswing.version}</version>
       </dependency>
       <dependency>
       <groupId>com.jgoodies</groupId>
