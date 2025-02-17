@@ -60,6 +60,9 @@ class SplashScreen: JFrame() {
         setSize(400, 300)
         setLocationRelativeTo(null)
         defaultCloseOperation = DISPOSE_ON_CLOSE
+    }
+
+    public fun showSplash() {
         isVisible = true
         bringToFront(this)
 
