@@ -1,33 +1,32 @@
 {
-  "bin": {
-    "jdeploy-desktop-gui": "jdeploy-bundle/jdeploy.js"
-  },
-  "author": "",
-  "description": "jDeploy Swing Starter Project",
-  "main": "index.js",
-  "preferGlobal": true,
-  "repository": "",
-  "version": "1.0-SNAPSHOT",
-  "jdeploy": {
-    "jdk": false,
-    "javaVersion": "17",
-    "jar": "target/jdeploy-desktop-gui-1.0-SNAPSHOT.jar",
-    "javafx": false,
-    "title": "Jdeploy Desktop Gui"
-  },
-  "dependencies": {
-    "command-exists-promise": "^2.0.2",
-    "node-fetch": "2.6.7",
-    "shelljs": "^0.8.4",
-    "tar": "^4.4.8",
-    "yauzl": "^2.10.0"
-  },
-  "license": "ISC",
-  "name": "jdeploy-desktop-gui",
-  "files": [
-    "jdeploy-bundle"
-  ],
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  }
+    "bin": {"jdeploy-desktop-gui": "jdeploy-bundle/jdeploy.js"},
+    "author": "Web Lite Solutions",
+    "description": "Deploy Java desktop applications as native bundles",
+    "main": "index.js",
+    "preferGlobal": true,
+    "repository": "",
+    "version": "1.0.5",
+    "jdeploy": {
+        "jdk": false,
+        "publishTargets": [{
+            "name": "github: jdeploy-desktop-gui",
+            "type": "GITHUB",
+            "url": "https://github.com/shannah/test-jdeploy-releases"
+        }],
+        "javaVersion": "21",
+        "jar": "target\\jdeploy-desktop-gui-1.0-SNAPSHOT.jar",
+        "javafx": false,
+        "title": "jDeploy"
+    },
+    "dependencies": {
+        "command-exists-promise": "^2.0.2",
+        "node-fetch": "2.6.7",
+        "tar": "^4.4.8",
+        "yauzl": "^2.10.0",
+        "shelljs": "^0.8.4"
+    },
+    "license": "ISC",
+    "name": "jdeploy-desktop-gui",
+    "files": ["jdeploy-bundle"],
+    "scripts": {"test": "echo \"Error: no test specified\" && exit 1"}
 }

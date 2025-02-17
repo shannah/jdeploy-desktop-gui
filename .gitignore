@@ -1,4 +1,6 @@
 target
 .idea
-/jdeploy
+*.iml
 /jdeploy-bundle
+/jdeploy
+/.jdeploy

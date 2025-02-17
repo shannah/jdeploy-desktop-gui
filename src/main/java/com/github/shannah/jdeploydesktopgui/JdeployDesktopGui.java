@@ -1,56 +1,42 @@
 package com.github.shannah.jdeploydesktopgui;
+import ca.weblite.jdeploy.app.config.JdeployAppConfigInterface;
+import ca.weblite.jdeploy.app.controllers.MainMenuViewController;
+import ca.weblite.jdeploy.DIContext;
+import ca.weblite.jdeploy.app.di.JDeployDesktopGuiModule;
+import ca.weblite.jdeploy.app.forms.SplashScreen;
+import ca.weblite.jdeploy.app.repositories.impl.jpa.services.DatabaseService;
+import com.formdev.flatlaf.FlatLightLaf;
+
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.nio.file.Path;
 
-public class JdeployDesktopGui extends JFrame {
-
-    private Timer timer;
-    private int x, y, xDelta = 2, yDelta = 2;
-    private JButton startButton, stopButton;
-    private AnimatedPanel animatedPanel;
-
-    public JdeployDesktopGui() {
-        x = y = 100;
-        timer = new Timer(10, e -> {
-            x += xDelta;
-            y += yDelta;
-
-            if (x + "Hello jDeploy".length() * 7 >= animatedPanel.getWidth() || x < 0) xDelta *= -1;
-            if (y + 15 >= animatedPanel.getHeight() || y < 0) yDelta *= -1;
-
-            animatedPanel.repaint();
-        });
-
-        startButton = new JButton("Start");
-        startButton.addActionListener(e -> timer.start());
-
-        stopButton = new JButton("Stop");
-        stopButton.addActionListener(e -> timer.stop());
-
-        animatedPanel = new AnimatedPanel();
-
-        setLayout(new BorderLayout());
-        add(animatedPanel, BorderLayout.CENTER);
-        add(startButton, BorderLayout.NORTH);
-        add(stopButton, BorderLayout.SOUTH);
-    }
-
-    class AnimatedPanel extends JPanel {
-        @Override
-        protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
-            g.drawString("Hello jDeploy 8", x, y);
-        }
-    }
+public class JdeployDesktopGui {
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            JdeployDesktopGui frame = new JdeployDesktopGui();
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setSize(400, 400);
-            frame.setVisible(true);
-        });
+        EventQueue.invokeLater(SplashScreen::new);
+        new JDeployDesktopGuiModule().install();
+        try {
+            UIManager.setLookAndFeel(new FlatLightLaf());
+        } catch (UnsupportedLookAndFeelException ex) {
+            ex.printStackTrace();
+        }
+        createApplicationFilesDirectory();
+        DIContext.get(DatabaseService.class).migrate();
+        SwingUtilities.invokeLater(() -> new MainMenuViewController().run());
+    }
+
+    private static void createApplicationFilesDirectory() {
+        Path appDataPath = DIContext.get(JdeployAppConfigInterface.class).getAppDataPath();
+        ca.weblite.jdeploy.app.system.files.FileSystemInterface fileSystem
+                = DIContext.get(ca.weblite.jdeploy.app.system.files.FileSystemInterface.class);
+        try {
+            if (!fileSystem.isDirectory(appDataPath.toAbsolutePath().toString())) {
+                fileSystem.mkdir(appDataPath.toAbsolutePath().toString());
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
