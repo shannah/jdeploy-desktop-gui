@@ -15,13 +15,16 @@ import java.nio.file.Path;
 public class JdeployDesktopGui {
 
     public static void main(String[] args) {
-        EventQueue.invokeLater(SplashScreen::new);
-        new JDeployDesktopGuiModule().install();
         try {
             UIManager.setLookAndFeel(new FlatLightLaf());
         } catch (UnsupportedLookAndFeelException ex) {
             ex.printStackTrace();
         }
+        EventQueue.invokeLater(()->{
+            new SplashScreen().showSplash();
+        });
+        new JDeployDesktopGuiModule().install();
+
         createApplicationFilesDirectory();
         DIContext.get(DatabaseService.class).migrate();
         SwingUtilities.invokeLater(() -> new MainMenuViewController().run());

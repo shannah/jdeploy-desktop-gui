@@ -60,7 +60,11 @@ class SplashScreen: JFrame() {
         setSize(400, 300)
         setLocationRelativeTo(null)
         defaultCloseOperation = DISPOSE_ON_CLOSE
+    }
+
+    public fun showSplash() {
         isVisible = true
+        bringToFront(this)
 
         // Periodically check to see if any other JFrames are visible.
         // close if it finds any
@@ -72,5 +76,19 @@ class SplashScreen: JFrame() {
                 }
             }
         }.start()
+    }
+
+    private fun bringToFront(frame: JFrame) {
+        // Make sure the window is in normal state
+        frame.extendedState = JFrame.NORMAL
+
+        // Temporarily set always on top to try to grab focus
+        frame.isAlwaysOnTop = true
+
+        // Bring to front
+        frame.toFront()
+
+        // Request focus for the frame
+        frame.requestFocus()
     }
 }
