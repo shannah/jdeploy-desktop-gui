@@ -114,4 +114,9 @@ public class ProjectEditorContext extends JDeployProjectEditorContext {
     public boolean shouldDisplayPublishSettingsTab() {
         return true;
     }
+
+    @Override
+    public boolean useManagedNode() {
+        return true;
+    }
 }
