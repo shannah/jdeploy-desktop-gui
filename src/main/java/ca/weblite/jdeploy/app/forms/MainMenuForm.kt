@@ -79,19 +79,29 @@ class MainMenuForm(): JPanel() {
     init {
         splitPane {
             preferredSize = Dimension(640, 480)
+            dividerLocation = 200
             leftComponent = borderPane{
                 border = BorderFactory.createEmptyBorder(4,4,4,4)
-                north = searchField{
-                    searchField = this
+                north = borderPane {
+                    border = BorderFactory.createEmptyBorder(4,4,4,4)
+                    center = searchField{
+                        searchField = this
+                    }
                 }
-                center = scrollPane {
-                    recentProjects = JList<Project>(arrayOf())
-                    setViewportView(recentProjects)
+                center = borderPane{
+                    border = BorderFactory.createEmptyBorder(4,4,4,4)
+                    center = scrollPane {
+                        recentProjects = JList<Project>(arrayOf())
+                        setViewportView(recentProjects)
+                    }
                 }
-                south = button {
-                    text = "Open recent"
-                    toolTipText = "Open the selected recent project"
-                    openRecentButton = this
+                south = borderPane {
+                    border = BorderFactory.createEmptyBorder(4,4,4,4)
+                    center = button {
+                        text = "Open recent"
+                        toolTipText = "Open the selected recent project"
+                        openRecentButton = this
+                    }
                 }
 
             }

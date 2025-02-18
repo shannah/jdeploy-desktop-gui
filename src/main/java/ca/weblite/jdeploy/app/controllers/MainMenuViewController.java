@@ -13,6 +13,8 @@ import javax.swing.*;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class MainMenuViewController extends JFrameViewController {
 
@@ -43,6 +45,15 @@ public class MainMenuViewController extends JFrameViewController {
             openRecentAction.setEnabled(mainMenu.getRecentProjects().getSelectedValue() != null);
         });
         mainMenu.getOpenRecentButton().setAction(openRecentAction);
+
+        mainMenu.getRecentProjects().addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    openRecentAction.actionPerformed(null);
+                }
+            }
+        });
         mainMenu.getSearchField().getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(javax.swing.event.DocumentEvent e) {
