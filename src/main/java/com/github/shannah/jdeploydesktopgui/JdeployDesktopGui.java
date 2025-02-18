@@ -12,14 +12,19 @@ import java.awt.*;
 import java.io.IOException;
 import java.nio.file.Path;
 
+import static org.freedesktop.dbus.utils.Util.isMacOs;
+
 public class JdeployDesktopGui {
 
     public static void main(String[] args) {
-        try {
-            UIManager.setLookAndFeel(new FlatLightLaf());
-        } catch (UnsupportedLookAndFeelException ex) {
-            ex.printStackTrace();
+        if (!isMacOs()) {
+            try {
+                UIManager.setLookAndFeel(new FlatLightLaf());
+            } catch (UnsupportedLookAndFeelException ex) {
+                ex.printStackTrace();
+            }
         }
+
         EventQueue.invokeLater(()->{
             new SplashScreen().showSplash();
         });
