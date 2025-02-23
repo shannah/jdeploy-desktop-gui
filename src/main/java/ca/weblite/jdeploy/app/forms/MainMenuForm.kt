@@ -7,6 +7,7 @@ import ca.weblite.ktswing.extensions.onMouseEntered
 import ca.weblite.ktswing.extensions.onMouseExited
 import ca.weblite.ktswing.style.Stylesheet
 import ca.weblite.ktswing.swingx.searchField
+import ca.weblite.tools.platform.Platform
 import org.jdesktop.swingx.JXSearchField
 import org.kordamp.ikonli.material.Material
 import org.kordamp.ikonli.swing.FontIcon
@@ -37,6 +38,12 @@ val stylesheet = Stylesheet() {
 
     button(".hover") {
         background = Color(0,0,0,10)
+    }
+
+    splitPane {
+        if (Platform.getSystemPlatform().isMac()) {
+            border = BorderFactory.createEmptyBorder(0,0,0,0)
+        }
     }
 }
 
