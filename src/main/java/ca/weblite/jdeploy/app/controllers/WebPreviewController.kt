@@ -26,7 +26,7 @@ class WebPreviewController(private val parentFrame: JFrame, private val context:
 
     private fun generateWebApp():  CheerpjService.Result {
         val cheerpjService = CheerpjService(File(context.projectSettings().packageJsonPath), null)
-        cheerpjService.setArgs(listOf("serve").toTypedArray())
+        cheerpjService.setArgs(listOf("--serve", "--preview").toTypedArray())
         return cheerpjService.execute()
     }
 
