@@ -9,25 +9,6 @@ on:
     tags: ['*']
 
 jobs:
-  fetch-and-build-jdeploy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout jDeploy Repository
-        uses: actions/checkout@v3
-        with:
-          repository: shannah/jdeploy
-          ref: master
-
-      - name: Build jDeploy Shared Module
-        run: |
-          cd shared
-          mvn clean install
-
-      - name: Build jDeploy CLI
-        run: |
-          cd cli
-          mvn clean install
-
   build:
     permissions:
       contents: write
