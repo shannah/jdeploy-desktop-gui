@@ -25,20 +25,19 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
-      - name: Checkout jDeploy Repository
-        uses: actions/checkout@v3
-        with:
-          repository: shannah/jdeploy
-          ref: master
+      - name: Download and Extract jDeploy Repository
+        run: |
+          curl -L -o jdeploy.zip https://github.com/shannah/jdeploy/archive/refs/heads/master.zip
+          unzip jdeploy.zip
 
       - name: Build jDeploy Shared Module
         run: |
-          cd shared
+          cd jdeploy-master/shared
           mvn clean install
 
       - name: Build jDeploy CLI
         run: |
-          cd cli
+          cd jdeploy-master/cli
           mvn clean install
 
       - name: Build with Maven
