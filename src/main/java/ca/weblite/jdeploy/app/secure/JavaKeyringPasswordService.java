@@ -6,61 +6,58 @@ import com.github.javakeyring.PasswordAccessException;
 
 import javax.inject.Singleton;
 import java.util.concurrent.CompletableFuture;
+import java.util.prefs.Preferences;
 
-/**
- * An implementation of PasswordServiceInterface that uses the cross-platform
- * java-keyring library to store/retrieve/remove passwords on Windows
- * (via Windows Credential Manager), macOS Keychain, or Linux keyrings.
- */
 @Singleton
 public class JavaKeyringPasswordService implements PasswordServiceInterface {
 
-    // This is the "service name" or "application ID" used for storing credentials.
-    // You can choose any string; it simply labels your credentials in the keyring.
     private static final String SERVICE_NAME = "com.jdeploy";
+
+    // Fallback storage using Preferences
+    private final Preferences fallbackPrefs = Preferences.userRoot().node(SERVICE_NAME);
 
     @Override
     public CompletableFuture<char[]> getPassword(String name, String prompt) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                // The prompt parameter is ignored in this example,
-                // but you could use it to display a UI message if desired.
-
                 Keyring keyring = Keyring.create();
-                // Retrieve the password associated with (service=SERVICE_NAME, account=name).
                 String password = keyring.getPassword(SERVICE_NAME, name);
-                // Return as char[] if present, or null if not found.
-                return password != null ? password.toCharArray() : null;
-            } catch (PasswordAccessException e) {
-                throw new RuntimeException(e);
-            } catch (BackendNotSupportedException e) {
-                throw new RuntimeException(e);
+                if (password != null) {
+                    return password.toCharArray();
+                }
+            } catch (BackendNotSupportedException | PasswordAccessException ignored) {
+                // Fallback to Preferences
             }
+            // Fallback retrieval
+            String fallbackPassword = fallbackPrefs.get(name, null);
+            return fallbackPassword != null ? fallbackPassword.toCharArray() : null;
         });
     }
 
     @Override
     public CompletableFuture<Void> setPassword(String name, char[] password) {
         return CompletableFuture.runAsync(() -> {
+            String passStr = password != null ? new String(password) : null;
+
             try {
                 Keyring keyring = Keyring.create();
-                // Convert the char[] to a String for storing in the keyring
-                String passStr = password != null ? new String(password) : null;
-
-                // If password is null or empty, you might remove the credential instead.
                 if (passStr == null || passStr.isEmpty()) {
                     keyring.deletePassword(SERVICE_NAME, name);
                 } else {
-                    // Store the password for (service=SERVICE_NAME, account=name).
                     keyring.setPassword(SERVICE_NAME, name, passStr);
                 }
+                // Successfully stored in keyring, remove from fallback
+                fallbackPrefs.remove(name);
+                return;
+            } catch (BackendNotSupportedException | PasswordAccessException ignored) {
+                // Fallback to Preferences
+            }
 
-                // Optionally, overwrite the passStr memory if you want to reduce its exposure
-                // but keep in mind Java strings are immutable. You might do more rigorous scrubbing.
-            } catch (BackendNotSupportedException e) {
-                throw new RuntimeException("Error setting password in keyring", e);
-            } catch (PasswordAccessException e) {
-                throw new RuntimeException(e);
+            // Fallback storage
+            if (passStr == null || passStr.isEmpty()) {
+                fallbackPrefs.remove(name);
+            } else {
+                fallbackPrefs.put(name, passStr);
             }
         });
     }
@@ -70,13 +67,11 @@ public class JavaKeyringPasswordService implements PasswordServiceInterface {
         return CompletableFuture.runAsync(() -> {
             try {
                 Keyring keyring = Keyring.create();
-                // Removes the credential from the keyring if it exists
                 keyring.deletePassword(SERVICE_NAME, name);
-            } catch (BackendNotSupportedException e) {
-                throw new RuntimeException("Error removing password from keyring", e);
-            } catch (PasswordAccessException e) {
-                throw new RuntimeException(e);
+            } catch (BackendNotSupportedException | PasswordAccessException ignored) {
+                // Fallback to Preferences
             }
+            fallbackPrefs.remove(name);
         });
     }
 }
