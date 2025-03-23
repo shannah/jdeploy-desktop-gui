@@ -25,7 +25,7 @@ public class JavaKeyringPasswordService implements PasswordServiceInterface {
                 if (password != null) {
                     return password.toCharArray();
                 }
-            } catch (BackendNotSupportedException | PasswordAccessException ignored) {
+            } catch (Throwable ignored) {
                 // Fallback to Preferences
             }
             // Fallback retrieval
@@ -49,7 +49,7 @@ public class JavaKeyringPasswordService implements PasswordServiceInterface {
                 // Successfully stored in keyring, remove from fallback
                 fallbackPrefs.remove(name);
                 return;
-            } catch (BackendNotSupportedException | PasswordAccessException ignored) {
+            } catch (Throwable ignored) {
                 // Fallback to Preferences
             }
 
@@ -68,7 +68,7 @@ public class JavaKeyringPasswordService implements PasswordServiceInterface {
             try {
                 Keyring keyring = Keyring.create();
                 keyring.deletePassword(SERVICE_NAME, name);
-            } catch (BackendNotSupportedException | PasswordAccessException ignored) {
+            } catch (Throwable ignored) {
                 // Fallback to Preferences
             }
             fallbackPrefs.remove(name);
