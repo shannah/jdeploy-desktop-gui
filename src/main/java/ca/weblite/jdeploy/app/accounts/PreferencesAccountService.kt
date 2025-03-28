@@ -30,7 +30,7 @@ class PreferencesAccountService @Inject constructor(
                         if (parts.size == 2) {
                             val accountType = AccountType.valueOf(parts[0])
                             val accountName = parts[1]
-                            accounts.add(Account(accountName, null, accountType))
+                            accounts.add(Account(accountName=accountName, accessToken=null, accountType=accountType))
                         }
                     }
                 }
