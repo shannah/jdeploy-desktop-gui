@@ -48,6 +48,9 @@ public class AccountChooserController {
     }
 
     public CompletableFuture<AccountInterface> showDialog(List<AccountInterface> accounts) {
+        accounts = accounts.stream()
+                .filter(a -> a.getAccountType() == accountType)
+                .toList();
         AccountChooserDialog dialog = new AccountChooserDialog(parentFrame, accounts);
         switch (accountType) {
             case NPM:
