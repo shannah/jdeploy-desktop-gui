@@ -25,10 +25,20 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
+      - name: Set up Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16.x'
+          registry-url: 'https://registry.npmjs.org'
       - name: Download and Extract jDeploy Repository
         run: |
           curl -L -o jdeploy.zip https://github.com/shannah/jdeploy/archive/refs/heads/master.zip
           unzip jdeploy.zip
+
+      - name: Install signed installer templates into local maven repo
+        run: |
+          cd jdeploy-master
+          bash install-signed-installer-templates.sh
 
       - name: Build jDeploy Shared Module
         run: |
