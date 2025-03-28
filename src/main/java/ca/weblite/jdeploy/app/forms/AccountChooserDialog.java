@@ -7,7 +7,10 @@ import org.kordamp.ikonli.swing.FontIcon;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.EventListener;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public class AccountChooserDialog extends JDialog {
 
@@ -33,6 +36,8 @@ public class AccountChooserDialog extends JDialog {
     private final Color selectedBackground = new Color(220, 240, 255);
 
     private final JLabel titleLabel;
+
+    private List<AccountListener> accountListeners = new ArrayList<>();
 
     /**
      * Creates a modal, undecorated dialog.
@@ -101,8 +106,39 @@ public class AccountChooserDialog extends JDialog {
         accountListPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         for (AccountInterface account : accounts) {
+            JPanel accountPanel = new JPanel();
             JButton accountBtn = createAccountButton(account);
-            accountListPanel.add(accountBtn);
+            JPanel accountButtonsPanel = new JPanel();
+            accountButtonsPanel.setLayout(new BoxLayout(accountButtonsPanel, BoxLayout.X_AXIS));
+            JButton editAccountBtn = createEditAccountButton(account, accountBtn, accountPanel);
+            JButton deleteAccountBtn = createDeleteAccountButton(account, accountBtn, accountPanel);
+            editAccountBtn.setMargin(new Insets(0, 0, 0, 0));
+            deleteAccountBtn.setMargin(new Insets(0, 0, 0, 0));
+
+            Dimension buttonSize = new Dimension(24, 24); // or 20x20 depending on icon size
+
+            for (JButton btn : new JButton[]{editAccountBtn, deleteAccountBtn}) {
+                btn.setPreferredSize(buttonSize);
+                btn.setMinimumSize(buttonSize);
+                btn.setMaximumSize(buttonSize);
+                btn.setMargin(new Insets(0, 0, 0, 0));
+                btn.setBorderPainted(false);
+                btn.setContentAreaFilled(false);
+                btn.setFocusPainted(false);
+                btn.setOpaque(false);
+            }
+
+            accountPanel.setLayout(new BoxLayout(accountPanel, BoxLayout.X_AXIS));
+            accountPanel.setOpaque(false);
+            accountPanel.add(accountBtn);
+            accountPanel.add(Box.createRigidArea(new Dimension(30, 0)));
+            accountPanel.add(Box.createHorizontalGlue());
+
+            accountButtonsPanel.add(editAccountBtn);
+            accountButtonsPanel.add(Box.createRigidArea(new Dimension(0, 0)));
+            accountButtonsPanel.add(deleteAccountBtn);
+            accountPanel.add(accountButtonsPanel);
+            accountListPanel.add(accountPanel);
             accountListPanel.add(Box.createVerticalStrut(10));
         }
         centerPanel.add(accountListPanel);
@@ -127,6 +163,10 @@ public class AccountChooserDialog extends JDialog {
         // Final setup
         pack();
         setLocationRelativeTo(parent);
+    }
+
+    public void addAccountListener(AccountListener listener){
+        accountListeners.add(listener);
     }
 
     public JLabel getTitleLabel() {
@@ -165,6 +205,64 @@ public class AccountChooserDialog extends JDialog {
             selectedAccount = account;
             continueButton.setEnabled(true);
             setSelectedButton(btn);
+        });
+
+        return btn;
+    }
+
+    private JButton createDeleteAccountButton(AccountInterface account, JButton viewButton, JComponent viewRow) {
+        JButton btn = new JButton("");
+        btn.setBorderPainted(false);
+        btn.setFocusPainted(false);
+        btn.setContentAreaFilled(false);
+
+        btn.setHorizontalAlignment(SwingConstants.RIGHT);
+        btn.setFont(new Font("SansSerif", Font.PLAIN, 14));
+
+        // Account icon
+        FontIcon icon = FontIcon.of(Material.DELETE, 20, Color.GRAY);
+        btn.setIcon(icon);
+        btn.setToolTipText("Delete account");
+
+        // Let it expand horizontally
+        btn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
+
+        // On click => select
+        btn.addActionListener((ActionEvent e) -> {
+            fireDeleteAccountEvent(account, () -> {
+                accountListPanel.remove(viewRow);
+                accountListPanel.revalidate();
+                accountListPanel.repaint();
+            });
+        });
+
+        return btn;
+    }
+
+    private JButton createEditAccountButton(AccountInterface account, JButton viewButton, JComponent viewRow) {
+        JButton btn = new JButton("");
+        btn.setBorderPainted(false);
+        btn.setFocusPainted(false);
+        btn.setContentAreaFilled(false);
+
+        btn.setHorizontalAlignment(SwingConstants.RIGHT);
+        btn.setFont(new Font("SansSerif", Font.PLAIN, 14));
+
+        // Account icon
+        FontIcon icon = FontIcon.of(Material.EDIT, 20, Color.GRAY);
+        btn.setIcon(icon);
+        btn.setToolTipText("Edit account");
+
+        // Let it expand horizontally
+        btn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
+
+        // On click => select
+        btn.addActionListener((ActionEvent e) -> {
+            fireEditAccountEvent(account, () -> {
+                viewButton.setText(account.getAccountName());
+                accountListPanel.revalidate();
+                accountListPanel.repaint();
+            });
         });
 
         return btn;
@@ -251,5 +349,55 @@ public class AccountChooserDialog extends JDialog {
     }
     public JButton getWhyButton() {
         return whyButton;
+    }
+
+    private void fireAccountEvent(AccountEvent evt){
+        for (AccountListener listener : accountListeners){
+            listener.handleAccountEvent(evt);
+        }
+    }
+
+    private void fireDeleteAccountEvent(AccountInterface account, Runnable callback){
+        fireAccountEvent(new DeleteAccountEvent(account, callback));
+    }
+
+    private void fireEditAccountEvent(AccountInterface account, Runnable callback){
+        fireAccountEvent(new EditAccountEvent(account, callback));
+    }
+
+
+    public interface AccountListener extends EventListener {
+        void handleAccountEvent(AccountEvent evt);
+    }
+
+    public static class AccountEvent {
+        private final AccountInterface account;
+        private final Runnable callback;
+
+        public AccountEvent(AccountInterface account, Runnable callback){
+            this.account = account;
+            this.callback = callback;
+        }
+        public AccountInterface getAccount(){
+            return account;
+        }
+
+        public void commit(){
+            if (callback != null){
+                callback.run();
+            }
+        }
+    }
+
+    public static class DeleteAccountEvent extends AccountEvent {
+        public DeleteAccountEvent(AccountInterface account, Runnable callback){
+            super(account, callback);
+        }
+    }
+
+    public static class EditAccountEvent extends AccountEvent {
+        public EditAccountEvent(AccountInterface account, Runnable callback){
+            super(account, callback);
+        }
     }
 }

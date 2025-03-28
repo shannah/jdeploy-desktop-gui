@@ -75,6 +75,45 @@ public class AccountChooserController {
            controller.show();
 
         });
+
+        dialog.addAccountListener(accountEvent -> {
+            if (accountEvent instanceof AccountChooserDialog.DeleteAccountEvent) {
+
+                // Prompt the user to confirm deletion
+                int result = JOptionPane.showConfirmDialog(
+                        dialog,
+                        "Are you sure you want to delete this account?",
+                        "Delete Account",
+                        JOptionPane.YES_NO_OPTION
+                );
+
+                if (result != JOptionPane.YES_OPTION) {
+                    return;
+                }
+                AccountInterface account = ((AccountChooserDialog.DeleteAccountEvent) accountEvent).getAccount();
+                accountService.delete(account).thenAcceptAsync(r -> {
+                    accountEvent.commit();
+                }, EDT_EXECUTOR);
+
+                return;
+            }
+
+            if (accountEvent instanceof AccountChooserDialog.EditAccountEvent) {
+                EditAccountController controller = new EditAccountController(
+                        dialog,
+                        accountEvent.getAccount(),
+                        accountService
+                ) {
+                    @Override
+                    protected void afterSave(AccountInterface account) {
+                        accountEvent.commit();
+                    }
+                };
+                controller.show();
+
+                return;
+            }
+        });
         AccountInterface sel = dialog.showDialog();
         if (sel != null) {
             selectedAccount = sel;
