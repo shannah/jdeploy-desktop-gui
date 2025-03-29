@@ -81,13 +81,13 @@ class NewProjectController(
             }
 
             if (!templateCatalog.isCatalogInitialized) {
-                updateTemplateCatalog(owner)
+                updateTemplateCatalog(dialog)
             } else {
                 updateTemplateOptions()
             }
 
             refreshTemplatesButton.addActionListener {
-                updateTemplateCatalog(owner)
+                updateTemplateCatalog(dialog)
             }
 
             createProjectButton.addActionListener{
