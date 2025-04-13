@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectTemplates xmlns="http://jdeploy.com/project-templates"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://jdeploy.com/project-templates https://raw.githubusercontent.com/shannah/jdeploy-desktop-gui/main/schema/project-templates/v1/project-templates.xsd">
+
+    <template>
+        <displayName>Spring Boot Starter</displayName>
+        <name>spring-boot-starter</name>
+        <uiToolkit>Vaadin</uiToolkit>
+        <categories>
+            <category>Web</category>
+            <category>Microservice</category>
+        </categories>
+        <screenshots>
+            <screenshot url="http://example.com/screenshot1.png"/>
+            <screenshot url="http://example.com/screenshot2.png"/>
+        </screenshots>
+        <screencasts>
+            <screencast url="http://example.com/demo.mp4"/>
+        </screencasts>
+        <iconUrl>http://example.com/icon.png</iconUrl>
+        <demoDownloadUrl>http://example.com/demo.zip</demoDownloadUrl>
+        <webAppUrl>http://example.com/demo</webAppUrl>
+        <author>Jane Doe</author>
+        <license>Apache-2.0</license>
+        <credits>Contributors listed at http://example.com/credits</credits>
+        <description>A starter template for Spring Boot with Vaadin UI.</description>
+        <buildTool>maven</buildTool>
+        <programmingLanguage>Java</programmingLanguage>
+    </template>
+
+    <template>
+        <displayName>Kotlin Desktop Starter</displayName>
+        <name>kotlin-desktop-starter</name>
+        <uiToolkit>Swing</uiToolkit>
+        <categories>
+            <category>Desktop</category>
+            <category>GUI</category>
+        </categories>
+        <screenshots>
+            <screenshot url="http://example.com/kotlin-desktop1.png"/>
+        </screenshots>
+        <iconUrl>http://example.com/kotlin-icon.png</iconUrl>
+        <demoDownloadUrl>http://example.com/kotlin-demo.zip</demoDownloadUrl>
+        <webAppUrl>http://example.com/kotlin-demo</webAppUrl>
+        <author>John Smith</author>
+        <license>MIT</license>
+        <credits>Contributors listed at http://example.com/kotlin-credits</credits>
+        <description>A Kotlin-based desktop application starter template.</description>
+        <buildTool>gradle</buildTool>
+        <programmingLanguage>Kotlin</programmingLanguage>
+    </template>
+</projectTemplates>
