@@ -10,6 +10,14 @@ import java.awt.FlowLayout
 import javax.swing.*
 
 class NewProjectWizard(templateChooserModel: TemplateChooserPanel.Model): JPanel(), NewProjectFormInterface {
+    // Constants
+    companion object {
+        const val SELECT_PROJECT_TEMPLATE_STEP = 0
+        const val PROJECT_DETAILS_STEP = 1
+    }
+
+    private lateinit var templateChooserPanel: TemplateChooserPanel
+
     override val displayName: JTextField
     override val groupId: JTextField
     override val artifactId: JTextField
@@ -24,7 +32,7 @@ class NewProjectWizard(templateChooserModel: TemplateChooserPanel.Model): JPanel
     override val createGithubRepositoryUrlCheckBox: JCheckBox
     override val npmRadioButton: JRadioButton
     override val gitHubReleasesRadioButton: JRadioButton
-    override val createProjectButton: JButton
+    lateinit override var createProjectButton: JButton
 
     private val cardLayout = CardLayout()
     lateinit private var cardPanel: JPanel
@@ -36,7 +44,7 @@ class NewProjectWizard(templateChooserModel: TemplateChooserPanel.Model): JPanel
     init {
         // Initialize the panel here
         layout = BorderLayout()
-        preferredSize = Dimension(800, 600)
+        preferredSize = Dimension(1024, 600)
         val projectPanel = NewProjectPanel()
         displayName = projectPanel.displayName
         groupId = projectPanel.groupId
@@ -52,13 +60,13 @@ class NewProjectWizard(templateChooserModel: TemplateChooserPanel.Model): JPanel
         createGithubRepositoryUrlCheckBox = projectPanel.createGithubRepositoryUrlCheckBox
         npmRadioButton = projectPanel.npmRadioButton
         gitHubReleasesRadioButton = projectPanel.gitHubReleasesRadioButton
-        createProjectButton = projectPanel.createProjectButton
+        projectPanel.createProjectButton.isVisible = false
 
         panel {
             layout = cardLayout
             cardPanel = this
 
-            val templateChooserPanel = TemplateChooserPanel(templateChooserModel)
+            templateChooserPanel = TemplateChooserPanel(templateChooserModel)
             add(templateChooserPanel, steps[0])
             add(projectPanel, steps[1])
 
@@ -86,16 +94,20 @@ class NewProjectWizard(templateChooserModel: TemplateChooserPanel.Model): JPanel
             }
             button {
                 text = "Finish"
-                addActionListener {
-                    // Handle finish action
-                    println("Finish button clicked")
-                }
+                createProjectButton = this
             }
         } at BorderLayout.SOUTH
 
     }
 
     private fun updateStep() {
+        if (currentStep == PROJECT_DETAILS_STEP) {
+            if (templateChooserPanel.selectedTemplateTile !== null) {
+                System.out.println("Selected template: ${templateChooserPanel.selectedTemplateTile!!.model.name}")
+                projectTemplate.addItem(templateChooserPanel.selectedTemplateTile!!.model.name)
+                projectTemplate.selectedItem = templateChooserPanel.selectedTemplateTile?.model?.name
+            }
+        }
         // Update the current step in the wizard
         cardLayout.show(cardPanel, steps[currentStep])
     }

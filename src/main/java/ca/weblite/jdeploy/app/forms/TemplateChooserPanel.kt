@@ -12,7 +12,6 @@ import ca.weblite.ktswing.swingx.searchField
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.awt.BorderLayout
-import java.awt.Dimension
 import java.awt.FlowLayout
 import javax.swing.BorderFactory
 import javax.swing.JComboBox
@@ -133,7 +132,6 @@ class TemplateChooserPanel(model: Model): JPanel() {
                         templateList(projectTemplates) {
                             templateList = this
                             templateListLoaded = true
-                            preferredSize = Dimension(800, 600)
                             updateTemplateList()
                         }
 
@@ -176,11 +174,9 @@ class TemplateChooserPanel(model: Model): JPanel() {
         buildToolFilter.addItem("All")
         languageFilter.addItem("All")
 
-        projectTemplates.templates.forEach { template ->
-            uiToolkitFilter.addItem(template.uiToolkit)
-            buildToolFilter.addItem(template.buildTool)
-            languageFilter.addItem(template.programmingLanguage)
-        }
+        projectTemplates.getUiToolkits().forEach { uiToolkitFilter.addItem(it)}
+        projectTemplates.getBuildTools().forEach { buildToolFilter.addItem(it) }
+        projectTemplates.getProgrammingLanguages().forEach { languageFilter.addItem(it) }
 
         uiToolkitFilter.selectedItem = uiToolkit
         buildToolFilter.selectedItem = buildTool

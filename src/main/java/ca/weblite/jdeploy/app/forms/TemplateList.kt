@@ -4,6 +4,7 @@ import ca.weblite.jdeploy.DIContext
 import ca.weblite.jdeploy.app.records.ProjectTemplates
 import ca.weblite.jdeploy.app.records.Template
 import ca.weblite.jdeploy.app.repositories.MockProjectTemplateRepository
+import ca.weblite.jdeploy.app.swing.layouts.WrapLayout
 import ca.weblite.ktswing.coroutines.SwingDispatcher
 import ca.weblite.ktswing.extensions.createComponent
 import kotlinx.coroutines.CoroutineScope
@@ -14,6 +15,7 @@ import javax.swing.JPanel
 class TemplateList(val model: ProjectTemplates): JPanel() {
     private val templateTiles: List<TemplateTile>
     init {
+        layout = WrapLayout()
         templateTiles = model.templates.map { TemplateTile(it) }
         templateTiles.forEach { add(it) }
     }
