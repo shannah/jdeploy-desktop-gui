@@ -6,6 +6,11 @@ import ca.weblite.jdeploy.DIContext
 import ca.weblite.jdeploy.app.exceptions.ValidationFailedException
 import ca.weblite.jdeploy.app.factories.ControllerFactory
 import ca.weblite.jdeploy.app.forms.NewProjectForm
+import ca.weblite.jdeploy.app.forms.NewProjectFormInterface
+import ca.weblite.jdeploy.app.forms.TemplateChooserPanel.Model
+import ca.weblite.jdeploy.app.records.ProjectTemplates
+import ca.weblite.jdeploy.app.repositories.MockProjectTemplateRepository
+import ca.weblite.jdeploy.app.repositories.ProjectTemplateRepositoryInterface
 import ca.weblite.jdeploy.app.system.files.FileSystemUiInterface
 import ca.weblite.jdeploy.builders.ProjectGeneratorRequestBuilder
 import ca.weblite.jdeploy.services.GithubTokenService
@@ -26,6 +31,7 @@ class NewProjectController(
     private val templateCatalog: ProjectTemplateCatalog,
     private val controllerFactory: ControllerFactory,
     private val githubTokenService: GithubTokenService = DIContext.get(GithubTokenService::class.java),
+    private val projectTemplateRepository: ProjectTemplateRepositoryInterface = DIContext.get(ProjectTemplateRepositoryInterface::class.java)
 ) {
     private lateinit var dialog: NewProjectForm
 
@@ -35,7 +41,12 @@ class NewProjectController(
         templateCatalog = DIContext.get(ProjectTemplateCatalog::class.java),
         controllerFactory = DIContext.get(ControllerFactory::class.java),
     ) {
-        dialog = NewProjectForm(owner)
+        val templateChooserModel = object : Model {
+            override suspend fun getProjectTemplates(): ProjectTemplates {
+                return projectTemplateRepository.findAll()
+            }
+        }
+        dialog = NewProjectForm(owner, templateChooserModel = templateChooserModel)
 
         dialog.apply {
             iconImage = javaClass.getResource("/ca/weblite/jdeploy/app/assets/icon.png")?.let { ImageIcon(it).image }

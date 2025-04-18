@@ -24,7 +24,7 @@ import javax.swing.BoxLayout
 import javax.swing.JButton
 import javax.swing.JPanel
 
-class TemplateTile(model: Template): JPanel() {
+class TemplateTile(val model: Template): JPanel() {
     lateinit var createButton: JButton
         private set
 

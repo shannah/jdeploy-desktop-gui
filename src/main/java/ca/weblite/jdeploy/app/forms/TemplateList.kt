@@ -2,6 +2,7 @@ package ca.weblite.jdeploy.app.forms
 
 import ca.weblite.jdeploy.DIContext
 import ca.weblite.jdeploy.app.records.ProjectTemplates
+import ca.weblite.jdeploy.app.records.Template
 import ca.weblite.jdeploy.app.repositories.MockProjectTemplateRepository
 import ca.weblite.ktswing.coroutines.SwingDispatcher
 import ca.weblite.ktswing.extensions.createComponent
@@ -10,10 +11,21 @@ import kotlinx.coroutines.launch
 import java.awt.Container
 import javax.swing.JPanel
 
-class TemplateList(model: ProjectTemplates): JPanel() {
+class TemplateList(val model: ProjectTemplates): JPanel() {
+    private val templateTiles: List<TemplateTile>
     init {
-        val templateTiles = model.templates.map { TemplateTile(it) }
+        templateTiles = model.templates.map { TemplateTile(it) }
         templateTiles.forEach { add(it) }
+    }
+
+    fun filter(filter: (Template) -> Boolean) {
+        templateTiles.forEach { tile ->
+            if (filter(tile.model)) {
+                tile.isVisible = true
+            } else {
+                tile.isVisible = false
+            }
+        }
     }
 
     // Add a test main method to run this class independently

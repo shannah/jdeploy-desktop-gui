@@ -29,7 +29,7 @@
       <kotlin.jvm.target>17</kotlin.jvm.target>
       <hibernate.version>6.2.8.Final</hibernate.version>
       <hibernate.dialect.version>6.0.0.Final</hibernate.dialect.version>
-      <ktswing.version>0.0.14</ktswing.version>
+      <ktswing.version>0.0.16</ktswing.version>
   </properties>
   <dependencies>
       <dependency>
