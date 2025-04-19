@@ -1,6 +1,7 @@
 package ca.weblite.jdeploy.app.forms
 
 import ca.weblite.jdeploy.DIContext
+import ca.weblite.jdeploy.app.images.ImageLoader
 import ca.weblite.jdeploy.app.records.Template
 import ca.weblite.jdeploy.app.repositories.MockProjectTemplateRepository
 import ca.weblite.jdeploy.app.swing.components.tagLabel
@@ -44,7 +45,7 @@ class TemplateTile(val model: Template, private val delegate: TemplateTileDelega
             val scope = CoroutineScope(Dispatchers.IO)
             scope.launch {
                 try {
-                    val image: Image = ImageIO.read(URI(model.tileImageUrl).toURL())
+                    val image: Image = DIContext.get(ImageLoader::class.java).loadImage(URI(model.tileImageUrl).toURL(), 256, imagePanel)
                     // Switch to EDT
                     withContext(SwingDispatcher) {
                         imagePanel.image = image
