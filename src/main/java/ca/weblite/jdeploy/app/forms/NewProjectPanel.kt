@@ -34,10 +34,10 @@ class NewProjectPanel(): JPanel(), NewProjectFormInterface {
                 columns = 20
             }
         }
-        preferredSize = Dimension(800, 600)
         layout = BorderLayout()
-        form(cols="2*(default, \$lcgap), default") {
-            border = BorderFactory.createEmptyBorder(10, 10, 10, 10)
+        preferredSize = Dimension(1024, 600)
+        form(cols="default, \$lcgap, default:grow, \$lcgap, default") {
+            border = BorderFactory.createEmptyBorder(15, 15, 15, 15)
             row {
                 label{
                     text = "Application Display Name"

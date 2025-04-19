@@ -2,6 +2,7 @@ package ca.weblite.jdeploy.app.forms
 
 import ca.weblite.jdeploy.DIContext
 import ca.weblite.jdeploy.app.records.ProjectTemplates
+import ca.weblite.jdeploy.app.records.Template
 import ca.weblite.jdeploy.app.repositories.MockProjectTemplateRepository
 import ca.weblite.ktswing.*
 import ca.weblite.ktswing.coroutines.SwingDispatcher
@@ -18,7 +19,7 @@ import javax.swing.JComboBox
 import javax.swing.JFrame
 import javax.swing.JPanel
 
-class TemplateChooserPanel(model: Model): JPanel() {
+class TemplateChooserPanel(model: Model, var tileDelegate: TemplateTileDelegate? = null): JPanel() {
 
     var selectedTemplateTile : TemplateTile? = null
     private set
@@ -125,11 +126,27 @@ class TemplateChooserPanel(model: Model): JPanel() {
                     name = "templateListWrapper"
                     horizontalScrollBarPolicy = javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_NEVER
                     border = BorderFactory.createEmptyBorder()
+                    verticalScrollBar.unitIncrement = 32;
                     val scope = CoroutineScope(SwingDispatcher)
                     scope.launch {
+                        System.out.println("Loading templates...")
                         projectTemplates = model.getProjectTemplates()
+                        System.out.println("Loaded templates: ${projectTemplates.templates.size}")
                         updateFilters()
                         templateList(projectTemplates) {
+                            tileDelegate = object: TemplateTileDelegate {
+                                override fun openTemplateSources(template: Template) {
+                                    this@TemplateChooserPanel.tileDelegate?.openTemplateSources(template)
+                                }
+
+                                override fun openTemplateDemoDownloadPage(template: Template) {
+                                   this@TemplateChooserPanel.tileDelegate?.openTemplateDemoDownloadPage(template)
+                                }
+
+                                override fun openWebAppUrl(template: Template) {
+                                    this@TemplateChooserPanel.tileDelegate?.openWebAppUrl(template)
+                                }
+                            }
                             templateList = this
                             templateListLoaded = true
                             updateTemplateList()

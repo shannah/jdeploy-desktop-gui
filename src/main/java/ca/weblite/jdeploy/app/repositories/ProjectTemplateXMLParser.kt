@@ -13,6 +13,10 @@ internal object ProjectTemplateXMLParser {
 
         for (i in 0 until templates.length) {
             val templateNode = templates.item(i) as Element
+            var tileImageUrl = templateNode.getText(NS, "tileImageUrl")
+            if (tileImageUrl.isEmpty()) {
+                tileImageUrl = Template.DEFAULT_TILE_IMAGE_URL
+            }
             list.add(
                 Template(
                     displayName = templateNode.getText(NS, "displayName"),
@@ -23,15 +27,17 @@ internal object ProjectTemplateXMLParser {
                         .map { Screenshot(url = it.getAttribute("url")) },
                     screencasts = templateNode.getChildElements(NS, "screencasts", "screencast")
                         .map { Screencast(url = it.getAttribute("url")) },
+                    tileImageUrl = tileImageUrl,
                     iconUrl = templateNode.getText(NS, "iconUrl"),
-                    demoDownloadUrl = templateNode.getText(NS, "demoDownloadUrl"),
-                    webAppUrl = templateNode.getText(NS, "webAppUrl"),
+                    demoDownloadUrl = templateNode.getText(NS, "demoDownloadUrl").takeIf { it.isNotEmpty() },
+                    webAppUrl = templateNode.getText(NS, "webAppUrl").takeIf { it.isNotEmpty() },
                     author = templateNode.getText(NS, "author"),
                     license = templateNode.getText(NS, "license"),
                     credits = templateNode.getText(NS, "credits"),
                     description = templateNode.getText(NS, "description"),
                     buildTool = templateNode.getText(NS, "buildTool"),
-                    programmingLanguage = templateNode.getText(NS, "programmingLanguage")
+                    programmingLanguage = templateNode.getText(NS, "programmingLanguage"),
+                    sourceUrl = templateNode.getText(NS, "sourceUrl").takeIf { it.isNotEmpty() }
                 )
             )
         }

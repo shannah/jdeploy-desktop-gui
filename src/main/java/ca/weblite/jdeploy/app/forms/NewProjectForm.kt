@@ -3,6 +3,7 @@ package ca.weblite.jdeploy.app.forms
 import ca.weblite.jdeploy.DIContext
 import ca.weblite.jdeploy.app.forms.TemplateChooserPanel.Model
 import ca.weblite.jdeploy.app.records.ProjectTemplates
+import ca.weblite.jdeploy.app.records.Template
 import ca.weblite.jdeploy.app.repositories.MockProjectTemplateRepository
 import ca.weblite.ktswing.style.Stylesheet
 import java.awt.Frame
@@ -10,7 +11,8 @@ import javax.swing.*
 
 class NewProjectForm(
     private val parentFrame: Frame,
-    private val templateChooserModel: TemplateChooserPanel.Model
+    private val templateChooserModel: TemplateChooserPanel.Model,
+    var tileDelegate: TemplateTileDelegate? = null
 ): JFrame("Create New Project"), NewProjectFormInterface {
     override val displayName:JTextField
     override val groupId:JTextField
@@ -35,7 +37,20 @@ class NewProjectForm(
             }
         }
 
-        val projectWizard = NewProjectWizard(templateChooserModel)
+        val projectWizard = NewProjectWizard(templateChooserModel).apply {
+            tileDelegate = object: TemplateTileDelegate {
+                override fun openTemplateDemoDownloadPage(template: Template) {
+                    this@NewProjectForm.tileDelegate?.openTemplateDemoDownloadPage(template)
+                }
+                override fun openTemplateSources(template: Template) {
+                    this@NewProjectForm.tileDelegate?.openTemplateSources(template)
+                }
+
+                override fun openWebAppUrl(template: Template) {
+                    this@NewProjectForm.tileDelegate?.openWebAppUrl(template)
+                }
+            }
+        }
         contentPane = projectWizard
         displayName = projectWizard.displayName
         groupId = projectWizard.groupId

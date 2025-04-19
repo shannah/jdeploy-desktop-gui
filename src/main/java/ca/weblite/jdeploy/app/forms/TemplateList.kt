@@ -12,11 +12,27 @@ import kotlinx.coroutines.launch
 import java.awt.Container
 import javax.swing.JPanel
 
-class TemplateList(val model: ProjectTemplates): JPanel() {
+class TemplateList(
+    val model: ProjectTemplates,
+    var tileDelegate: TemplateTileDelegate? = null
+): JPanel() {
     private val templateTiles: List<TemplateTile>
     init {
         layout = WrapLayout()
-        templateTiles = model.templates.map { TemplateTile(it) }
+        val tileDelegateWrapper = object : TemplateTileDelegate {
+            override fun openTemplateSources(template: Template) {
+                tileDelegate?.openTemplateSources(template)
+            }
+
+            override fun openTemplateDemoDownloadPage(template: Template) {
+                tileDelegate?.openTemplateDemoDownloadPage(template)
+            }
+
+            override fun openWebAppUrl(template: Template) {
+                tileDelegate?.openWebAppUrl(template)
+            }
+        }
+        templateTiles = model.templates.map { TemplateTile(it, delegate = tileDelegateWrapper) }
         templateTiles.forEach { add(it) }
     }
 

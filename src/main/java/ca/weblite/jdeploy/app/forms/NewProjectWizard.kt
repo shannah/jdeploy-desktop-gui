@@ -1,5 +1,6 @@
 package ca.weblite.jdeploy.app.forms
 
+import ca.weblite.jdeploy.app.records.Template
 import ca.weblite.ktswing.button
 import ca.weblite.ktswing.extensions.at
 import ca.weblite.ktswing.panel
@@ -9,7 +10,10 @@ import java.awt.Dimension
 import java.awt.FlowLayout
 import javax.swing.*
 
-class NewProjectWizard(templateChooserModel: TemplateChooserPanel.Model): JPanel(), NewProjectFormInterface {
+class NewProjectWizard(
+    templateChooserModel: TemplateChooserPanel.Model,
+    var tileDelegate: TemplateTileDelegate? = null
+): JPanel(), NewProjectFormInterface {
     // Constants
     companion object {
         const val SELECT_PROJECT_TEMPLATE_STEP = 0
@@ -17,6 +21,8 @@ class NewProjectWizard(templateChooserModel: TemplateChooserPanel.Model): JPanel
     }
 
     private lateinit var templateChooserPanel: TemplateChooserPanel
+    private lateinit var nextButton: JButton
+    private lateinit var backButton: JButton
 
     override val displayName: JTextField
     override val groupId: JTextField
@@ -66,7 +72,22 @@ class NewProjectWizard(templateChooserModel: TemplateChooserPanel.Model): JPanel
             layout = cardLayout
             cardPanel = this
 
-            templateChooserPanel = TemplateChooserPanel(templateChooserModel)
+            templateChooserPanel = TemplateChooserPanel(templateChooserModel).apply {
+                tileDelegate = object : TemplateTileDelegate {
+                    override fun openTemplateSources(template: Template) {
+                        this@NewProjectWizard.tileDelegate?.openTemplateSources(template)
+                    }
+
+                    override fun openTemplateDemoDownloadPage(template: Template) {
+                        // Handle opening demo download page
+                        this@NewProjectWizard.tileDelegate?.openTemplateDemoDownloadPage(template)
+                    }
+
+                    override fun openWebAppUrl(template: Template) {
+                        this@NewProjectWizard.tileDelegate?.openWebAppUrl(template)
+                    }
+                }
+            }
             add(templateChooserPanel, steps[0])
             add(projectPanel, steps[1])
 
@@ -76,6 +97,7 @@ class NewProjectWizard(templateChooserModel: TemplateChooserPanel.Model): JPanel
             layout = FlowLayout(FlowLayout.RIGHT)
             button {
                 text = "Back"
+                backButton = this
                 addActionListener {
                     if (currentStep > 0) {
                         currentStep--
@@ -85,6 +107,7 @@ class NewProjectWizard(templateChooserModel: TemplateChooserPanel.Model): JPanel
             }
             button {
                 text = "Next"
+                nextButton = this
                 addActionListener {
                     if (currentStep < steps.size - 1) {
                         currentStep++
@@ -97,7 +120,7 @@ class NewProjectWizard(templateChooserModel: TemplateChooserPanel.Model): JPanel
                 createProjectButton = this
             }
         } at BorderLayout.SOUTH
-
+        updateStep()
     }
 
     private fun updateStep() {
@@ -108,6 +131,8 @@ class NewProjectWizard(templateChooserModel: TemplateChooserPanel.Model): JPanel
                 projectTemplate.selectedItem = templateChooserPanel.selectedTemplateTile?.model?.name
             }
         }
+        backButton.isEnabled = currentStep > 0
+        nextButton.isEnabled = currentStep < steps.size - 1
         // Update the current step in the wizard
         cardLayout.show(cardPanel, steps[currentStep])
     }

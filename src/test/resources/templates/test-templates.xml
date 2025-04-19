@@ -25,5 +25,6 @@
         <description>Test description</description>
         <buildTool>gradle</buildTool>
         <programmingLanguage>Kotlin</programmingLanguage>
+        <sourceUrl>http://www.example.com/source</sourceUrl>
     </template>
 </projectTemplates>

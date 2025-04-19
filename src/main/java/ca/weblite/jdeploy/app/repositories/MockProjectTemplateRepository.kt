@@ -32,6 +32,7 @@ class MockProjectTemplateRepository: ProjectTemplateRepositoryInterface {
                 description = "A starter template for Spring Boot with Vaadin UI.",
                 buildTool = "maven",
                 programmingLanguage = "Java",
+                sourceUrl = "http://example.com/source"
             ),
             Template(
                 displayName = "Kotlin Desktop Starter",

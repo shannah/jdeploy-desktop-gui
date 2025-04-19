@@ -27,6 +27,7 @@
         <description>A starter template for Spring Boot with Vaadin UI.</description>
         <buildTool>maven</buildTool>
         <programmingLanguage>Java</programmingLanguage>
+        <sourceUrl>http://www.example.com/source</sourceUrl>
     </template>
 
     <template>

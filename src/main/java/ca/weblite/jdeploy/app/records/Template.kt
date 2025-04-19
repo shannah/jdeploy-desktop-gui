@@ -7,9 +7,9 @@ data class Template(
     val categories: List<String>,
     val screenshots: List<Screenshot>,
     val screencasts: List<Screencast>,
-    val iconUrl: String,
-    val demoDownloadUrl: String,
-    val webAppUrl: String,
+    val iconUrl: String? = null,
+    val demoDownloadUrl: String? = null,
+    val webAppUrl: String? = null,
     val author: String,
     val license: String,
     val credits: String,
@@ -17,6 +17,7 @@ data class Template(
     val buildTool: String,
     val programmingLanguage: String,
     val tileImageUrl: String = DEFAULT_TILE_IMAGE_URL,
+    val sourceUrl: String? = null,
 ) {
     companion object {
         val DEFAULT_TILE_IMAGE_URL: String by lazy {
