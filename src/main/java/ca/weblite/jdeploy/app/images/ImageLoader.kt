@@ -1,5 +1,6 @@
 package ca.weblite.jdeploy.app.images
 
+import ca.weblite.jdeploy.app.cache.FileSystemCache
 import ca.weblite.ktswing.coroutines.SwingDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -9,10 +10,18 @@ import java.awt.image.BufferedImage
 import java.io.File
 import java.net.URL
 import javax.imageio.ImageIO
+import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class ImageLoader {
+class ImageLoader() {
+    private lateinit var fileSystemCache: FileSystemCache
+
+    @Inject
+    constructor(fileSystemCache: FileSystemCache) : this() {
+        this.fileSystemCache = fileSystemCache
+    }
+
     suspend fun loadImage(url: URL, targetWidth: Int, component: Component): BufferedImage {
         val scaledWidth = scaleWidth(component, targetWidth)
         val cacheDir = getImageCacheDir()
@@ -55,31 +64,11 @@ class ImageLoader {
         return scaledImage
     }
     private fun getCacheKey(url: URL, targetWidth: Int): String {
-        // generate a unique key based on the URL and target width that is file-name friendly
-        val key =  "${url.toString().replace(":", "_").replace("/", "_")}_$targetWidth"
-
-        // generate md5 hash of the key
-        val md = java.security.MessageDigest.getInstance("MD5")
-        val hash = md.digest(key.toByteArray()).joinToString("") { "%02x".format(it) }
-
-        return hash
+        return fileSystemCache.getCacheKey(url, targetWidth.toString())
     }
 
     private fun getImageCacheDir(appName: String = "jdeploy"): File {
-        val os = System.getProperty("os.name").lowercase()
-        val userHome = System.getProperty("user.home")
-
-        val cacheDir = when {
-            os.contains("mac") -> File(userHome, "Library/Caches/$appName")
-            os.contains("win") -> File(System.getenv("LOCALAPPDATA") ?: "$userHome/AppData/Local", "$appName/cache")
-            else -> File(System.getenv("XDG_CACHE_HOME") ?: "$userHome/.cache", appName)
-        }
-
-        if (!cacheDir.exists()) {
-            cacheDir.mkdirs()
-        }
-
-        return cacheDir
+        return fileSystemCache.getCacheDir()
     }
 
     private suspend fun scaleWidth(component: Component, width: Int): Int {

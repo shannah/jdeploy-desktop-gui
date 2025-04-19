@@ -4,8 +4,13 @@ import ca.weblite.jdeploy.app.controllers.MainMenuViewController;
 import ca.weblite.jdeploy.DIContext;
 import ca.weblite.jdeploy.app.di.JDeployDesktopGuiModule;
 import ca.weblite.jdeploy.app.forms.SplashScreen;
+import ca.weblite.jdeploy.app.repositories.DefaultProjectTemplateRepository;
 import ca.weblite.jdeploy.app.repositories.impl.jpa.services.DatabaseService;
 import com.formdev.flatlaf.FlatLightLaf;
+import kotlin.coroutines.CoroutineContext;
+import kotlinx.coroutines.CoroutineScope;
+import kotlinx.coroutines.Dispatchers;
+import kotlinx.coroutines.GlobalScope;
 
 import javax.swing.*;
 import java.awt.*;
@@ -25,6 +30,7 @@ public class JdeployDesktopGui {
             }
         }
 
+
         EventQueue.invokeLater(()->{
             new SplashScreen().showSplash();
         });
@@ -32,6 +38,7 @@ public class JdeployDesktopGui {
 
         createApplicationFilesDirectory();
         DIContext.get(DatabaseService.class).migrate();
+        DIContext.get(DefaultProjectTemplateRepository.class).clearCacheBlocking();
         SwingUtilities.invokeLater(() -> new MainMenuViewController().run());
     }
 
