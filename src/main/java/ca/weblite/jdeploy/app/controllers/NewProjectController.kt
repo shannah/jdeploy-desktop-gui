@@ -6,6 +6,13 @@ import ca.weblite.jdeploy.DIContext
 import ca.weblite.jdeploy.app.exceptions.ValidationFailedException
 import ca.weblite.jdeploy.app.factories.ControllerFactory
 import ca.weblite.jdeploy.app.forms.NewProjectForm
+import ca.weblite.jdeploy.app.forms.NewProjectFormInterface
+import ca.weblite.jdeploy.app.forms.TemplateChooserPanel.Model
+import ca.weblite.jdeploy.app.forms.TemplateTileDelegate
+import ca.weblite.jdeploy.app.records.ProjectTemplates
+import ca.weblite.jdeploy.app.records.Template
+import ca.weblite.jdeploy.app.repositories.MockProjectTemplateRepository
+import ca.weblite.jdeploy.app.repositories.ProjectTemplateRepositoryInterface
 import ca.weblite.jdeploy.app.system.files.FileSystemUiInterface
 import ca.weblite.jdeploy.builders.ProjectGeneratorRequestBuilder
 import ca.weblite.jdeploy.services.GithubTokenService
@@ -26,6 +33,7 @@ class NewProjectController(
     private val templateCatalog: ProjectTemplateCatalog,
     private val controllerFactory: ControllerFactory,
     private val githubTokenService: GithubTokenService = DIContext.get(GithubTokenService::class.java),
+    private val projectTemplateRepository: ProjectTemplateRepositoryInterface = DIContext.get(ProjectTemplateRepositoryInterface::class.java)
 ) {
     private lateinit var dialog: NewProjectForm
 
@@ -35,7 +43,23 @@ class NewProjectController(
         templateCatalog = DIContext.get(ProjectTemplateCatalog::class.java),
         controllerFactory = DIContext.get(ControllerFactory::class.java),
     ) {
-        dialog = NewProjectForm(owner)
+        val templateChooserModel = object : Model {
+            override suspend fun getProjectTemplates(): ProjectTemplates {
+                return projectTemplateRepository.findAll()
+            }
+        }
+        dialog = NewProjectForm(owner, templateChooserModel = templateChooserModel).apply {
+            tileDelegate = object : TemplateTileDelegate {
+                override fun openTemplateDemoDownloadPage(template: Template) =
+                    this@NewProjectController.openTemplateDemoDownloadPage(template)
+
+                override fun openTemplateSources(template: Template) =
+                    this@NewProjectController.openTemplateSources(template)
+
+                override fun openWebAppUrl(template: Template) =
+                    this@NewProjectController.openWebDemo(template)
+            }
+        }
 
         dialog.apply {
             iconImage = javaClass.getResource("/ca/weblite/jdeploy/app/assets/icon.png")?.let { ImageIcon(it).image }
@@ -73,6 +97,9 @@ class NewProjectController(
             }
 
             npmRadioButton.addActionListener{
+                if (artifactId.text.isNotEmpty() && npmProjectName.text.isEmpty()) {
+                    npmProjectName.text = artifactId.text
+                }
                 update()
             }
 
@@ -367,6 +394,52 @@ class NewProjectController(
             if (projectTemplate.selectedItem != null) {
                 setDefaultValue("projectTemplate", projectTemplate.selectedItem.toString())
             }
+        }
+    }
+
+    private fun openTemplateDemoDownloadPage(template: Template) {
+        // Open the demo download page for the selected template
+        val url = template.demoDownloadUrl
+        if (url == null) {
+            return;
+        }
+
+        try {
+            val uri = java.net.URI(url)
+            java.awt.Desktop.getDesktop().browse(uri)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun openTemplateSources(template: Template) {
+        // Open the sources for the selected template
+        val url = template.sourceUrl
+        if (url == null || url.isEmpty()) {
+            return;
+        }
+
+        try {
+            val uri = java.net.URI(url)
+            java.awt.Desktop.getDesktop().browse(uri)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun openWebDemo(template: Template) {
+        // Open the sources for the selected template
+        System.out.println("openWebDemo");
+        val url = template.webAppUrl
+        if (url.isNullOrEmpty()) {
+            return;
+        }
+
+        try {
+            val uri = java.net.URI(url)
+            java.awt.Desktop.getDesktop().browse(uri)
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 }

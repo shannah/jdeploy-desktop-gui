@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectTemplates xmlns="http://jdeploy.com/project-templates"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://jdeploy.com/project-templates https://raw.githubusercontent.com/shannah/jdeploy-project-templates/master/schema/v1/project-templates.xsd">
+    <template>
+        <displayName>Test Template</displayName>
+        <name>test-template</name>
+        <uiToolkit>TestUI</uiToolkit>
+        <categories>
+            <category>Testing</category>
+            <category>Example</category>
+        </categories>
+        <screenshots>
+            <screenshot url="http://example.com/screenshot.png"/>
+        </screenshots>
+        <screencasts>
+            <screencast url="http://example.com/video.mp4"/>
+        </screencasts>
+        <iconUrl>http://example.com/icon.png</iconUrl>
+        <demoDownloadUrl>http://example.com/demo.zip</demoDownloadUrl>
+        <webAppUrl>http://example.com/demo</webAppUrl>
+        <author>Test Author</author>
+        <license>MIT</license>
+        <credits>Test credits</credits>
+        <description>Test description</description>
+        <buildTool>gradle</buildTool>
+        <programmingLanguage>Kotlin</programmingLanguage>
+        <sourceUrl>http://www.example.com/source</sourceUrl>
+    </template>
+</projectTemplates>
