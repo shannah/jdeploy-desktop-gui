@@ -97,6 +97,9 @@ class NewProjectController(
             }
 
             npmRadioButton.addActionListener{
+                if (artifactId.text.isNotEmpty() && npmProjectName.text.isEmpty()) {
+                    npmProjectName.text = artifactId.text
+                }
                 update()
             }
 
