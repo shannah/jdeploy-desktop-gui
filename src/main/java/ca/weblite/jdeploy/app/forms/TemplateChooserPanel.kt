@@ -10,9 +10,12 @@ import ca.weblite.ktswing.extensions.at
 import ca.weblite.ktswing.extensions.onMouseClicked
 import ca.weblite.ktswing.style.Stylesheet
 import ca.weblite.ktswing.swingx.searchField
+import com.sun.java.accessibility.util.SwingEventMonitor.addDocumentListener
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import org.jdesktop.swingx.JXSearchField
 import java.awt.BorderLayout
+import java.awt.EventQueue.invokeLater
 import java.awt.FlowLayout
 import javax.swing.BorderFactory
 import javax.swing.JComboBox
@@ -27,6 +30,7 @@ class TemplateChooserPanel(model: Model, var tileDelegate: TemplateTileDelegate?
     private lateinit var languageFilter: JComboBox<String>
     private lateinit var uiToolkitFilter: JComboBox<String>
     private lateinit var buildToolFilter: JComboBox<String>
+    private lateinit var searchTextField: JXSearchField
     private lateinit var templateList: TemplateList
     private var templateListLoaded: Boolean = false
     private lateinit var projectTemplates: ProjectTemplates
@@ -56,6 +60,24 @@ class TemplateChooserPanel(model: Model, var tileDelegate: TemplateTileDelegate?
                             searchField {
                                 // Set default size to show about 30 characters
                                 preferredSize = java.awt.Dimension(300, 30)
+                                searchTextField = this
+                                document.addDocumentListener(object: javax.swing.event.DocumentListener {
+                                    override fun insertUpdate(e: javax.swing.event.DocumentEvent?) {
+                                        invokeLater {
+                                            updateTemplateList()
+                                        }
+                                    }
+                                    override fun removeUpdate(e: javax.swing.event.DocumentEvent?) {
+                                        invokeLater {
+                                            updateTemplateList()
+                                        }
+                                    }
+                                    override fun changedUpdate(e: javax.swing.event.DocumentEvent?) {
+                                        invokeLater {
+                                            updateTemplateList()
+                                        }
+                                    }
+                                })
                             }
                         } at BorderLayout.EAST
 
@@ -209,9 +231,14 @@ class TemplateChooserPanel(model: Model, var tileDelegate: TemplateTileDelegate?
         val language = languageFilter.selectedItem
 
         templateList.filter { template ->
-            (uiToolkit == "All" || template.uiToolkit == uiToolkit) &&
-            (buildTool == "All" || template.buildTool == buildTool) &&
-            (language == "All" || template.programmingLanguage == language)
+            (uiToolkit == "All" || template.uiToolkit == uiToolkit)
+                    && (buildTool == "All" || template.buildTool == buildTool)
+                    && (language == "All" || template.programmingLanguage == language)
+                    && (
+                    searchTextField.text.isEmpty()
+                            || template.displayName.contains(searchTextField.text, true)
+                            || template.description.contains(searchTextField.text, true)
+                            )
         }
     }
 
