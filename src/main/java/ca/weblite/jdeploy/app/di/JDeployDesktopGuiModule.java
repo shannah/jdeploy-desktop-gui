@@ -3,6 +3,8 @@ package ca.weblite.jdeploy.app.di;
 import ca.weblite.jdeploy.DIContext;
 import ca.weblite.jdeploy.app.config.JdeployAppConfig;
 import ca.weblite.jdeploy.app.config.JdeployAppConfigInterface;
+import ca.weblite.jdeploy.app.repositories.DefaultProjectTemplateRepository;
+import ca.weblite.jdeploy.app.repositories.ProjectTemplateRepositoryInterface;
 import ca.weblite.jdeploy.app.repositories.impl.jpa.di.EmfProvider;
 import ca.weblite.jdeploy.app.repositories.impl.jpa.di.EmfProviderInterface;
 import ca.weblite.jdeploy.app.repositories.impl.jpa.di.JdeployJpaModule;
@@ -33,5 +35,10 @@ public class JDeployDesktopGuiModule {
     @Provides
     protected ClockInterface getClock() {
         return DIContext.get(SystemClock.class);
+    }
+
+    @Provides
+    protected ProjectTemplateRepositoryInterface getProjectTemplateRepository(DefaultProjectTemplateRepository impl) {
+        return impl;
     }
 }
