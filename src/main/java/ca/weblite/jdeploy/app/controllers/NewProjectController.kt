@@ -19,7 +19,7 @@ import ca.weblite.jdeploy.builders.ProjectGeneratorRequestBuilder
 import ca.weblite.jdeploy.services.GithubTokenService
 import ca.weblite.jdeploy.services.ProjectGenerator
 import ca.weblite.jdeploy.services.ProjectTemplateCatalog
-import ca.weblite.ktswing.coroutines.SwingDispatcher
+import ca.weblite.swinky.coroutines.SwingDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.awt.FlowLayout

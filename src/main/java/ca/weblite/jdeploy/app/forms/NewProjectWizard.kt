@@ -1,9 +1,9 @@
 package ca.weblite.jdeploy.app.forms
 
 import ca.weblite.jdeploy.app.records.Template
-import ca.weblite.ktswing.button
-import ca.weblite.ktswing.extensions.at
-import ca.weblite.ktswing.panel
+import ca.weblite.swinky.button
+import ca.weblite.swinky.extensions.at
+import ca.weblite.swinky.panel
 import java.awt.BorderLayout
 import java.awt.CardLayout
 import java.awt.Dimension

@@ -1,9 +1,9 @@
 package ca.weblite.jdeploy.app.swing.components
 
 import ca.weblite.jdeploy.app.swing.painters.PillBackgroundPainter
-import ca.weblite.ktswing.extensions.createComponent
-import ca.weblite.ktswing.style.Style
-import ca.weblite.ktswing.style.Stylesheet
+import ca.weblite.swinky.extensions.createComponent
+import ca.weblite.swinky.style.Style
+import ca.weblite.swinky.style.Stylesheet
 import org.jdesktop.swingx.JXLabel
 import java.awt.Container
 import javax.swing.BorderFactory

@@ -1,7 +1,7 @@
 package ca.weblite.jdeploy.app.controllers
 
 import ca.weblite.jdeploy.services.ProjectTemplateCatalog
-import ca.weblite.ktswing.coroutines.SwingDispatcher
+import ca.weblite.swinky.coroutines.SwingDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.awt.FlowLayout

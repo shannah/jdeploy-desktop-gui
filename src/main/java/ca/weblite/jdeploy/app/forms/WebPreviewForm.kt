@@ -1,9 +1,9 @@
 package ca.weblite.jdeploy.app.forms
 
-import ca.weblite.ktswing.BorderPane
-import ca.weblite.ktswing.button
-import ca.weblite.ktswing.label
-import ca.weblite.ktswing.panel
+import ca.weblite.swinky.BorderPane
+import ca.weblite.swinky.button
+import ca.weblite.swinky.label
+import ca.weblite.swinky.panel
 import java.awt.FlowLayout
 import javax.swing.JButton
 import javax.swing.JFrame

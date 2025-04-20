@@ -1,12 +1,12 @@
 package ca.weblite.jdeploy.app.forms
 
 import ca.weblite.jdeploy.app.records.Project
-import ca.weblite.ktswing.*
-import ca.weblite.ktswing.extensions.classList
-import ca.weblite.ktswing.extensions.onMouseEntered
-import ca.weblite.ktswing.extensions.onMouseExited
-import ca.weblite.ktswing.style.Stylesheet
-import ca.weblite.ktswing.swingx.searchField
+import ca.weblite.swinky.*
+import ca.weblite.swinky.extensions.classList
+import ca.weblite.swinky.extensions.onMouseEntered
+import ca.weblite.swinky.extensions.onMouseExited
+import ca.weblite.swinky.style.Stylesheet
+import ca.weblite.swinky.swingx.searchField
 import ca.weblite.tools.platform.Platform
 import org.jdesktop.swingx.JXSearchField
 import org.kordamp.ikonli.material.Material

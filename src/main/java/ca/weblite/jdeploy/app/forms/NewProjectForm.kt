@@ -5,7 +5,7 @@ import ca.weblite.jdeploy.app.forms.TemplateChooserPanel.Model
 import ca.weblite.jdeploy.app.records.ProjectTemplates
 import ca.weblite.jdeploy.app.records.Template
 import ca.weblite.jdeploy.app.repositories.MockProjectTemplateRepository
-import ca.weblite.ktswing.style.Stylesheet
+import ca.weblite.swinky.style.Stylesheet
 import java.awt.Frame
 import javax.swing.*
 

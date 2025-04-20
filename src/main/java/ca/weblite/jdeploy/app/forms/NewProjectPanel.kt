@@ -1,10 +1,10 @@
 package ca.weblite.jdeploy.app.forms
 
-import ca.weblite.ktswing.*
-import ca.weblite.ktswing.extensions.at
-import ca.weblite.ktswing.jgoodies.Form
-import ca.weblite.ktswing.jgoodies.form
-import ca.weblite.ktswing.style.Stylesheet
+import ca.weblite.swinky.*
+import ca.weblite.swinky.extensions.at
+import ca.weblite.swinky.jgoodies.Form
+import ca.weblite.swinky.jgoodies.form
+import ca.weblite.swinky.style.Stylesheet
 import java.awt.BorderLayout
 import java.awt.Dimension
 import java.awt.FlowLayout

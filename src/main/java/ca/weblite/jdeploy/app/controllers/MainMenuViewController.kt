@@ -8,7 +8,7 @@ import ca.weblite.jdeploy.app.services.Edt
 import ca.weblite.jdeploy.app.services.ProjectService
 import ca.weblite.jdeploy.app.swing.ResponsiveImagePanel
 import ca.weblite.jdeploy.app.views.mainMenu.ProjectListCellRenderer
-import ca.weblite.ktswing.coroutines.SwingDispatcher
+import ca.weblite.swinky.coroutines.SwingDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.awt.BorderLayout

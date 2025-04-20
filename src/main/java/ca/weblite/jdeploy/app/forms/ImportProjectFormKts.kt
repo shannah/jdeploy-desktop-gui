@@ -1,8 +1,8 @@
 package ca.weblite.jdeploy.app.forms
 
-import ca.weblite.ktswing.*
-import ca.weblite.ktswing.jgoodies.form
-import ca.weblite.ktswing.style.Stylesheet
+import ca.weblite.swinky.*
+import ca.weblite.swinky.jgoodies.form
+import ca.weblite.swinky.style.Stylesheet
 import java.awt.BorderLayout
 import java.awt.FlowLayout
 import javax.swing.*

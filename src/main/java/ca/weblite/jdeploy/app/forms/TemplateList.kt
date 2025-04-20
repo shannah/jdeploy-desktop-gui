@@ -5,8 +5,8 @@ import ca.weblite.jdeploy.app.records.ProjectTemplates
 import ca.weblite.jdeploy.app.records.Template
 import ca.weblite.jdeploy.app.repositories.MockProjectTemplateRepository
 import ca.weblite.jdeploy.app.swing.layouts.WrapLayout
-import ca.weblite.ktswing.coroutines.SwingDispatcher
-import ca.weblite.ktswing.extensions.createComponent
+import ca.weblite.swinky.coroutines.SwingDispatcher
+import ca.weblite.swinky.extensions.createComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.awt.Container

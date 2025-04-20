@@ -1,10 +1,10 @@
 package ca.weblite.jdeploy.app.forms
 
-import ca.weblite.ktswing.BorderPane
-import ca.weblite.ktswing.label
-import ca.weblite.ktswing.panel
-import ca.weblite.ktswing.progressBar
-import ca.weblite.ktswing.swingx.imagePanel
+import ca.weblite.swinky.BorderPane
+import ca.weblite.swinky.label
+import ca.weblite.swinky.panel
+import ca.weblite.swinky.progressBar
+import ca.weblite.swinky.swingx.imagePanel
 import org.jdesktop.swingx.JXImagePanel
 import org.jdesktop.swingx.VerticalLayout
 import javax.swing.BorderFactory

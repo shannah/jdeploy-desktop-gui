@@ -1,7 +1,7 @@
 package ca.weblite.jdeploy.app.images
 
 import ca.weblite.jdeploy.app.cache.FileSystemCache
-import ca.weblite.ktswing.coroutines.SwingDispatcher
+import ca.weblite.swinky.coroutines.SwingDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.awt.Component

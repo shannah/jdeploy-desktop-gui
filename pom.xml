@@ -29,7 +29,7 @@
       <kotlin.jvm.target>17</kotlin.jvm.target>
       <hibernate.version>6.2.8.Final</hibernate.version>
       <hibernate.dialect.version>6.0.0.Final</hibernate.dialect.version>
-      <ktswing.version>0.0.16</ktswing.version>
+      <swinky.version>0.0.17</swinky.version>
   </properties>
   <dependencies>
       <dependency>
@@ -60,23 +60,23 @@
 
       <dependency>
           <groupId>ca.weblite</groupId>
-          <artifactId>ktswing-main</artifactId>
-            <version>${ktswing.version}</version>
+          <artifactId>swinky-main</artifactId>
+            <version>${swinky.version}</version>
       </dependency>
       <dependency>
           <groupId>ca.weblite</groupId>
-          <artifactId>ktswing-jgoodies</artifactId>
-          <version>${ktswing.version}</version>
+          <artifactId>swinky-jgoodies</artifactId>
+          <version>${swinky.version}</version>
         </dependency>
       <dependency>
           <groupId>ca.weblite</groupId>
-          <artifactId>ktswing-swingx</artifactId>
-          <version>${ktswing.version}</version>
+          <artifactId>swinky-swingx</artifactId>
+          <version>${swinky.version}</version>
       </dependency>
       <dependency>
           <groupId>ca.weblite</groupId>
-          <artifactId>ktswing-coroutines</artifactId>
-          <version>${ktswing.version}</version>
+          <artifactId>swinky-coroutines</artifactId>
+          <version>${swinky.version}</version>
       </dependency>
       <dependency>
       <groupId>com.jgoodies</groupId>
