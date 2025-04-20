@@ -2,6 +2,7 @@ package ca.weblite.jdeploy.app.repositories
 
 import ca.weblite.jdeploy.app.cache.FileSystemCache
 import ca.weblite.jdeploy.app.records.ProjectTemplates
+import ca.weblite.jdeploy.services.ProjectTemplateCatalog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -12,20 +13,37 @@ import javax.inject.Singleton
 
 @Singleton
 class DefaultProjectTemplateRepository @Inject constructor(
-    private val fileSystemCache: FileSystemCache
+    private val fileSystemCache: FileSystemCache,
+    private val projectTemplateCatalog: ProjectTemplateCatalog,
 ) : ProjectTemplateRepositoryInterface {
 
     private val url: URL = URI.create("https://raw.githubusercontent.com/shannah/jdeploy-project-templates/master/projects.xml").toURL()
 
-    private val delegate by lazy {
+    private val urlDelegate by lazy {
         URLXMLProjectTemplateRepository(
             url,
             fileSystemCache = fileSystemCache
         )
     }
 
+    private val fileDelegate by lazy {
+        XMLProjectTemplateRepository(
+            projectTemplateCatalog.projectsIndexFile,
+        )
+    }
+
     override suspend fun findAll(): ProjectTemplates = withContext(Dispatchers.IO) {
-        delegate.findAll()
+        if (projectTemplateCatalog.projectsIndexFile.exists()) {
+            fileDelegate.findAll()
+        } else {
+            urlDelegate.findAll()
+        }
+    }
+
+    suspend fun updateCatalog() {
+        withContext(Dispatchers.IO) {
+            projectTemplateCatalog.update()
+        }
     }
 
     suspend fun clearCache() {
