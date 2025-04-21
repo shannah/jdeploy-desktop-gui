@@ -131,7 +131,7 @@ class MainMenuViewController : JFrameViewController() {
                 isEnabled = false
             }
 
-            override fun actionPerformed(e: ActionEvent) {
+            override fun actionPerformed(e: ActionEvent?) {
                 val project = mainMenu.getRecentProjects().selectedValue
                 if (project != null) {
                     OpenProjectController(frame, project.path).run()
