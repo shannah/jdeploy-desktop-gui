@@ -179,7 +179,6 @@ class TemplateChooserPanel(model: Model, var tileDelegate: TemplateTileDelegate?
                             register(TemplateTile::class.java) {
                                 onMouseClicked("selectTile") {
                                     selectedTemplateTile = this
-                                    System.out.println("Mouse clicked");
                                     stylesheet.revalidate(this@TemplateChooserPanel)
                                 }
 

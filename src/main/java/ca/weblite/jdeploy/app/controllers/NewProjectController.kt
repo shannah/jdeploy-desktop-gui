@@ -11,6 +11,7 @@ import ca.weblite.jdeploy.app.forms.TemplateChooserPanel.Model
 import ca.weblite.jdeploy.app.forms.TemplateTileDelegate
 import ca.weblite.jdeploy.app.records.ProjectTemplates
 import ca.weblite.jdeploy.app.records.Template
+import ca.weblite.jdeploy.app.repositories.DefaultProjectTemplateRepository
 import ca.weblite.jdeploy.app.repositories.MockProjectTemplateRepository
 import ca.weblite.jdeploy.app.repositories.ProjectTemplateRepositoryInterface
 import ca.weblite.jdeploy.app.system.files.FileSystemUiInterface
@@ -18,6 +19,9 @@ import ca.weblite.jdeploy.builders.ProjectGeneratorRequestBuilder
 import ca.weblite.jdeploy.services.GithubTokenService
 import ca.weblite.jdeploy.services.ProjectGenerator
 import ca.weblite.jdeploy.services.ProjectTemplateCatalog
+import ca.weblite.ktswing.coroutines.SwingDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.awt.FlowLayout
 import java.awt.Frame
 import java.io.File
@@ -36,6 +40,11 @@ class NewProjectController(
     private val projectTemplateRepository: ProjectTemplateRepositoryInterface = DIContext.get(ProjectTemplateRepositoryInterface::class.java)
 ) {
     private lateinit var dialog: NewProjectForm
+    private lateinit var owner: Frame
+
+    companion object {
+        var lastProjectTemplateUpdate = 0L
+    }
 
     constructor(owner: Frame): this(
         fileSystemUi = DIContext.get(FileSystemUiInterface::class.java),
@@ -43,6 +52,7 @@ class NewProjectController(
         templateCatalog = DIContext.get(ProjectTemplateCatalog::class.java),
         controllerFactory = DIContext.get(ControllerFactory::class.java),
     ) {
+        this.owner = owner
         val templateChooserModel = object : Model {
             override suspend fun getProjectTemplates(): ProjectTemplates {
                 return projectTemplateRepository.findAll()
@@ -152,9 +162,12 @@ class NewProjectController(
         }
     }
 
-    fun show() {
-        dialog.pack()
-        dialog.isVisible = true
+    suspend  fun show() {
+        updateTemplateCatalogSuspending(owner)
+        withContext(SwingDispatcher) {
+            dialog.pack()
+            dialog.isVisible = true
+        }
     }
 
     private fun setDefaultValues() {
@@ -429,7 +442,6 @@ class NewProjectController(
 
     private fun openWebDemo(template: Template) {
         // Open the sources for the selected template
-        System.out.println("openWebDemo");
         val url = template.webAppUrl
         if (url.isNullOrEmpty()) {
             return;
@@ -442,4 +454,16 @@ class NewProjectController(
             e.printStackTrace()
         }
     }
+
+    suspend private fun updateTemplateCatalogSuspending(owner: Frame) {
+        if (lastProjectTemplateUpdate < System.currentTimeMillis() - 1000 * 60 * 60) {
+            lastProjectTemplateUpdate = System.currentTimeMillis()
+        } else {
+            return
+        }
+        val updateController = UpdateProjectTemplatesController(templateCatalog, owner)
+        updateController.updateSuspending()
+        updateTemplateOptions()
+    }
+
 }

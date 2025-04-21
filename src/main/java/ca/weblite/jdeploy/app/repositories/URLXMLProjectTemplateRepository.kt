@@ -16,10 +16,8 @@ class URLXMLProjectTemplateRepository(
         val factory = DocumentBuilderFactory.newInstance().apply { isNamespaceAware = true }
         val builder = factory.newDocumentBuilder()
         val doc = if (fileSystemCache == null) {
-                System.out.println("Not using cache");
                 url.openStream().use { builder.parse(it) }
             } else {
-                System.out.println("Using cache");
                 fileSystemCache.load(url, "").use { builder.parse(it) }
             }
         ProjectTemplateXMLParser.parse(doc)
