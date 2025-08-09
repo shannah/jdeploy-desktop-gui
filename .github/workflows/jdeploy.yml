@@ -30,6 +30,15 @@ jobs:
         with:
           node-version: '16.x'
           registry-url: 'https://registry.npmjs.org'
+      - name: Load Environment Variables
+        run: |
+          if [ -f .env ]; then
+            export $(grep -v '^#' .env | xargs)
+            echo "JDEPLOY_VERSION=${JDEPLOY_VERSION:-latest}" >> $GITHUB_ENV
+          else
+            echo "JDEPLOY_VERSION=latest" >> $GITHUB_ENV
+          fi
+
       - name: Download and Extract jDeploy Repository
         run: |
           curl -L -o jdeploy.zip https://github.com/shannah/jdeploy/archive/refs/heads/master.zip
@@ -38,7 +47,7 @@ jobs:
       - name: Install signed installer templates into local maven repo
         run: |
           cd jdeploy-master
-          bash install-signed-installer-templates.sh
+          bash install-signed-installer-templates.sh ${{ env.JDEPLOY_VERSION }}
 
       - name: Build jDeploy Shared Module
         run: |
