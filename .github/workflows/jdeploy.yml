@@ -6,7 +6,7 @@ name: jDeploy CI with Maven
 on:
   push:
     branches: ['*', '!gh-pages']
-    tags: ['*']
+    tags: ['master','dev']
 
 jobs:
   build:
@@ -34,8 +34,22 @@ jobs:
         run: |
           if [ -f .env ]; then
             export $(grep -v '^#' .env | xargs)
+            echo "JDEPLOY_REGISTRY_URL=${JDEPLOY_REGISTRY_URL:-https://www.jdeploy.com/}" >> $GITHUB_ENV
             echo "JDEPLOY_VERSION=${JDEPLOY_VERSION:-latest}" >> $GITHUB_ENV
           else
+            echo "JDEPLOY_REGISTRY_URL=https://www.jdeploy.com/" >> $GITHUB_ENV
+            echo "JDEPLOY_VERSION=latest" >> $GITHUB_ENV
+          fi
+
+      - name: Load Environment Variables for dev builds
+        if: contains(github.ref, 'dev')
+        run: |
+          if [ -f .env.dev ]; then
+            export $(grep -v '^#' .env.dev | xargs)
+            echo "JDEPLOY_REGISTRY_URL=${JDEPLOY_REGISTRY_URL:-https://www.jdeploy.com}" >> $GITHUB_ENV
+            echo "JDEPLOY_VERSION=${JDEPLOY_VERSION:-latest}" >> $GITHUB_ENV
+          else
+            echo "JDEPLOY_REGISTRY_URL=https://www.jdeploy.com" >> $GITHUB_ENV
             echo "JDEPLOY_VERSION=latest" >> $GITHUB_ENV
           fi
 
@@ -58,6 +72,12 @@ jobs:
         run: |
           cd jdeploy-master/cli
           mvn clean install
+
+      - name: Modify package.json for dev branch
+        if: contains(github.ref, 'dev')
+        run: |
+          # Add jdeploy.website.url runtime argument for dev builds
+          jq '.jdeploy.args = ["-Djdeploy.website.url=https://dev.jdeploy.com/"] + (.jdeploy.args // [])' package.json > package.json.tmp && mv package.json.tmp package.json
 
       - name: Build with Maven
         run: mvn -B package --file pom.xml
