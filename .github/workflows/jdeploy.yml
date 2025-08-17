@@ -6,7 +6,7 @@ name: jDeploy CI with Maven
 on:
   push:
     branches: ['*', '!gh-pages']
-    tags: ['*']
+    tags: ['master','dev']
 
 jobs:
   build:
@@ -30,6 +30,29 @@ jobs:
         with:
           node-version: '16.x'
           registry-url: 'https://registry.npmjs.org'
+      - name: Load Environment Variables
+        run: |
+          if [ -f .env ]; then
+            export $(grep -v '^#' .env | xargs)
+            echo "JDEPLOY_REGISTRY_URL=${JDEPLOY_REGISTRY_URL:-https://www.jdeploy.com/}" >> $GITHUB_ENV
+            echo "JDEPLOY_VERSION=${JDEPLOY_VERSION:-latest}" >> $GITHUB_ENV
+          else
+            echo "JDEPLOY_REGISTRY_URL=https://www.jdeploy.com/" >> $GITHUB_ENV
+            echo "JDEPLOY_VERSION=latest" >> $GITHUB_ENV
+          fi
+
+      - name: Load Environment Variables for dev builds
+        if: contains(github.ref, 'dev')
+        run: |
+          if [ -f .env.dev ]; then
+            export $(grep -v '^#' .env.dev | xargs)
+            echo "JDEPLOY_REGISTRY_URL=${JDEPLOY_REGISTRY_URL:-https://www.jdeploy.com}" >> $GITHUB_ENV
+            echo "JDEPLOY_VERSION=${JDEPLOY_VERSION:-latest}" >> $GITHUB_ENV
+          else
+            echo "JDEPLOY_REGISTRY_URL=https://www.jdeploy.com" >> $GITHUB_ENV
+            echo "JDEPLOY_VERSION=latest" >> $GITHUB_ENV
+          fi
+
       - name: Download and Extract jDeploy Repository
         run: |
           curl -L -o jdeploy.zip https://github.com/shannah/jdeploy/archive/refs/heads/master.zip
@@ -38,7 +61,7 @@ jobs:
       - name: Install signed installer templates into local maven repo
         run: |
           cd jdeploy-master
-          bash install-signed-installer-templates.sh
+          bash install-signed-installer-templates.sh ${{ env.JDEPLOY_VERSION }}
 
       - name: Build jDeploy Shared Module
         run: |
@@ -50,12 +73,19 @@ jobs:
           cd jdeploy-master/cli
           mvn clean install
 
+      - name: Modify package.json for dev branch
+        if: contains(github.ref, 'dev')
+        run: |
+          # Add jdeploy.website.url runtime argument for dev builds
+          jq '.jdeploy.args = ["-Djdeploy.website.url=https://dev.jdeploy.com/"] + (.jdeploy.args // [])' package.json > package.json.tmp && mv package.json.tmp package.json
+
       - name: Build with Maven
         run: mvn -B package --file pom.xml
       - name: Build App Installer Bundles
         uses: shannah/jdeploy@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          jdeploy_version: ${{ env.JDEPLOY_VERSION }}
       - name: Upload Build Artifacts for DMG Action
         if: ${{ vars.JDEPLOY_CREATE_DMG == 'true' }}  # Only needed if creating DMG
         uses: actions/upload-artifact@v4
