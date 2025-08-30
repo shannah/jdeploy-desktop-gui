@@ -16,7 +16,9 @@
         "javaVersion": "21",
         "jar": "target\\jdeploy-desktop-gui-1.0-SNAPSHOT.jar",
         "javafx": false,
-        "title": "jDeploy"
+        "title": "jDeploy",
+        "downloadPage": {"platforms": ["all"]},
+        "generateLegacyBundles": false
     },
     "dependencies": {
         "command-exists-promise": "^2.0.2",
