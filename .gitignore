@@ -4,3 +4,4 @@ target
 /jdeploy-bundle
 /jdeploy
 /.jdeploy
+*.class
