@@ -48,6 +48,13 @@ class SplashScreen: JFrame() {
                 }
 
                 label{
+                    text = getVersionText()
+                    font = font.deriveFont(12f)
+                    horizontalAlignment = javax.swing.SwingConstants.CENTER
+                    border = BorderFactory.createEmptyBorder(5,10,5,10)
+                }
+
+                label{
                     val currentYear = java.time.LocalDate.now().year
                     text = "Copyright (c) 2021-${currentYear} Web Lite Solutions Corp.  All rights reserved."
                     font = font.deriveFont(10f)
@@ -90,5 +97,17 @@ class SplashScreen: JFrame() {
 
         // Request focus for the frame
         frame.requestFocus()
+    }
+
+    private fun getVersionText(): String {
+        val version = System.getProperty("jdeploy.app.version", "Unknown")
+        val commitHash = System.getProperty("jdeploy.commitHash", "Unknown")
+
+        // If version starts with "0.0.0", show commit hash instead
+        return if (version.startsWith("0.0.0")) {
+            "Commit: $commitHash"
+        } else {
+            "Version: $version"
+        }
     }
 }
