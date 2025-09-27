@@ -3,6 +3,7 @@ import ca.weblite.jdeploy.app.config.JdeployAppConfigInterface;
 import ca.weblite.jdeploy.app.controllers.MainMenuViewController;
 import ca.weblite.jdeploy.DIContext;
 import ca.weblite.jdeploy.app.di.JDeployDesktopGuiModule;
+import ca.weblite.jdeploy.app.forms.AboutDialog;
 import ca.weblite.jdeploy.app.forms.SplashScreen;
 import ca.weblite.jdeploy.app.repositories.DefaultProjectTemplateRepository;
 import ca.weblite.jdeploy.app.repositories.impl.jpa.services.DatabaseService;
@@ -30,6 +31,8 @@ public class JdeployDesktopGui {
             }
         }
 
+        // Set up Desktop API About handler for macOS
+        setupDesktopAboutHandler();
 
         EventQueue.invokeLater(()->{
             new SplashScreen().showSplash();
@@ -40,6 +43,44 @@ public class JdeployDesktopGui {
         DIContext.get(DatabaseService.class).migrate();
         DIContext.get(DefaultProjectTemplateRepository.class).clearCacheBlocking();
         SwingUtilities.invokeLater(() -> new MainMenuViewController().run());
+    }
+
+    private static void setupDesktopAboutHandler() {
+        // Check if Desktop is supported
+        if (Desktop.isDesktopSupported()) {
+            Desktop desktop = Desktop.getDesktop();
+
+            // Check if About handler is supported (mainly for macOS)
+            if (desktop.isSupported(Desktop.Action.APP_ABOUT)) {
+                desktop.setAboutHandler(e -> {
+                    // Show the custom About dialog
+                    SwingUtilities.invokeLater(() -> {
+                        // Get the active frame (if any) to use as parent
+                        Frame activeFrame = null;
+                        Frame[] frames = Frame.getFrames();
+                        for (Frame frame : frames) {
+                            if (frame.isActive()) {
+                                activeFrame = frame;
+                                break;
+                            }
+                        }
+
+                        // If no active frame, use the first visible frame
+                        if (activeFrame == null) {
+                            for (Frame frame : frames) {
+                                if (frame.isVisible()) {
+                                    activeFrame = frame;
+                                    break;
+                                }
+                            }
+                        }
+
+                        AboutDialog aboutDialog = new AboutDialog(activeFrame);
+                        aboutDialog.setVisible(true);
+                    });
+                });
+            }
+        }
     }
 
     private static void createApplicationFilesDirectory() {

@@ -2,6 +2,7 @@ package ca.weblite.jdeploy.app.controllers
 
 import ca.weblite.jdeploy.DIContext
 import ca.weblite.jdeploy.app.factories.ControllerFactory
+import ca.weblite.jdeploy.app.forms.AboutDialog
 import ca.weblite.jdeploy.app.forms.MainMenuForm
 import ca.weblite.jdeploy.app.records.Project
 import ca.weblite.jdeploy.app.services.Edt
@@ -112,6 +113,26 @@ class MainMenuViewController : JFrameViewController() {
 
     override fun onBeforeShow() {
         frame.title = "jDeploy"
+        setupMenuBar()
+    }
+    
+    private fun setupMenuBar() {
+        val menuBar = JMenuBar()
+        
+        // Help menu
+        val helpMenu = JMenu("Help")
+        
+        // About menu item
+        val aboutMenuItem = JMenuItem("About jDeploy")
+        aboutMenuItem.addActionListener { e: ActionEvent? ->
+            val aboutDialog = AboutDialog(frame)
+            aboutDialog.isVisible = true
+        }
+        
+        helpMenu.add(aboutMenuItem)
+        menuBar.add(helpMenu)
+        
+        frame.jMenuBar = menuBar
     }
 
     private fun buildRecentProjectsModel(): ListModel<Project> {
