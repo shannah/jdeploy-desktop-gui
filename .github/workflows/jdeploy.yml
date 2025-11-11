@@ -82,7 +82,7 @@ jobs:
       - name: Build with Maven
         run: mvn -B package --file pom.xml
       - name: Build App Installer Bundles
-        uses: shannah/jdeploy@feature/github-direct-download
+        uses: shannah/jdeploy@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           jdeploy_version: ${{ env.JDEPLOY_VERSION }}
