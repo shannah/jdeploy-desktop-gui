@@ -297,7 +297,7 @@ class NewProjectController(
                 && dialog.githubRepositoryUrl.text.isNotEmpty()
                 ) {
                 githubRepository = dialog.githubRepositoryUrl.text
-                isPrivateRepository = dialog.githubReleasesRepositoryUrl.text.isEmpty()
+                isPrivateRepository = !dialog.githubReleasesRepositoryUrl.text.isEmpty()
             }
 
         }
