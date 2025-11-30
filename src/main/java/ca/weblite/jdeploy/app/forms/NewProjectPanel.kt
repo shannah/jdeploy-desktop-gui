@@ -148,6 +148,9 @@ class NewProjectPanel(): JPanel(), NewProjectFormInterface {
 
                 textField {
                     githubRepositoryUrl = this
+                    toolTipText = "Enter repository in format: owner/repository (e.g., octocat/Hello-World)"
+                    // Set placeholder-like text using a custom property
+                    putClientProperty("JTextField.placeholderText", "owner/repository")
                 } at x(3)
 
                 checkBox {
@@ -163,6 +166,9 @@ class NewProjectPanel(): JPanel(), NewProjectFormInterface {
 
                 textField {
                     githubReleasesRepositoryUrl = this
+                    toolTipText = "Enter repository in format: owner/repository (e.g., octocat/Hello-World-Releases)"
+                    // Set placeholder-like text using a custom property
+                    putClientProperty("JTextField.placeholderText", "owner/repository")
                 } at x(3)
 
                 checkBox {

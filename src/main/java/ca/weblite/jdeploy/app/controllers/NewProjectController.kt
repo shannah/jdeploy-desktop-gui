@@ -394,7 +394,91 @@ class NewProjectController(
                 if (githubRepositoryUrl.text.isEmpty()) {
                     throw ValidationFailedException("GitHub Repository URL is required")
                 }
+                validateGitHubRepositoryFormat(githubRepositoryUrl.text, "GitHub Repository URL")
+
+                if (githubReleasesRepositoryUrl.text.isNotEmpty()) {
+                    validateGitHubRepositoryFormat(githubReleasesRepositoryUrl.text, "Releases Repository URL")
+                }
             }
+        }
+    }
+
+    @Throws(ValidationFailedException::class)
+    private fun validateGitHubRepositoryFormat(repositoryUrl: String, fieldName: String) {
+        val trimmed = repositoryUrl.trim()
+
+        // Check if it's a full URL (starts with http:// or https://)
+        if (trimmed.startsWith("http://", ignoreCase = true) ||
+            trimmed.startsWith("https://", ignoreCase = true)) {
+            throw ValidationFailedException(
+                "$fieldName must be in format 'owner/repository', not a full URL.\n" +
+                "Example: octocat/Hello-World"
+            )
+        }
+
+        // Check if it contains exactly one '/'
+        val slashCount = trimmed.count { it == '/' }
+        if (slashCount == 0) {
+            throw ValidationFailedException(
+                "$fieldName must include both owner and repository name.\n" +
+                "Format: owner/repository\n" +
+                "Example: octocat/Hello-World"
+            )
+        }
+
+        if (slashCount > 1) {
+            throw ValidationFailedException(
+                "$fieldName contains too many '/' characters.\n" +
+                "Format: owner/repository\n" +
+                "Example: octocat/Hello-World"
+            )
+        }
+
+        // Split and validate owner and repository parts
+        val parts = trimmed.split('/')
+        if (parts.size != 2) {
+            throw ValidationFailedException(
+                "$fieldName format is invalid.\n" +
+                "Format: owner/repository\n" +
+                "Example: octocat/Hello-World"
+            )
+        }
+
+        val owner = parts[0].trim()
+        val repo = parts[1].trim()
+
+        if (owner.isEmpty()) {
+            throw ValidationFailedException(
+                "$fieldName is missing the owner name.\n" +
+                "Format: owner/repository\n" +
+                "Example: octocat/Hello-World"
+            )
+        }
+
+        if (repo.isEmpty()) {
+            throw ValidationFailedException(
+                "$fieldName is missing the repository name.\n" +
+                "Format: owner/repository\n" +
+                "Example: octocat/Hello-World"
+            )
+        }
+
+        // Validate characters in owner and repository names
+        // GitHub allows alphanumeric, hyphens, underscores, and dots
+        val validPattern = Regex("^[a-zA-Z0-9._-]+$")
+
+        if (!owner.matches(validPattern)) {
+            throw ValidationFailedException(
+                "$fieldName owner '$owner' contains invalid characters.\n" +
+                "Owner can only contain letters, numbers, hyphens, underscores, and dots."
+            )
+        }
+
+        if (!repo.matches(validPattern)) {
+            throw ValidationFailedException(
+                "$fieldName repository '$repo' contains invalid characters.\n" +
+                "Repository can only contain letters, numbers, hyphens, underscores, and dots."
+            )
         }
     }
 
