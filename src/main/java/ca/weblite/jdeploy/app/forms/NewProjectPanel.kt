@@ -5,6 +5,7 @@ import ca.weblite.ktswing.extensions.at
 import ca.weblite.ktswing.jgoodies.Form
 import ca.weblite.ktswing.jgoodies.form
 import ca.weblite.ktswing.style.Stylesheet
+import ca.weblite.ktswing.swingx.jxTextField
 import java.awt.BorderLayout
 import java.awt.Dimension
 import java.awt.FlowLayout
@@ -146,11 +147,15 @@ class NewProjectPanel(): JPanel(), NewProjectFormInterface {
                     text = "Repository URL"
                 } at x(1)
 
-                textField {
+                jxTextField {
                     githubRepositoryUrl = this
                     toolTipText = "Enter repository in format: owner/repository (e.g., octocat/Hello-World)"
-                    // Set placeholder-like text using a custom property
-                    putClientProperty("JTextField.placeholderText", "owner/repository")
+                    prompt = "owner/repository"
+                    // Match JTextField styling
+                    putClientProperty("JComponent.roundRect", false)
+                    border = UIManager.getBorder("TextField.border")
+                    background = UIManager.getColor("TextField.background")
+                    isOpaque = true
                 } at x(3)
 
                 checkBox {
@@ -164,11 +169,15 @@ class NewProjectPanel(): JPanel(), NewProjectFormInterface {
                     text = "Releases Repository URL"
                 } at x(1)
 
-                textField {
+                jxTextField {
                     githubReleasesRepositoryUrl = this
                     toolTipText = "Enter repository in format: owner/repository (e.g., octocat/Hello-World-Releases)"
-                    // Set placeholder-like text using a custom property
-                    putClientProperty("JTextField.placeholderText", "owner/repository")
+                    prompt = "owner/repository"
+                    // Match JTextField styling
+                    putClientProperty("JComponent.roundRect", false)
+                    border = UIManager.getBorder("TextField.border")
+                    background = UIManager.getColor("TextField.background")
+                    isOpaque = true
                 } at x(3)
 
                 checkBox {
