@@ -63,14 +63,9 @@ jobs:
           cd jdeploy-master
           bash install-signed-installer-templates.sh ${{ env.JDEPLOY_VERSION }}
 
-      - name: Build jDeploy Shared Module
+      - name: Build jDeploy
         run: |
-          cd jdeploy-master/shared
-          mvn clean install
-
-      - name: Build jDeploy CLI
-        run: |
-          cd jdeploy-master/cli
+          cd jdeploy-master
           mvn clean install
 
       - name: Modify package.json for dev branch
