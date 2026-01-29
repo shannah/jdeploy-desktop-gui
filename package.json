@@ -4,21 +4,28 @@
     "description": "Deploy Java desktop applications as native bundles",
     "main": "index.js",
     "preferGlobal": true,
-    "repository": "",
     "version": "1.0.5",
     "jdeploy": {
-        "jdk": false,
+        "fallbackToUniversal": false,
+        "generateLegacyBundles": false,
         "publishTargets": [{
             "name": "github: jdeploy-desktop-gui",
             "type": "GITHUB",
             "url": "https://github.com/shannah/test-jdeploy-releases"
         }],
         "javaVersion": "21",
+        "ai": {"mcp": {
+            "args": ["--mcp"],
+            "command": "jdeploy"
+        }},
         "jar": "target\\jdeploy-desktop-gui-1.0-SNAPSHOT.jar",
-        "javafx": false,
         "title": "jDeploy",
         "downloadPage": {"platforms": ["all"]},
-        "generateLegacyBundles": false
+        "commands": {"jdeploy": {
+            "implements": ["updater"],
+            "description": "jDeploy CLI tool for deploying java apps"
+        }},
+        "platformBundlesEnabled": false
     },
     "dependencies": {
         "command-exists-promise": "^2.0.2",
