@@ -5,8 +5,10 @@ import ca.weblite.jdeploy.DIContext;
 import ca.weblite.jdeploy.app.di.JDeployDesktopGuiModule;
 import ca.weblite.jdeploy.app.forms.AboutDialog;
 import ca.weblite.jdeploy.app.forms.SplashScreen;
+import ca.weblite.jdeploy.app.mcp.JDeployMcpServer;
 import ca.weblite.jdeploy.app.repositories.DefaultProjectTemplateRepository;
 import ca.weblite.jdeploy.app.repositories.impl.jpa.services.DatabaseService;
+import ca.weblite.jdeploy.JDeploy;
 import com.formdev.flatlaf.FlatLightLaf;
 import kotlin.coroutines.CoroutineContext;
 import kotlinx.coroutines.CoroutineScope;
@@ -17,12 +19,31 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Arrays;
 
 import static org.freedesktop.dbus.utils.Util.isMacOs;
 
 public class JdeployDesktopGui {
 
     public static void main(String[] args) {
+        String mode = System.getProperty("jdeploy.mode", "cli");
+
+        if ("gui".equals(mode)) {
+            runGuiMode(args);
+        } else {
+            runCliMode(args);
+        }
+    }
+
+    private static void runCliMode(String[] args) {
+        if (Arrays.asList(args).contains("--mcp")) {
+            JDeployMcpServer.run();
+        } else {
+            JDeploy.main(args);
+        }
+    }
+
+    private static void runGuiMode(String[] args) {
         if (!isMacOs()) {
             try {
                 UIManager.setLookAndFeel(new FlatLightLaf());
