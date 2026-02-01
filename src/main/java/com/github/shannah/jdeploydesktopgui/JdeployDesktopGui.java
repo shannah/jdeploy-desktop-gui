@@ -26,7 +26,7 @@ import static org.freedesktop.dbus.utils.Util.isMacOs;
 public class JdeployDesktopGui {
 
     public static void main(String[] args) {
-        String mode = System.getProperty("jdeploy.mode", "cli");
+        String mode = System.getProperty("jdeploy.mode", "gui");
 
         if ("gui".equals(mode)) {
             runGuiMode(args);

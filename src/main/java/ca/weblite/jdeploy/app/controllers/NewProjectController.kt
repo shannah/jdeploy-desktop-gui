@@ -293,11 +293,11 @@ class NewProjectController(
             templateName = dialog.projectTemplate.selectedItem?.toString()
             if (
                 dialog.gitHubReleasesRadioButton.isSelected
-                && dialog.createGithubRepositoryUrlCheckBox.isSelected
                 && dialog.githubRepositoryUrl.text.isNotEmpty()
                 ) {
                 githubRepository = dialog.githubRepositoryUrl.text
-                isPrivateRepository = !dialog.githubReleasesRepositoryUrl.text.isEmpty()
+                isPrivateRepository = dialog.createGithubReleasesRepositoryCheckBox.isSelected
+                        && dialog.githubReleasesRepositoryUrl.text.isNotEmpty()
             }
 
         }

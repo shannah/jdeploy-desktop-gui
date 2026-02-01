@@ -12,8 +12,9 @@ These instructions guide you through configuring a Java project to work with jDe
 6. [Add GUI Fallback for Non-GUI Apps](#6-add-gui-fallback-for-non-gui-apps)
 7. [Optional: GitHub Workflows](#7-optional-github-workflows)
 8. [Build and Validation](#8-build-and-validation)
-9. [Compose Multiplatform Desktop Applications](#compose-multiplatform-desktop-applications)
-10. [Platform-Specific Builds for Large Native Libraries](#platform-specific-builds-for-large-native-libraries)
+9. [Publishing via GitHub Releases](#9-publishing-via-github-releases)
+10. [Compose Multiplatform Desktop Applications](#compose-multiplatform-desktop-applications)
+11. [Platform-Specific Builds for Large Native Libraries](#platform-specific-builds-for-large-native-libraries)
 
 ---
 
@@ -522,6 +523,71 @@ jobs:
 | Missing dependencies | For non-shaded JARs, ensure `lib/` directory is created |
 | JavaFX issues | Set `"javafx": true` and verify JavaFX modules are included |
 | Quarkus app won't run | Enable uber-jar: `quarkus.package.jar.type=uber-jar` |
+
+---
+
+## 9. Publishing via GitHub Releases
+
+Once your project is configured and builds successfully, you can publish it using GitHub Releases. The jDeploy GitHub Action automatically builds native installers (Windows .exe, macOS .dmg, Linux packages) whenever a GitHub Release is created.
+
+### Prerequisites
+
+- A GitHub repository for your project
+- The `gh` CLI installed (for command-line publishing)
+- A `.github/workflows/jdeploy.yml` workflow file in your repo (see [Section 7](#7-optional-github-workflows))
+
+### Step-by-Step Publishing
+
+**1. Initialize git and commit your project:**
+```bash
+cd /path/to/your/project
+git init
+git add .
+git commit -m "Initial commit"
+```
+
+**2. Create a GitHub repository and push:**
+```bash
+# Create a public repo (use --private for private repos)
+gh repo create owner/repo-name --public --source . --push
+```
+
+**3. Create a GitHub Release to trigger the build:**
+```bash
+gh release create v1.0.0 --title "v1.0.0" --notes "Initial release"
+```
+
+> **Important:** The release must NOT be a draft. Draft releases do not trigger the jDeploy GitHub Action. Use a non-draft release (which is the default for `gh release create`).
+
+**4. Monitor the build:**
+- Visit your repository's Actions tab: `https://github.com/owner/repo-name/actions`
+- The jDeploy action will build native installers for Windows, macOS, and Linux
+- Once complete, the installers are attached to the release as assets
+
+### What Happens During a Release Build
+
+When a non-draft GitHub Release is created:
+1. The jDeploy GitHub Action checks out your code
+2. Your project is built (Maven or Gradle)
+3. jDeploy packages the JAR into native installers for all supported platforms
+4. The installers are uploaded as release assets
+5. Users can download the appropriate installer for their platform from the release page
+
+### Subsequent Releases
+
+For future versions, simply create a new release:
+```bash
+gh release create v1.1.0 --title "v1.1.0" --notes "Description of changes"
+```
+
+### Verifying Your Release
+
+After the GitHub Action completes, check the release page for installer assets:
+```bash
+gh release view v1.0.0
+```
+
+You should see platform-specific installers (e.g., `.exe`, `.dmg`, `.deb`) attached to the release.
 
 ---
 
