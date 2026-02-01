@@ -47,9 +47,11 @@ public class JDeployMcpServer {
 
     private static final String TOOL_NAME = "setup_jdeploy";
     private static final String TOOL_DESCRIPTION =
-        "Initialize a Java project for jDeploy deployment. " +
-        "This creates the necessary package.json configuration and optionally generates GitHub workflow files. " +
-        "After running this tool, follow the returned instructions to complete the setup.";
+        "Configure a Java project for jDeploy deployment. " +
+        "This creates the necessary package.json configuration and optionally generates GitHub workflow files for CI/CD. " +
+        "If the project is already configured, it returns setup instructions without modifying existing files. " +
+        "After running this tool, follow the returned instructions to complete setup, then " +
+        "commit, push to GitHub, and create a GitHub release to trigger the jDeploy CI/CD workflow.";
 
     private static ProjectInitializer projectInitializer;
     private static ProjectGenerator projectGenerator;
@@ -151,6 +153,11 @@ public class JDeployMcpServer {
             ? (Boolean) workflowParam
             : Boolean.parseBoolean(String.valueOf(workflowParam));
 
+        // Load setup instructions upfront -- we return these regardless of initialization outcome
+        String instructions = loadSetupInstructions();
+
+        StringBuilder resultMessage = new StringBuilder();
+
         try {
             ProjectInitializer.Response response = projectInitializer.decorate(
                 new ProjectInitializer.Request(
@@ -162,31 +169,40 @@ public class JDeployMcpServer {
                 )
             );
 
-            // Load and return the setup instructions
-            String instructions = loadSetupInstructions();
-
-            String resultMessage = String.format(
+            resultMessage.append(String.format(
                 "Successfully initialized jDeploy project at: %s\n\n" +
-                "Generated files:\n" +
-                "- package.json (jDeploy configuration)\n" +
-                "%s\n" +
-                "## Next Steps\n\n%s",
-                projectDirectory,
-                generateGithubWorkflow ? "- .github/workflows/ (CI/CD workflow)\n" : "",
-                instructions
-            );
+                "Generated/updated files:\n" +
+                "- package.json (jDeploy configuration)\n",
+                projectDirectory
+            ));
 
-            return CallToolResult.builder()
-                .content(List.of(new TextContent(resultMessage)))
-                .isError(false)
-                .build();
+            if (response.isGeneratedGithubWorkflow()) {
+                resultMessage.append("- .github/workflows/jdeploy.yml (CI/CD workflow)\n");
+            } else if (response.isGithubWorkflowExists()) {
+                resultMessage.append("- .github/workflows/jdeploy.yml (already exists)\n");
+            } else if (generateGithubWorkflow) {
+                resultMessage.append("- Note: GitHub workflow was requested but could not be generated " +
+                    "(this can happen when updating an existing package.json). " +
+                    "See the GitHub Workflows section in the instructions below to create it manually.\n");
+            }
 
         } catch (Exception e) {
-            return CallToolResult.builder()
-                .content(List.of(new TextContent("Failed to initialize project: " + e.getMessage())))
-                .isError(true)
-                .build();
+            resultMessage.append(String.format(
+                "Note: Project at %s already has a jDeploy configuration. " +
+                "No files were modified.\n\n" +
+                "If you need to adjust the configuration, you can edit package.json directly. " +
+                "The setup instructions below describe the expected format.\n",
+                projectDirectory
+            ));
         }
+
+        resultMessage.append("\n## Setup Instructions\n\n");
+        resultMessage.append(instructions);
+
+        return CallToolResult.builder()
+            .content(List.of(new TextContent(resultMessage.toString())))
+            .isError(false)
+            .build();
     }
 
     private static final String REMOTE_INSTRUCTIONS_URL =
@@ -245,7 +261,8 @@ public class JDeployMcpServer {
             new Tool(
                 "list_templates",
                 "List available jDeploy project templates with their names, descriptions, build tools, " +
-                    "languages, UI toolkits, and categories. Use this before new_project to see available options.",
+                    "languages, UI toolkits, and categories. Call this before new_project to see available options. " +
+                    "Templates include pre-configured GitHub workflows for CI/CD publishing.",
                 null, inputSchema, null, null, null
             ),
             (exchange, arguments) -> {
@@ -352,8 +369,10 @@ public class JDeployMcpServer {
         return new McpServerFeatures.SyncToolSpecification(
             new Tool(
                 "new_project",
-                "Create a new jDeploy project from a template. " +
-                    "Use list_templates first to see available templates.",
+                "Create a new jDeploy project from a template with pre-configured build system and " +
+                    "GitHub Actions workflow for CI/CD. Use list_templates first to see available templates. " +
+                    "After creation, build the project to verify, then push to GitHub and create a release " +
+                    "to trigger the jDeploy workflow which builds native installers.",
                 null, inputSchema, null, null, null
             ),
             (exchange, arguments) -> {
@@ -410,10 +429,44 @@ public class JDeployMcpServer {
 
         File projectDir = projectGenerator.generate(builder.build());
 
+        StringBuilder message = new StringBuilder();
+        message.append("Project created successfully at: ").append(projectDir.getAbsolutePath()).append("\n\n");
+
+        message.append("## Next Steps\n\n");
+        message.append("1. **Build the project** to verify it compiles:\n");
+        message.append("   - Maven: `cd ").append(projectDir.getAbsolutePath()).append(" && mvn clean package`\n");
+        message.append("   - Gradle: `cd ").append(projectDir.getAbsolutePath()).append(" && ./gradlew build`\n\n");
+
+        message.append("2. **Verify the JAR** was created and matches the path in `package.json`.\n\n");
+
+        if (githubRepository != null && !githubRepository.isEmpty()) {
+            message.append("3. **Push to GitHub** and create a release to publish:\n");
+            message.append("   ```\n");
+            message.append("   cd ").append(projectDir.getAbsolutePath()).append("\n");
+            message.append("   git init\n");
+            message.append("   git add .\n");
+            message.append("   git commit -m \"Initial commit\"\n");
+            message.append("   gh repo create ").append(githubRepository);
+            if (privateRepository) {
+                message.append(" --private");
+            } else {
+                message.append(" --public");
+            }
+            message.append(" --source . --push\n");
+            message.append("   gh release create v1.0.0 --title \"v1.0.0\" --notes \"Initial release\"\n");
+            message.append("   ```\n\n");
+            message.append("   The jDeploy GitHub Action will automatically build installers for the release.\n");
+            message.append("   View the action run at: https://github.com/").append(githubRepository).append("/actions\n");
+        } else {
+            message.append("3. **Publish via GitHub** (recommended):\n");
+            message.append("   - Initialize git: `cd ").append(projectDir.getAbsolutePath()).append(" && git init && git add . && git commit -m \"Initial commit\"`\n");
+            message.append("   - Create a GitHub repo: `gh repo create <owner/repo-name> --public --source . --push`\n");
+            message.append("   - Create a release: `gh release create v1.0.0 --title \"v1.0.0\" --notes \"Initial release\"`\n");
+            message.append("   - The jDeploy GitHub Action will automatically build installers for the release.\n");
+        }
+
         return CallToolResult.builder()
-            .content(List.of(new TextContent(
-                "Project created successfully at: " + projectDir.getAbsolutePath()
-            )))
+            .content(List.of(new TextContent(message.toString())))
             .isError(false)
             .build();
     }
