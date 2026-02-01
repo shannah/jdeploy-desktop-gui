@@ -176,9 +176,9 @@ public class JDeployMcpServer {
                 projectDirectory
             ));
 
-            if (response.isGeneratedGithubWorkflow()) {
+            if (response.generatedGithubWorkflow) {
                 resultMessage.append("- .github/workflows/jdeploy.yml (CI/CD workflow)\n");
-            } else if (response.isGithubWorkflowExists()) {
+            } else if (response.githubWorkflowExists) {
                 resultMessage.append("- .github/workflows/jdeploy.yml (already exists)\n");
             } else if (generateGithubWorkflow) {
                 resultMessage.append("- Note: GitHub workflow was requested but could not be generated " +
