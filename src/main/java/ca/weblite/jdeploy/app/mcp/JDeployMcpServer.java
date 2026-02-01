@@ -20,6 +20,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
@@ -171,7 +173,17 @@ public class JDeployMcpServer {
         }
     }
 
+    private static final String REMOTE_INSTRUCTIONS_URL =
+        "https://github.com/shannah/jdeploy-claude/raw/refs/heads/main/CLAUDE.md";
+
     private static String loadSetupInstructions() {
+        // First, try to download the latest instructions from GitHub
+        String remote = downloadRemoteInstructions();
+        if (remote != null) {
+            return remote;
+        }
+
+        // Fall back to bundled resource file
         try (InputStream is = JDeployMcpServer.class.getResourceAsStream("/mcp/setup-instructions.md")) {
             if (is == null) {
                 return getDefaultInstructions();
@@ -182,6 +194,28 @@ public class JDeployMcpServer {
         } catch (IOException e) {
             return getDefaultInstructions();
         }
+    }
+
+    private static String downloadRemoteInstructions() {
+        try {
+            HttpURLConnection connection = (HttpURLConnection) URI.create(REMOTE_INSTRUCTIONS_URL)
+                .toURL().openConnection();
+            connection.setRequestMethod("GET");
+            connection.setConnectTimeout(5000);
+            connection.setReadTimeout(5000);
+            connection.setInstanceFollowRedirects(true);
+
+            int status = connection.getResponseCode();
+            if (status == HttpURLConnection.HTTP_OK) {
+                try (BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
+                    return reader.lines().collect(Collectors.joining("\n"));
+                }
+            }
+        } catch (Exception e) {
+            // Ignore - will fall back to bundled instructions
+        }
+        return null;
     }
 
     private static String getDefaultInstructions() {
