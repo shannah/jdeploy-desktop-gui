@@ -2,7 +2,13 @@ package ca.weblite.jdeploy.app.mcp;
 
 import ca.weblite.jdeploy.DIContext;
 import ca.weblite.jdeploy.app.di.JDeployDesktopGuiModule;
+import ca.weblite.jdeploy.app.records.ProjectTemplates;
+import ca.weblite.jdeploy.app.records.Template;
+import ca.weblite.jdeploy.app.repositories.ProjectTemplateRepositoryInterface;
+import ca.weblite.jdeploy.builders.ProjectGeneratorRequestBuilder;
+import ca.weblite.jdeploy.services.ProjectGenerator;
 import ca.weblite.jdeploy.services.ProjectInitializer;
+import ca.weblite.jdeploy.services.ProjectTemplateCatalog;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.modelcontextprotocol.json.jackson.JacksonMcpJsonMapper;
 import io.modelcontextprotocol.server.McpServer;
@@ -17,12 +23,14 @@ import io.modelcontextprotocol.spec.McpSchema.Tool;
 import io.modelcontextprotocol.spec.McpSchema.JsonSchema;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +52,9 @@ public class JDeployMcpServer {
         "After running this tool, follow the returned instructions to complete the setup.";
 
     private static ProjectInitializer projectInitializer;
+    private static ProjectGenerator projectGenerator;
+    private static ProjectTemplateCatalog templateCatalog;
+    private static ProjectTemplateRepositoryInterface templateRepository;
 
     /**
      * Run the MCP server using stdio transport.
@@ -52,6 +63,9 @@ public class JDeployMcpServer {
         // Initialize DI context to get ProjectInitializer with all dependencies
         new JDeployDesktopGuiModule().install();
         projectInitializer = DIContext.get(ProjectInitializer.class);
+        projectGenerator = DIContext.get(ProjectGenerator.class);
+        templateCatalog = DIContext.get(ProjectTemplateCatalog.class);
+        templateRepository = DIContext.get(ProjectTemplateRepositoryInterface.class);
 
         JacksonMcpJsonMapper jsonMapper = new JacksonMcpJsonMapper(new ObjectMapper());
         StdioServerTransportProvider transportProvider = new StdioServerTransportProvider(jsonMapper);
@@ -63,8 +77,10 @@ public class JDeployMcpServer {
                 .build())
             .build();
 
-        // Register the setup_jdeploy tool
+        // Register tools
         server.addTool(createSetupTool());
+        server.addTool(createListTemplatesTool());
+        server.addTool(createNewProjectTool());
 
         // Keep the server running
         // The transport provider handles the stdio communication
@@ -216,6 +232,190 @@ public class JDeployMcpServer {
             // Ignore - will fall back to bundled instructions
         }
         return null;
+    }
+
+    // ---- list_templates tool ----
+
+    private static McpServerFeatures.SyncToolSpecification createListTemplatesTool() {
+        JsonSchema inputSchema = new JsonSchema(
+            "object", Map.of(), List.of(), false, null, null
+        );
+
+        return new McpServerFeatures.SyncToolSpecification(
+            new Tool(
+                "list_templates",
+                "List available jDeploy project templates with their names, descriptions, build tools, " +
+                    "languages, UI toolkits, and categories. Use this before new_project to see available options.",
+                null, inputSchema, null, null, null
+            ),
+            (exchange, arguments) -> {
+                try {
+                    return handleListTemplates();
+                } catch (Exception e) {
+                    return CallToolResult.builder()
+                        .content(List.of(new TextContent("Error listing templates: " + e.getMessage())))
+                        .isError(true)
+                        .build();
+                }
+            }
+        );
+    }
+
+    private static CallToolResult handleListTemplates() throws Exception {
+        if (!templateCatalog.isCatalogInitialized()) {
+            templateCatalog.update();
+        }
+
+        ProjectTemplates projectTemplates = kotlinx.coroutines.BuildersKt.runBlocking(
+            kotlin.coroutines.EmptyCoroutineContext.INSTANCE,
+            (scope, continuation) -> templateRepository.findAll(continuation)
+        );
+
+        ObjectMapper mapper = new ObjectMapper();
+        List<Map<String, Object>> templateList = new ArrayList<>();
+
+        for (Template template : projectTemplates.getTemplates()) {
+            Map<String, Object> t = new HashMap<>();
+            t.put("name", template.getName());
+            t.put("displayName", template.getDisplayName());
+            t.put("description", template.getDescription());
+            t.put("buildTool", template.getBuildTool());
+            t.put("programmingLanguage", template.getProgrammingLanguage());
+            t.put("uiToolkit", template.getUiToolkit());
+            t.put("categories", template.getCategories());
+            templateList.add(t);
+        }
+
+        String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(templateList);
+
+        return CallToolResult.builder()
+            .content(List.of(new TextContent(json)))
+            .isError(false)
+            .build();
+    }
+
+    // ---- new_project tool ----
+
+    private static McpServerFeatures.SyncToolSpecification createNewProjectTool() {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("parentDirectory", Map.of(
+            "type", "string",
+            "description", "Absolute path to the parent directory where the project folder will be created."
+        ));
+        properties.put("projectName", Map.of(
+            "type", "string",
+            "description", "Name of the project (used as directory name)."
+        ));
+        properties.put("appTitle", Map.of(
+            "type", "string",
+            "description", "Display title of the application."
+        ));
+        properties.put("templateName", Map.of(
+            "type", "string",
+            "description", "Name of the project template to use. Use list_templates to see available options."
+        ));
+        properties.put("groupId", Map.of(
+            "type", "string",
+            "description", "Maven group ID (e.g. com.example)."
+        ));
+        properties.put("artifactId", Map.of(
+            "type", "string",
+            "description", "Maven artifact ID."
+        ));
+        properties.put("githubRepository", Map.of(
+            "type", "string",
+            "description", "Optional GitHub repository in owner/repo format for CI/CD integration."
+        ));
+        properties.put("privateRepository", Map.of(
+            "type", "boolean",
+            "description", "Whether the GitHub repository is private. Defaults to false.",
+            "default", false
+        ));
+        properties.put("packageName", Map.of(
+            "type", "string",
+            "description", "Java package name. Optional, derived from groupId and artifactId if not set."
+        ));
+        properties.put("mainClassName", Map.of(
+            "type", "string",
+            "description", "Fully qualified main class name. Optional."
+        ));
+
+        JsonSchema inputSchema = new JsonSchema(
+            "object",
+            properties,
+            List.of("parentDirectory", "projectName", "appTitle", "templateName", "groupId", "artifactId"),
+            false,
+            null,
+            null
+        );
+
+        return new McpServerFeatures.SyncToolSpecification(
+            new Tool(
+                "new_project",
+                "Create a new jDeploy project from a template. " +
+                    "Use list_templates first to see available templates.",
+                null, inputSchema, null, null, null
+            ),
+            (exchange, arguments) -> {
+                try {
+                    return handleNewProject(arguments);
+                } catch (Exception e) {
+                    return CallToolResult.builder()
+                        .content(List.of(new TextContent("Error creating project: " + e.getMessage())))
+                        .isError(true)
+                        .build();
+                }
+            }
+        );
+    }
+
+    private static CallToolResult handleNewProject(Map<String, Object> arguments) throws Exception {
+        String parentDirectory = (String) arguments.get("parentDirectory");
+        String projectName = (String) arguments.get("projectName");
+        String appTitle = (String) arguments.get("appTitle");
+        String templateName = (String) arguments.get("templateName");
+        String groupId = (String) arguments.get("groupId");
+        String artifactId = (String) arguments.get("artifactId");
+
+        String githubRepository = (String) arguments.getOrDefault("githubRepository", null);
+        Object privateRepoParam = arguments.getOrDefault("privateRepository", false);
+        boolean privateRepository = privateRepoParam instanceof Boolean
+            ? (Boolean) privateRepoParam
+            : Boolean.parseBoolean(String.valueOf(privateRepoParam));
+        String packageName = (String) arguments.getOrDefault("packageName", null);
+        String mainClassName = (String) arguments.getOrDefault("mainClassName", null);
+
+        if (!templateCatalog.isCatalogInitialized()) {
+            templateCatalog.update();
+        }
+
+        ProjectGeneratorRequestBuilder builder = new ProjectGeneratorRequestBuilder();
+        builder.setParentDirectory(new File(parentDirectory));
+        builder.setProjectName(projectName);
+        builder.setAppTitle(appTitle);
+        builder.setTemplateName(templateName);
+        builder.setGroupId(groupId);
+        builder.setArtifactId(artifactId);
+
+        if (githubRepository != null) {
+            builder.setGithubRepository(githubRepository);
+            builder.setPrivateRepository(privateRepository);
+        }
+        if (packageName != null) {
+            builder.setPackageName(packageName);
+        }
+        if (mainClassName != null) {
+            builder.setMainClassName(mainClassName);
+        }
+
+        File projectDir = projectGenerator.generate(builder.build());
+
+        return CallToolResult.builder()
+            .content(List.of(new TextContent(
+                "Project created successfully at: " + projectDir.getAbsolutePath()
+            )))
+            .isError(false)
+            .build();
     }
 
     private static String getDefaultInstructions() {
