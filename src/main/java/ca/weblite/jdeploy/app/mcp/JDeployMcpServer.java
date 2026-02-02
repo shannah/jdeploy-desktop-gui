@@ -429,18 +429,34 @@ public class JDeployMcpServer {
 
         File projectDir = projectGenerator.generate(builder.build());
 
+        // Detect build tool from generated project
+        boolean isMaven = new File(projectDir, "pom.xml").exists();
+        boolean hasWrapper = isMaven
+                ? new File(projectDir, "mvnw").exists()
+                : new File(projectDir, "gradlew").exists();
+        String buildCommand = isMaven
+                ? (hasWrapper ? "./mvnw package" : "mvn clean package")
+                : "./gradlew build";
+
         StringBuilder message = new StringBuilder();
         message.append("Project created successfully at: ").append(projectDir.getAbsolutePath()).append("\n\n");
 
         message.append("## Next Steps\n\n");
         message.append("1. **Build the project** to verify it compiles:\n");
-        message.append("   - Maven: `cd ").append(projectDir.getAbsolutePath()).append(" && mvn clean package`\n");
-        message.append("   - Gradle: `cd ").append(projectDir.getAbsolutePath()).append(" && ./gradlew build`\n\n");
+        message.append("   ```\n");
+        message.append("   cd ").append(projectDir.getAbsolutePath()).append("\n");
+        message.append("   ").append(buildCommand).append("\n");
+        message.append("   ```\n\n");
 
         message.append("2. **Verify the JAR** was created and matches the path in `package.json`.\n\n");
 
         if (githubRepository != null && !githubRepository.isEmpty()) {
-            message.append("3. **Push to GitHub** and create a release to publish:\n");
+            message.append("3. **Push to GitHub** and create a release to publish:\n\n");
+            message.append("   **Prerequisite:** Ensure your `gh` CLI has the `workflow` scope (needed to push GitHub Actions workflow files):\n");
+            message.append("   ```\n");
+            message.append("   gh auth refresh -h github.com -s workflow\n");
+            message.append("   ```\n\n");
+            message.append("   Then run:\n");
             message.append("   ```\n");
             message.append("   cd ").append(projectDir.getAbsolutePath()).append("\n");
             message.append("   git init\n");
@@ -455,13 +471,20 @@ public class JDeployMcpServer {
             message.append(" --source . --push\n");
             message.append("   gh release create v1.0.0 --title \"v1.0.0\" --notes \"Initial release\"\n");
             message.append("   ```\n\n");
+            message.append("   > **Important:** Use `gh release create` to create the release — do NOT push tags manually with `git tag`/`git push --tags`, as this triggers the GitHub Action before a release exists, resulting in a draft release that jDeploy cannot update with download links.\n\n");
             message.append("   The jDeploy GitHub Action will automatically build installers for the release.\n");
             message.append("   View the action run at: https://github.com/").append(githubRepository).append("/actions\n");
         } else {
-            message.append("3. **Publish via GitHub** (recommended):\n");
+            message.append("3. **Publish via GitHub** (recommended):\n\n");
+            message.append("   **Prerequisite:** Ensure your `gh` CLI has the `workflow` scope (needed to push GitHub Actions workflow files):\n");
+            message.append("   ```\n");
+            message.append("   gh auth refresh -h github.com -s workflow\n");
+            message.append("   ```\n\n");
+            message.append("   Then:\n");
             message.append("   - Initialize git: `cd ").append(projectDir.getAbsolutePath()).append(" && git init && git add . && git commit -m \"Initial commit\"`\n");
             message.append("   - Create a GitHub repo: `gh repo create <owner/repo-name> --public --source . --push`\n");
-            message.append("   - Create a release: `gh release create v1.0.0 --title \"v1.0.0\" --notes \"Initial release\"`\n");
+            message.append("   - Create a release: `gh release create v1.0.0 --title \"v1.0.0\" --notes \"Initial release\"`\n\n");
+            message.append("   > **Important:** Use `gh release create` to create the release — do NOT push tags manually with `git tag`/`git push --tags`, as this triggers the GitHub Action before a release exists, resulting in a draft release that jDeploy cannot update with download links.\n\n");
             message.append("   - The jDeploy GitHub Action will automatically build installers for the release.\n");
         }
 
