@@ -5,6 +5,7 @@ import ca.weblite.jdeploy.app.di.JDeployDesktopGuiModule;
 import ca.weblite.jdeploy.app.records.ProjectTemplates;
 import ca.weblite.jdeploy.app.records.Template;
 import ca.weblite.jdeploy.app.repositories.ProjectTemplateRepositoryInterface;
+import ca.weblite.jdeploy.app.system.preferences.PreferencesInterface;
 import ca.weblite.jdeploy.builders.ProjectGeneratorRequestBuilder;
 import ca.weblite.jdeploy.services.ProjectGenerator;
 import ca.weblite.jdeploy.services.ProjectInitializer;
@@ -44,6 +45,7 @@ public class JDeployMcpServer {
 
     private static final String SERVER_NAME = "jdeploy";
     private static final String SERVER_VERSION = "1.0.0";
+    private static final String MCP_TOOLS_ENABLED_KEY = "mcpToolsEnabled";
 
     private static final String TOOL_NAME = "setup_jdeploy";
     private static final String TOOL_DESCRIPTION =
@@ -79,10 +81,15 @@ public class JDeployMcpServer {
                 .build())
             .build();
 
-        // Register tools
-        server.addTool(createSetupTool());
-        server.addTool(createListTemplatesTool());
-        server.addTool(createNewProjectTool());
+        // Register tools only if MCP tools are enabled in preferences
+        PreferencesInterface preferences = DIContext.get(PreferencesInterface.class);
+        boolean mcpToolsEnabled = "true".equals(preferences.get(MCP_TOOLS_ENABLED_KEY, "true"));
+
+        if (mcpToolsEnabled) {
+            server.addTool(createSetupTool());
+            server.addTool(createListTemplatesTool());
+            server.addTool(createNewProjectTool());
+        }
 
         // Keep the server running
         // The transport provider handles the stdio communication

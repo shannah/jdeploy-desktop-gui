@@ -6,6 +6,7 @@ import ca.weblite.jdeploy.app.forms.AboutDialog
 import ca.weblite.jdeploy.app.forms.MainMenuForm
 import ca.weblite.jdeploy.app.records.Project
 import ca.weblite.jdeploy.app.services.Edt
+import ca.weblite.jdeploy.app.services.PreferencesService
 import ca.weblite.jdeploy.app.services.ProjectService
 import ca.weblite.jdeploy.app.swing.ResponsiveImagePanel
 import ca.weblite.jdeploy.app.views.mainMenu.ProjectListCellRenderer
@@ -25,6 +26,12 @@ import javax.swing.event.ListSelectionEvent
 class MainMenuViewController : JFrameViewController() {
     private val projectService: ProjectService = DIContext.get(ProjectService::class.java)
     private val controllerFactory: ControllerFactory = DIContext.get(ControllerFactory::class.java)
+    private val preferencesService: PreferencesService = DIContext.get(PreferencesService::class.java)
+
+    companion object {
+        const val MCP_TOOLS_ENABLED_KEY = "mcpToolsEnabled"
+    }
+
     override fun initUI(): JComponent {
         val edt = DIContext.get(Edt::class.java)
 
@@ -106,6 +113,18 @@ class MainMenuViewController : JFrameViewController() {
             ),
             BorderLayout.CENTER
         )
+
+        // MCP tools checkbox - load from preferences (default: enabled)
+        val rootPrefs = preferencesService.rootPreferences
+        val mcpEnabled = rootPrefs.get(MCP_TOOLS_ENABLED_KEY, "true") == "true"
+        mainMenu.getMcpToolsCheckBox().isSelected = mcpEnabled
+        mainMenu.getMcpToolsCheckBox().addActionListener {
+            val enabled = mainMenu.getMcpToolsCheckBox().isSelected
+            rootPrefs.set(MCP_TOOLS_ENABLED_KEY, enabled.toString())
+            try {
+                rootPrefs.commit()
+            } catch (_: Exception) {}
+        }
 
         return mainMenu
         //return new TestForm().getMhPanel();
