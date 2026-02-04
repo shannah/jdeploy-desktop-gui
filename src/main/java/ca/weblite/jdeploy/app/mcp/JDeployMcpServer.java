@@ -10,6 +10,7 @@ import ca.weblite.jdeploy.builders.ProjectGeneratorRequestBuilder;
 import ca.weblite.jdeploy.services.ProjectGenerator;
 import ca.weblite.jdeploy.services.ProjectInitializer;
 import ca.weblite.jdeploy.services.ProjectTemplateCatalog;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.modelcontextprotocol.json.jackson.JacksonMcpJsonMapper;
 import io.modelcontextprotocol.server.McpServer;
@@ -49,11 +50,12 @@ public class JDeployMcpServer {
 
     private static final String TOOL_NAME = "setup_jdeploy";
     private static final String TOOL_DESCRIPTION =
-        "Configure a Java project for jDeploy deployment. " +
+        "Configure an existing Java project for jDeploy deployment. " +
+        "Use this for projects NOT created via new_project. " +
         "This creates the necessary package.json configuration and optionally generates GitHub workflow files for CI/CD. " +
         "If the project is already configured, it returns setup instructions without modifying existing files. " +
-        "After running this tool, follow the returned instructions to complete setup, then " +
-        "commit, push to GitHub, and create a GitHub release to trigger the jDeploy CI/CD workflow.";
+        "After running this tool, follow the returned instructions to complete setup, then use publish_release to publish. " +
+        "Workflow: setup_jdeploy -> build -> publish_release.";
 
     private static ProjectInitializer projectInitializer;
     private static ProjectGenerator projectGenerator;
@@ -89,6 +91,7 @@ public class JDeployMcpServer {
             server.addTool(createSetupTool());
             server.addTool(createListTemplatesTool());
             server.addTool(createNewProjectTool());
+            server.addTool(createPublishReleaseTool());
         }
 
         // Keep the server running
@@ -269,7 +272,8 @@ public class JDeployMcpServer {
                 "list_templates",
                 "List available jDeploy project templates with their names, descriptions, build tools, " +
                     "languages, UI toolkits, and categories. Call this before new_project to see available options. " +
-                    "Templates include pre-configured GitHub workflows for CI/CD publishing.",
+                    "Templates include pre-configured GitHub workflows for CI/CD publishing. " +
+                    "Workflow: list_templates -> new_project -> build -> publish_release.",
                 null, inputSchema, null, null, null
             ),
             (exchange, arguments) -> {
@@ -378,8 +382,11 @@ public class JDeployMcpServer {
                 "new_project",
                 "Create a new jDeploy project from a template with pre-configured build system and " +
                     "GitHub Actions workflow for CI/CD. Use list_templates first to see available templates. " +
-                    "After creation, build the project to verify, then push to GitHub and create a release " +
-                    "to trigger the jDeploy workflow which builds native installers.",
+                    "After creation, build the project, then use publish_release to publish. " +
+                    "The jDeploy workflow builds native installers for Windows, macOS, and Linux. " +
+                    "For MCP server projects, the installer automatically registers the server with " +
+                    "detected AI tools (Claude Desktop, Claude Code, VS Code, Cursor, Windsurf, etc.). " +
+                    "Workflow: list_templates -> new_project -> build -> publish_release.",
                 null, inputSchema, null, null, null
             ),
             (exchange, arguments) -> {
@@ -434,7 +441,25 @@ public class JDeployMcpServer {
             builder.setMainClassName(mainClassName);
         }
 
-        File projectDir = projectGenerator.generate(builder.build());
+        // Attempt project generation. If GitHub operations fail (e.g. auth issues),
+        // the project files may still have been created on disk. Handle gracefully.
+        File projectDir;
+        boolean githubOperationFailed = false;
+        String githubErrorDetail = null;
+
+        try {
+            projectDir = projectGenerator.generate(builder.build());
+        } catch (Exception e) {
+            // Check if project files were created on disk despite the error
+            File candidateDir = new File(parentDirectory, projectName);
+            if (candidateDir.exists() && new File(candidateDir, "package.json").exists()) {
+                projectDir = candidateDir;
+                githubOperationFailed = true;
+                githubErrorDetail = e.getMessage();
+            } else {
+                throw e; // Project wasn't created at all — re-throw
+            }
+        }
 
         // Detect build tool from generated project
         boolean isMaven = new File(projectDir, "pom.xml").exists();
@@ -445,8 +470,19 @@ public class JDeployMcpServer {
                 ? (hasWrapper ? "./mvnw package" : "mvn clean package")
                 : "./gradlew build";
 
+        // Detect if this is an MCP server project
+        boolean isMcpProject = detectMcpProject(projectDir);
+
         StringBuilder message = new StringBuilder();
-        message.append("Project created successfully at: ").append(projectDir.getAbsolutePath()).append("\n\n");
+
+        if (githubOperationFailed) {
+            message.append("Project files created successfully at: ").append(projectDir.getAbsolutePath()).append("\n\n");
+            message.append("> **Note:** GitHub repository creation was skipped (").append(githubErrorDetail).append("). ");
+            message.append("This is expected when running via an AI agent. ");
+            message.append("Use the `gh` CLI commands below to create the repository and publish.\n\n");
+        } else {
+            message.append("Project created successfully at: ").append(projectDir.getAbsolutePath()).append("\n\n");
+        }
 
         message.append("## Next Steps\n\n");
         message.append("1. **Build the project** to verify it compiles:\n");
@@ -457,48 +493,86 @@ public class JDeployMcpServer {
 
         message.append("2. **Verify the JAR** was created and matches the path in `package.json`.\n\n");
 
+        message.append("3. **Publish via GitHub** using the `gh` CLI:\n\n");
+        message.append("   **Prerequisite:** Ensure your `gh` CLI has the `workflow` scope (needed to push GitHub Actions workflow files):\n");
+        message.append("   ```\n");
+        message.append("   gh auth refresh -h github.com -s workflow\n");
+        message.append("   ```\n\n");
+        message.append("   Then run:\n");
+        message.append("   ```\n");
+        message.append("   cd ").append(projectDir.getAbsolutePath()).append("\n");
+        message.append("   git init\n");
+        message.append("   git add .\n");
+        message.append("   git commit -m \"Initial commit\"\n");
+
         if (githubRepository != null && !githubRepository.isEmpty()) {
-            message.append("3. **Push to GitHub** and create a release to publish:\n\n");
-            message.append("   **Prerequisite:** Ensure your `gh` CLI has the `workflow` scope (needed to push GitHub Actions workflow files):\n");
-            message.append("   ```\n");
-            message.append("   gh auth refresh -h github.com -s workflow\n");
-            message.append("   ```\n\n");
-            message.append("   Then run:\n");
-            message.append("   ```\n");
-            message.append("   cd ").append(projectDir.getAbsolutePath()).append("\n");
-            message.append("   git init\n");
-            message.append("   git add .\n");
-            message.append("   git commit -m \"Initial commit\"\n");
             message.append("   gh repo create ").append(githubRepository);
-            if (privateRepository) {
-                message.append(" --private");
-            } else {
-                message.append(" --public");
-            }
+            message.append(privateRepository ? " --private" : " --public");
             message.append(" --source . --push\n");
-            message.append("   gh release create v1.0.0 --title \"v1.0.0\" --notes \"Initial release\"\n");
-            message.append("   ```\n\n");
-            message.append("   > **Important:** Use `gh release create` to create the release — do NOT push tags manually with `git tag`/`git push --tags`, as this triggers the GitHub Action before a release exists, resulting in a draft release that jDeploy cannot update with download links.\n\n");
-            message.append("   The jDeploy GitHub Action will automatically build installers for the release.\n");
-            message.append("   View the action run at: https://github.com/").append(githubRepository).append("/actions\n");
         } else {
-            message.append("3. **Publish via GitHub** (recommended):\n\n");
-            message.append("   **Prerequisite:** Ensure your `gh` CLI has the `workflow` scope (needed to push GitHub Actions workflow files):\n");
-            message.append("   ```\n");
-            message.append("   gh auth refresh -h github.com -s workflow\n");
-            message.append("   ```\n\n");
-            message.append("   Then:\n");
-            message.append("   - Initialize git: `cd ").append(projectDir.getAbsolutePath()).append(" && git init && git add . && git commit -m \"Initial commit\"`\n");
-            message.append("   - Create a GitHub repo: `gh repo create <owner/repo-name> --public --source . --push`\n");
-            message.append("   - Create a release: `gh release create v1.0.0 --title \"v1.0.0\" --notes \"Initial release\"`\n\n");
-            message.append("   > **Important:** Use `gh release create` to create the release — do NOT push tags manually with `git tag`/`git push --tags`, as this triggers the GitHub Action before a release exists, resulting in a draft release that jDeploy cannot update with download links.\n\n");
-            message.append("   - The jDeploy GitHub Action will automatically build installers for the release.\n");
+            message.append("   gh repo create <owner/repo-name> --public --source . --push\n");
+        }
+
+        message.append("   gh release create v1.0.0 --title \"v1.0.0\" --notes \"Initial release\"\n");
+        message.append("   ```\n\n");
+
+        message.append("   > **Important:** Use `gh release create` to create the release — do NOT push tags manually ");
+        message.append("with `git tag`/`git push --tags`, as this triggers the GitHub Action before a release exists, ");
+        message.append("resulting in a draft release that jDeploy cannot update with download links.\n\n");
+
+        if (githubRepository != null && !githubRepository.isEmpty()) {
+            message.append("   Monitor the workflow: https://github.com/").append(githubRepository).append("/actions\n\n");
+        }
+
+        // Proposal 3b: Include end-user installation instructions
+        message.append("## How Users Install This App\n\n");
+        message.append("After the GitHub Action completes, native installers (Windows .exe, macOS .dmg, Linux packages) ");
+        message.append("will be available on the GitHub release page.\n\n");
+
+        if (isMcpProject) {
+            message.append("### MCP Server Auto-Registration\n\n");
+            message.append("Because this is an MCP server project, the jDeploy installer automatically detects AI tools ");
+            message.append("on the user's system and offers to register the MCP server with them during installation.\n\n");
+            message.append("**Supported AI tools:** Claude Desktop, Claude Code, VS Code (Copilot), Cursor, Windsurf, ");
+            message.append("Gemini CLI, Codex CLI, OpenCode, and others.\n\n");
+            message.append("Users simply download the installer from the release page and run it — no manual MCP ");
+            message.append("configuration needed.\n\n");
+        }
+
+        if (githubRepository != null && !githubRepository.isEmpty()) {
+            message.append("**Download page:** https://github.com/").append(githubRepository).append("/releases/latest\n");
+        } else {
+            message.append("**Download page:** `https://github.com/<owner>/<repo>/releases/latest`\n");
         }
 
         return CallToolResult.builder()
             .content(List.of(new TextContent(message.toString())))
             .isError(false)
             .build();
+    }
+
+    /**
+     * Detect if a project is an MCP server by checking package.json for ai.mcp config
+     * or checking source files for MCP annotations/imports.
+     */
+    private static boolean detectMcpProject(File projectDir) {
+        // Check package.json for ai.mcp configuration
+        File packageJson = new File(projectDir, "package.json");
+        if (packageJson.exists()) {
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                JsonNode root = mapper.readTree(packageJson);
+                JsonNode jdeploy = root.get("jdeploy");
+                if (jdeploy != null && jdeploy.has("ai")) {
+                    JsonNode ai = jdeploy.get("ai");
+                    if (ai != null && ai.has("mcp")) {
+                        return true;
+                    }
+                }
+            } catch (IOException ignored) {
+            }
+        }
+        return false;
     }
 
     private static String getDefaultInstructions() {
@@ -511,5 +585,266 @@ public class JDeployMcpServer {
             4. **Add Icon**: Place an `icon.png` (256x256 or larger) in the project root.
             5. **Test Build**: Run `npx jdeploy build` to verify the configuration.
             """;
+    }
+
+    // ---- publish_release tool ----
+
+    private static McpServerFeatures.SyncToolSpecification createPublishReleaseTool() {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("projectDirectory", Map.of(
+            "type", "string",
+            "description", "Absolute path to the jDeploy project directory containing package.json."
+        ));
+        properties.put("version", Map.of(
+            "type", "string",
+            "description", "Version tag for the release (e.g. v1.0.0). Defaults to 'v' + version from package.json."
+        ));
+        properties.put("title", Map.of(
+            "type", "string",
+            "description", "Release title. Defaults to the version tag."
+        ));
+        properties.put("notes", Map.of(
+            "type", "string",
+            "description", "Release notes text. Defaults to 'Release <version>'."
+        ));
+
+        JsonSchema inputSchema = new JsonSchema(
+            "object",
+            properties,
+            List.of("projectDirectory"),
+            false,
+            null,
+            null
+        );
+
+        return new McpServerFeatures.SyncToolSpecification(
+            new Tool(
+                "publish_release",
+                "Generate the shell commands needed to publish a jDeploy project as a GitHub Release. " +
+                    "This tool inspects the project state (git status, build artifacts, package.json) and " +
+                    "returns the exact sequence of commands to run. It does NOT execute the commands itself — " +
+                    "the AI agent should run them. The jDeploy GitHub Action will then build native installers " +
+                    "for Windows, macOS, and Linux and attach them to the release. " +
+                    "For MCP server projects, the installer automatically registers the server with detected " +
+                    "AI tools (Claude Desktop, Claude Code, VS Code, Cursor, etc.). " +
+                    "Use this after new_project or setup_jdeploy.",
+                null, inputSchema, null, null, null
+            ),
+            (exchange, arguments) -> {
+                try {
+                    return handlePublishRelease(arguments);
+                } catch (Exception e) {
+                    return CallToolResult.builder()
+                        .content(List.of(new TextContent("Error preparing publish commands: " + e.getMessage())))
+                        .isError(true)
+                        .build();
+                }
+            }
+        );
+    }
+
+    private static CallToolResult handlePublishRelease(Map<String, Object> arguments) throws Exception {
+        String projectDirectory = (String) arguments.get("projectDirectory");
+        File projectDir = new File(projectDirectory);
+
+        // Validate project directory
+        File packageJsonFile = new File(projectDir, "package.json");
+        if (!packageJsonFile.exists()) {
+            return CallToolResult.builder()
+                .content(List.of(new TextContent(
+                    "Error: No package.json found at " + projectDir.getAbsolutePath() + ".\n" +
+                    "Run setup_jdeploy or new_project first to configure the project.")))
+                .isError(true)
+                .build();
+        }
+
+        // Parse package.json
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode root = mapper.readTree(packageJsonFile);
+        JsonNode jdeployNode = root.get("jdeploy");
+
+        if (jdeployNode == null) {
+            return CallToolResult.builder()
+                .content(List.of(new TextContent(
+                    "Error: package.json does not contain a 'jdeploy' configuration section.\n" +
+                    "Run setup_jdeploy to configure the project.")))
+                .isError(true)
+                .build();
+        }
+
+        // Read version from arguments or package.json
+        String packageVersion = root.has("version") ? root.get("version").asText() : "1.0.0";
+        String version = (String) arguments.getOrDefault("version", null);
+        if (version == null || version.isEmpty()) {
+            version = "v" + packageVersion;
+        }
+        if (!version.startsWith("v")) {
+            version = "v" + version;
+        }
+
+        String title = (String) arguments.getOrDefault("title", null);
+        if (title == null || title.isEmpty()) {
+            title = version;
+        }
+        String notes = (String) arguments.getOrDefault("notes", null);
+        if (notes == null || notes.isEmpty()) {
+            notes = "Release " + version;
+        }
+
+        // Read JAR path and check if it exists
+        String jarPath = jdeployNode.has("jar") ? jdeployNode.get("jar").asText() : null;
+        boolean jarExists = jarPath != null && new File(projectDir, jarPath).exists();
+
+        // Read repository from package.json
+        String repository = root.has("repository") ? root.get("repository").asText() : null;
+        // Also check jdeploy.github.repository
+        if (repository == null || repository.isEmpty()) {
+            JsonNode githubNode = jdeployNode.get("github");
+            if (githubNode != null && githubNode.has("repository")) {
+                repository = githubNode.get("repository").asText();
+            }
+        }
+        // Strip URL prefix if present
+        if (repository != null && repository.startsWith("https://github.com/")) {
+            repository = repository.replace("https://github.com/", "");
+        }
+
+        // Detect build tool
+        boolean isMaven = new File(projectDir, "pom.xml").exists();
+        boolean hasWrapper = isMaven
+                ? new File(projectDir, "mvnw").exists()
+                : new File(projectDir, "gradlew").exists();
+
+        // Detect build command from package.json or defaults
+        String buildCommand;
+        if (jdeployNode.has("buildCommand")) {
+            JsonNode buildCmd = jdeployNode.get("buildCommand");
+            if (buildCmd.isArray()) {
+                StringBuilder sb = new StringBuilder();
+                for (JsonNode arg : buildCmd) {
+                    if (sb.length() > 0) sb.append(" ");
+                    sb.append(arg.asText());
+                }
+                buildCommand = sb.toString();
+            } else {
+                buildCommand = buildCmd.asText();
+            }
+        } else if (isMaven) {
+            buildCommand = hasWrapper ? "./mvnw package" : "mvn clean package";
+        } else {
+            buildCommand = hasWrapper ? "./gradlew build" : "gradle build";
+        }
+
+        // Check git state
+        boolean hasGitRepo = new File(projectDir, ".git").exists();
+        boolean isMcpProject = detectMcpProject(projectDir);
+
+        // Build the response with commands
+        StringBuilder message = new StringBuilder();
+        message.append("## Publish Release ").append(version).append("\n\n");
+        message.append("Run the following commands in order from the project directory:\n");
+        message.append("```\n");
+        message.append("cd ").append(projectDir.getAbsolutePath()).append("\n");
+        message.append("```\n\n");
+
+        int step = 1;
+
+        // Step: Build (always include, even if JAR exists, to ensure latest)
+        message.append("### Step ").append(step++).append(": Build the project\n");
+        message.append("```\n");
+        message.append(buildCommand).append("\n");
+        message.append("```\n");
+        if (!jarExists && jarPath != null) {
+            message.append("> **Warning:** The JAR at `").append(jarPath).append("` does not exist yet. ");
+            message.append("This build step is required before publishing.\n");
+        }
+        message.append("\n");
+
+        // Step: Git init (if needed)
+        if (!hasGitRepo) {
+            message.append("### Step ").append(step++).append(": Initialize git repository\n");
+            message.append("```\n");
+            message.append("git init\n");
+            message.append("git add -A\n");
+            message.append("git commit -m \"Initial commit\"\n");
+            message.append("```\n\n");
+        } else {
+            // Commit any pending changes
+            message.append("### Step ").append(step++).append(": Commit any pending changes\n");
+            message.append("```\n");
+            message.append("git add -A\n");
+            message.append("git commit -m \"Release ").append(version).append("\" --allow-empty\n");
+            message.append("```\n\n");
+        }
+
+        // Step: Create GitHub repo (if no remote detected)
+        if (!hasGitRepo) {
+            message.append("### Step ").append(step++).append(": Create GitHub repository and push\n");
+            message.append("Ensure the `gh` CLI has the `workflow` scope:\n");
+            message.append("```\n");
+            message.append("gh auth refresh -h github.com -s workflow\n");
+            message.append("```\n");
+            message.append("Then create the repo:\n");
+            message.append("```\n");
+            if (repository != null && !repository.isEmpty()) {
+                message.append("gh repo create ").append(repository).append(" --public --source . --push\n");
+            } else {
+                message.append("gh repo create <owner/repo-name> --public --source . --push\n");
+            }
+            message.append("```\n\n");
+        } else {
+            message.append("### Step ").append(step++).append(": Push to remote\n");
+            message.append("```\n");
+            message.append("git push\n");
+            message.append("```\n\n");
+        }
+
+        // Step: Create release
+        message.append("### Step ").append(step++).append(": Create GitHub Release\n");
+        message.append("```\n");
+        message.append("gh release create ").append(version);
+        message.append(" --title \"").append(title).append("\"");
+        message.append(" --notes \"").append(notes.replace("\"", "\\\"")).append("\"");
+        message.append("\n");
+        message.append("```\n\n");
+
+        message.append("> **Important:** Use `gh release create` — do NOT push tags manually with ");
+        message.append("`git tag`/`git push --tags`. The `gh release create` command creates a proper ");
+        message.append("GitHub Release, which triggers the jDeploy GitHub Action. Pushing a tag alone ");
+        message.append("results in a draft release that jDeploy cannot attach download links to.\n\n");
+
+        // What happens next
+        message.append("## What Happens Next\n\n");
+        message.append("The jDeploy GitHub Action will:\n");
+        message.append("1. Build the project\n");
+        message.append("2. Create native installers for Windows (.exe), macOS (.dmg), and Linux (.deb)\n");
+        message.append("3. Attach the installers to the GitHub Release as downloadable assets\n\n");
+
+        if (repository != null && !repository.isEmpty()) {
+            message.append("**Monitor the workflow:** https://github.com/").append(repository).append("/actions\n\n");
+            message.append("**Release page:** https://github.com/").append(repository).append("/releases/tag/").append(version).append("\n\n");
+        }
+
+        // Installation info for end users
+        message.append("## How Users Install This App\n\n");
+        message.append("Users download the installer for their platform from the GitHub release page and run it.\n\n");
+
+        if (isMcpProject) {
+            message.append("### MCP Server Auto-Registration\n\n");
+            message.append("Because this is an MCP server project, the jDeploy installer automatically detects AI tools ");
+            message.append("on the user's system and offers to register the MCP server with them during installation.\n\n");
+            message.append("**Supported AI tools:** Claude Desktop, Claude Code, VS Code (Copilot), Cursor, Windsurf, ");
+            message.append("Gemini CLI, Codex CLI, OpenCode, and others.\n\n");
+            message.append("Users simply download the installer and run it — no manual MCP configuration needed.\n\n");
+        }
+
+        if (repository != null && !repository.isEmpty()) {
+            message.append("**Download page:** https://github.com/").append(repository).append("/releases/latest\n");
+        }
+
+        return CallToolResult.builder()
+            .content(List.of(new TextContent(message.toString())))
+            .isError(false)
+            .build();
     }
 }
