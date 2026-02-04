@@ -16,6 +16,7 @@ import java.awt.Dimension
 import javax.swing.BorderFactory
 import javax.swing.BoxLayout
 import javax.swing.JButton
+import javax.swing.JCheckBox
 import javax.swing.JList
 import javax.swing.JPanel
 
@@ -55,6 +56,7 @@ class MainMenuForm(): JPanel() {
     private var createProjectButton: JButton? = null
     private var heroGraphicWrapper: JPanel? = null
     private var searchField: JXSearchField? = null
+    private var mcpToolsCheckBox: JCheckBox? = null
 
     fun getSearchField(): JXSearchField {
         return searchField!!
@@ -81,6 +83,10 @@ class MainMenuForm(): JPanel() {
 
     fun getHeroGraphicWrapper(): JPanel {
         return heroGraphicWrapper!!
+    }
+
+    fun getMcpToolsCheckBox(): JCheckBox {
+        return mcpToolsCheckBox!!
     }
 
     init {
@@ -141,6 +147,15 @@ class MainMenuForm(): JPanel() {
                         createProjectButton = this
                         toolTipText = "Create a new Java project that is configured to use jDeploy"
                         icon = FontIcon.of(Material.CREATE, 24, Color.BLACK)
+                    }
+                    panel {
+                        border = BorderFactory.createEmptyBorder(20, 10, 5, 10)
+                        layout = BoxLayout(this, BoxLayout.X_AXIS)
+                        mcpToolsCheckBox = checkBox {
+                            text = "Enable MCP Tools"
+                            toolTipText = "Enable jDeploy tools for AI coding assistants (Claude Code, Cursor, etc.) via the Model Context Protocol. Disable to hide tools from MCP clients."
+                            alignmentX = 0.5f
+                        }
                     }
                 }
             }
