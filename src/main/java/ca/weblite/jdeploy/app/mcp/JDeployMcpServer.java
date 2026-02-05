@@ -350,15 +350,6 @@ public class JDeployMcpServer {
             "type", "string",
             "description", "Maven artifact ID."
         ));
-        properties.put("githubRepository", Map.of(
-            "type", "string",
-            "description", "Optional GitHub repository in owner/repo format for CI/CD integration."
-        ));
-        properties.put("privateRepository", Map.of(
-            "type", "boolean",
-            "description", "Whether the GitHub repository is private. Defaults to false.",
-            "default", false
-        ));
         properties.put("packageName", Map.of(
             "type", "string",
             "description", "Java package name. Optional, derived from groupId and artifactId if not set."
@@ -410,11 +401,6 @@ public class JDeployMcpServer {
         String groupId = (String) arguments.get("groupId");
         String artifactId = (String) arguments.get("artifactId");
 
-        String githubRepository = (String) arguments.getOrDefault("githubRepository", null);
-        Object privateRepoParam = arguments.getOrDefault("privateRepository", false);
-        boolean privateRepository = privateRepoParam instanceof Boolean
-            ? (Boolean) privateRepoParam
-            : Boolean.parseBoolean(String.valueOf(privateRepoParam));
         String packageName = (String) arguments.getOrDefault("packageName", null);
         String mainClassName = (String) arguments.getOrDefault("mainClassName", null);
 
@@ -430,10 +416,6 @@ public class JDeployMcpServer {
         builder.setGroupId(groupId);
         builder.setArtifactId(artifactId);
 
-        if (githubRepository != null) {
-            builder.setGithubRepository(githubRepository);
-            builder.setPrivateRepository(privateRepository);
-        }
         if (packageName != null) {
             builder.setPackageName(packageName);
         }
@@ -441,25 +423,7 @@ public class JDeployMcpServer {
             builder.setMainClassName(mainClassName);
         }
 
-        // Attempt project generation. If GitHub operations fail (e.g. auth issues),
-        // the project files may still have been created on disk. Handle gracefully.
-        File projectDir;
-        boolean githubOperationFailed = false;
-        String githubErrorDetail = null;
-
-        try {
-            projectDir = projectGenerator.generate(builder.build());
-        } catch (Exception e) {
-            // Check if project files were created on disk despite the error
-            File candidateDir = new File(parentDirectory, projectName);
-            if (candidateDir.exists() && new File(candidateDir, "package.json").exists()) {
-                projectDir = candidateDir;
-                githubOperationFailed = true;
-                githubErrorDetail = e.getMessage();
-            } else {
-                throw e; // Project wasn't created at all — re-throw
-            }
-        }
+        File projectDir = projectGenerator.generate(builder.build());
 
         // Detect build tool from generated project
         boolean isMaven = new File(projectDir, "pom.xml").exists();
@@ -474,15 +438,7 @@ public class JDeployMcpServer {
         boolean isMcpProject = detectMcpProject(projectDir);
 
         StringBuilder message = new StringBuilder();
-
-        if (githubOperationFailed) {
-            message.append("Project files created successfully at: ").append(projectDir.getAbsolutePath()).append("\n\n");
-            message.append("> **Note:** GitHub repository creation was skipped (").append(githubErrorDetail).append("). ");
-            message.append("This is expected when running via an AI agent. ");
-            message.append("Use the `gh` CLI commands below to create the repository and publish.\n\n");
-        } else {
-            message.append("Project created successfully at: ").append(projectDir.getAbsolutePath()).append("\n\n");
-        }
+        message.append("Project created successfully at: ").append(projectDir.getAbsolutePath()).append("\n\n");
 
         message.append("## Next Steps\n\n");
         message.append("1. **Build the project** to verify it compiles:\n");
@@ -493,7 +449,7 @@ public class JDeployMcpServer {
 
         message.append("2. **Verify the JAR** was created and matches the path in `package.json`.\n\n");
 
-        message.append("3. **Publish via GitHub** using the `gh` CLI:\n\n");
+        message.append("3. **Publish via GitHub** using the `publish_release` tool or the `gh` CLI:\n\n");
         message.append("   **Prerequisite:** Ensure your `gh` CLI has the `workflow` scope (needed to push GitHub Actions workflow files):\n");
         message.append("   ```\n");
         message.append("   gh auth refresh -h github.com -s workflow\n");
@@ -504,15 +460,7 @@ public class JDeployMcpServer {
         message.append("   git init\n");
         message.append("   git add .\n");
         message.append("   git commit -m \"Initial commit\"\n");
-
-        if (githubRepository != null && !githubRepository.isEmpty()) {
-            message.append("   gh repo create ").append(githubRepository);
-            message.append(privateRepository ? " --private" : " --public");
-            message.append(" --source . --push\n");
-        } else {
-            message.append("   gh repo create <owner/repo-name> --public --source . --push\n");
-        }
-
+        message.append("   gh repo create <owner/repo-name> --public --source . --push\n");
         message.append("   gh release create v1.0.0 --title \"v1.0.0\" --notes \"Initial release\"\n");
         message.append("   ```\n\n");
 
@@ -520,11 +468,14 @@ public class JDeployMcpServer {
         message.append("with `git tag`/`git push --tags`, as this triggers the GitHub Action before a release exists, ");
         message.append("resulting in a draft release that jDeploy cannot update with download links.\n\n");
 
-        if (githubRepository != null && !githubRepository.isEmpty()) {
-            message.append("   Monitor the workflow: https://github.com/").append(githubRepository).append("/actions\n\n");
-        }
+        message.append("   > **Private repositories:** Private repo publishing requires additional setup. ");
+        message.append("Create a separate public `<repo>-releases` repository to host the release assets, ");
+        message.append("generate a GitHub personal access token with `repo` scope, and add it as a secret named ");
+        message.append("`JDEPLOY_RELEASES_TOKEN` on the main repository. Then update `.github/workflows/jdeploy.yml` ");
+        message.append("to use `${{ secrets.JDEPLOY_RELEASES_TOKEN }}` instead of `${{ secrets.GITHUB_TOKEN }}` ");
+        message.append("and add `target_repository: '<owner>/<repo>-releases'` to the jDeploy action step.\n\n");
 
-        // Proposal 3b: Include end-user installation instructions
+        // Include end-user installation instructions
         message.append("## How Users Install This App\n\n");
         message.append("After the GitHub Action completes, native installers (Windows .exe, macOS .dmg, Linux packages) ");
         message.append("will be available on the GitHub release page.\n\n");
@@ -539,11 +490,7 @@ public class JDeployMcpServer {
             message.append("configuration needed.\n\n");
         }
 
-        if (githubRepository != null && !githubRepository.isEmpty()) {
-            message.append("**Download page:** https://github.com/").append(githubRepository).append("/releases/latest\n");
-        } else {
-            message.append("**Download page:** `https://github.com/<owner>/<repo>/releases/latest`\n");
-        }
+        message.append("**Download page:** `https://github.com/<owner>/<repo>/releases/latest`\n");
 
         return CallToolResult.builder()
             .content(List.of(new TextContent(message.toString())))
