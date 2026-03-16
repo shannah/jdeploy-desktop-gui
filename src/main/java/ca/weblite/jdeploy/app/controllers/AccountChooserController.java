@@ -59,6 +59,9 @@ public class AccountChooserController {
             case GITHUB:
                 dialog.getTitleLabel().setText("GitHub");
                 break;
+            case JDEPLOY_CLOUD:
+                dialog.getTitleLabel().setText("jDeploy Cloud");
+                break;
         }
 
         JButton newAccountButton = dialog.getAddAccountButton();
