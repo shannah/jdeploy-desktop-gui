@@ -1,6 +1,7 @@
 package ca.weblite.jdeploy.app.controllers;
 
 import ca.weblite.jdeploy.DIContext;
+import ca.weblite.jdeploy.app.accounts.AccountType;
 import ca.weblite.jdeploy.app.factories.ControllerFactory;
 import ca.weblite.jdeploy.app.forms.MainMenuForm;
 import ca.weblite.jdeploy.app.records.Project;
@@ -105,6 +106,25 @@ public class MainMenuViewController extends JFrameViewController {
     @Override
     protected void onBeforeShow() {
         getFrame().setTitle("jDeploy");
+        getFrame().setJMenuBar(buildMenuBar());
+    }
+
+    private JMenuBar buildMenuBar() {
+        JMenuBar menuBar = new JMenuBar();
+        JMenu accountsMenu = new JMenu("Accounts");
+
+        JMenuItem manageGitHub = new JMenuItem("Manage GitHub Accounts...");
+        manageGitHub.addActionListener(e ->
+                new AccountChooserController(getFrame(), AccountType.GITHUB).show());
+
+        JMenuItem manageNpm = new JMenuItem("Manage npm Accounts...");
+        manageNpm.addActionListener(e ->
+                new AccountChooserController(getFrame(), AccountType.NPM).show());
+
+        accountsMenu.add(manageGitHub);
+        accountsMenu.add(manageNpm);
+        menuBar.add(accountsMenu);
+        return menuBar;
     }
 
     private ListModel<Project> buildRecentProjectsModel() {

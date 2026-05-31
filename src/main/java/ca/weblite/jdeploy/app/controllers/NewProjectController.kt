@@ -3,17 +3,20 @@ package ca.weblite.jdeploy.app.controllers
 import ca.weblite.jdeploy.app.accounts.AccountInterface
 import ca.weblite.jdeploy.app.accounts.AccountType
 import ca.weblite.jdeploy.DIContext
+import ca.weblite.jdeploy.app.exceptions.GitHubAuthException
 import ca.weblite.jdeploy.app.exceptions.ValidationFailedException
 import ca.weblite.jdeploy.app.factories.ControllerFactory
 import ca.weblite.jdeploy.app.forms.NewProjectForm
 import ca.weblite.jdeploy.app.system.files.FileSystemUiInterface
 import ca.weblite.jdeploy.builders.ProjectGeneratorRequestBuilder
+import ca.weblite.jdeploy.services.GitHubUsernameService
 import ca.weblite.jdeploy.services.GithubTokenService
 import ca.weblite.jdeploy.services.ProjectGenerator
 import ca.weblite.jdeploy.services.ProjectTemplateCatalog
 import java.awt.FlowLayout
 import java.awt.Frame
 import java.io.File
+import java.io.IOException
 import java.util.concurrent.CompletableFuture
 import java.util.prefs.Preferences
 import javax.swing.*
@@ -26,6 +29,7 @@ class NewProjectController(
     private val templateCatalog: ProjectTemplateCatalog,
     private val controllerFactory: ControllerFactory,
     private val githubTokenService: GithubTokenService = DIContext.get(GithubTokenService::class.java),
+    private val gitHubUsernameService: GitHubUsernameService = DIContext.get(GitHubUsernameService::class.java),
 ) {
     private lateinit var dialog: NewProjectForm
 
@@ -186,11 +190,18 @@ class NewProjectController(
     }
 
     private fun requiresGithubLogin(): Boolean {
+        return isGitHubRepositoryRequested()
+    }
+
+    /**
+     * Whether project creation will create/push a GitHub repository and therefore
+     * needs valid GitHub credentials. This must mirror the condition in
+     * [createProject] that sets the github repository on the request.
+     */
+    private fun isGitHubRepositoryRequested(): Boolean {
         return dialog.gitHubReleasesRadioButton.isSelected
-                && (
-                dialog.createGithubReleasesRepositoryCheckBox.isSelected
-                        || dialog.createGithubRepositoryUrlCheckBox.isSelected
-                )
+                && dialog.createGithubRepositoryUrlCheckBox.isSelected
+                && dialog.githubRepositoryUrl.text.isNotEmpty()
     }
 
     private fun handleCreateProject() {
@@ -210,6 +221,9 @@ class NewProjectController(
         // Define the SwingWorker
         val worker = object : SwingWorker<File, File>() {
             override fun doInBackground(): File {
+                // Verify the GitHub credentials up front so we fail fast with a
+                // clear message instead of part way through generation with a 401.
+                validateGitHubTokenIfNeeded()
                 // Perform the long-running project creation task
                 val projectDirectory = createProject()
                 saveDefaultValues()
@@ -218,15 +232,19 @@ class NewProjectController(
             }
 
             override fun done() {
+                // Dispose of the progress dialog before handling the result so any
+                // follow-up dialogs (e.g. re-authentication) aren't blocked by it.
+                progressDialog.dispose()
                 try {
                     // Attempt to retrieve the result to check for exceptions
                     openProject(get())
                 } catch (e: Exception) {
-                    e.printStackTrace()
-                    controllerFactory.createErrorController(e).run()
-                } finally {
-                    // Dispose of the progress dialog
-                    progressDialog.dispose()
+                    if (isGitHubAuthError(e)) {
+                        promptReauthenticationAndRetry(e)
+                    } else {
+                        e.printStackTrace()
+                        controllerFactory.createErrorController(e).run()
+                    }
                 }
             }
         }
@@ -236,6 +254,104 @@ class NewProjectController(
 
         // Show the progress dialog (this will block the EDT if modal = true)
         progressDialog.isVisible = true
+    }
+
+    /**
+     * Validates that we have a working GitHub token before generating a project
+     * that needs one. Throws [GitHubAuthException] if no token is set or GitHub
+     * rejects it, so the create flow can prompt the user to (re-)authenticate.
+     */
+    @Throws(GitHubAuthException::class)
+    private fun validateGitHubTokenIfNeeded() {
+        if (!isGitHubRepositoryRequested()) {
+            return
+        }
+        val token = githubTokenService.token
+        if (token == null || token.isBlank()) {
+            throw GitHubAuthException("No GitHub account selected. Please choose or add a GitHub account.")
+        }
+        try {
+            gitHubUsernameService.gitHubUsername
+        } catch (e: IOException) {
+            throw GitHubAuthException(
+                "GitHub authentication failed. Your token may be invalid or expired.",
+                e
+            )
+        }
+    }
+
+    /**
+     * Detects whether the given throwable (or any of its causes) represents a
+     * GitHub authentication failure, including the raw 401 errors thrown by the
+     * jdeploy CLI before it had a dedicated auth exception type.
+     */
+    private fun isGitHubAuthError(throwable: Throwable?): Boolean {
+        var current = throwable
+        while (current != null) {
+            if (current is GitHubAuthException) {
+                return true
+            }
+            val message = current.message?.lowercase() ?: ""
+            if (message.contains("bad credentials")
+                || message.contains("response code: 401")
+                || message.contains("response code:401")
+                || message.contains("http 401")
+            ) {
+                return true
+            }
+            current = current.cause
+        }
+        return false
+    }
+
+    /**
+     * Clears the rejected token, prompts the user to pick or add a GitHub account
+     * with a valid token, then retries project creation. If the user cancels, the
+     * original error is surfaced.
+     */
+    private fun promptReauthenticationAndRetry(originalError: Throwable) {
+        // Clear the bad token so it isn't silently reused. setToken(null) would
+        // throw (Properties reject null values) so clear with an empty string.
+        githubTokenService.setToken("")
+        JOptionPane.showMessageDialog(
+            dialog,
+            "GitHub authentication failed (the credentials were rejected).\n" +
+                    "Please select or add a GitHub account with a valid personal access token.",
+            "GitHub Authentication Required",
+            JOptionPane.WARNING_MESSAGE
+        )
+        AccountChooserController(dialog, AccountType.GITHUB).show().thenAccept { account ->
+            SwingUtilities.invokeLater {
+                if (account != null && account.getAccessToken() != null) {
+                    githubTokenService.setToken(account.getAccessToken())
+                    // Remove the partially-created project from the failed attempt so
+                    // the retry doesn't trip the "directory already exists" check.
+                    cleanupPartialProject()
+                    handleCreateProject()
+                } else {
+                    controllerFactory.createErrorController(originalError).run()
+                }
+            }
+        }
+    }
+
+    /**
+     * Deletes the project directory (and its `-releases` sibling) left behind by a
+     * failed creation attempt, so the user can retry without a manual cleanup.
+     */
+    private fun cleanupPartialProject() {
+        try {
+            val projectDir = getProjectDirectory()
+            if (projectDir.exists()) {
+                projectDir.deleteRecursively()
+            }
+            val releasesDir = File(projectDir.parentFile, projectDir.name + "-releases")
+            if (releasesDir.exists()) {
+                releasesDir.deleteRecursively()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     @Throws(ValidationFailedException::class)
